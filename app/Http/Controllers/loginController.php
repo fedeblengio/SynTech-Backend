@@ -31,14 +31,14 @@ class loginController extends Controller
             'hosts' => ['192.168.1.73'],
         ]);
 
-        /* $datos = self::traerDatos($request); */
+        $datos = self::traerDatos($request); 
 
         $connection-> connect();
 
         if ($connection->auth()->attempt($request->username.'@syntech.intra', $request->password, $stayBound = true)) {
             return [
                 'connection' => 'Success',
-               /*  'datos' => $datos, */
+                 'datos' => $datos, 
                 'token' => $token
                  ];
         }else {
