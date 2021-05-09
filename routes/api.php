@@ -2,6 +2,9 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\User;
+use App\Http\Controllers;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -14,6 +17,17 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware('auth:api')->get('/user', function (Request $request) {
-    return $request->user();
+
+Route::post('/login','App\Http\Controllers\loginController@connect');
+
+
+Route::get('/test', function (){
+    return 'Hola';
 });
+
+Route::get('/usuarios','App\Http\Controllers\usuariosController@index');
+
+Route::get('/usuario','App\Http\Controllers\usuariosController@show');
+Route::post('/usuario','App\Http\Controllers\usuariosController@create');
+Route::delete('/usuario','App\Http\Controllers\usuariosController@destroy');
+Route::put('/usuario','App\Http\Controllers\usuariosController@update');
