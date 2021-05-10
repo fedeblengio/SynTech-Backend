@@ -95,7 +95,7 @@ class usuariosController extends Controller
      * @param  \App\Models\usuarios  $usuarios
      * @return \Illuminate\Http\Response
      */
-    public function show(usuarios $usuarios)
+    public function show(request $request)
     {
         $userDB = usuarios::where('username', $request->username)->first();
         return response()->json($userDB);
