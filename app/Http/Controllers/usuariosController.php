@@ -147,7 +147,7 @@ class usuariosController extends Controller
      * @param  \App\Models\usuarios  $usuarios
      * @return \Illuminate\Http\Response
      */
-    public function destroy(usuarios $usuarios)
+    public function destroy(request $request)
     {
         $user = User::find('cn='.$request->cn.',ou='.$request->ou.',dc=syntech,dc=intra');
     

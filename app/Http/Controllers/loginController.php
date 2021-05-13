@@ -1,13 +1,13 @@
 <?php
 
 namespace App\Http\Controllers;
-
+use App\Models\token;
 use App\Models\usuarios;
 use Illuminate\Http\Request;
 use LdapRecord\Models\ActiveDirectory\User;
 use Illuminate\Support\Str;
 use LdapRecord\Connection;
-
+use Carbon\Carbon;
 
 
 class loginController extends Controller
@@ -17,6 +17,7 @@ class loginController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
+  
 
     public function index()
     {
@@ -39,7 +40,6 @@ class loginController extends Controller
             return [
                 'connection' => 'Success',
                  'datos' => $datos, 
-                'token' => $token
                  ];
         }else {
             return response()->json(['error' => 'Unauthenticated.'], 401);
@@ -49,12 +49,20 @@ class loginController extends Controller
 
     public function traerDatos($request){
         $u = usuarios::where('username', $request->username)->first();
-       
+        $t = new token;
+        
         $datos=[
-            "username" => $u->nombre,
+            "username" => $u->username,
+            "nombre" => $u->nombre,
             "ou" => $u->ou
         ];
-        return $datos;
+        $base64data= base64_encode(json_encode($datos));
+
+        $t->token=$base64data;
+        $t->fecha_creacion=Carbon::now();
+        $t->save();
+        
+        return  $base64data;
     }
     /**
      * Show the form for creating a new resource.
