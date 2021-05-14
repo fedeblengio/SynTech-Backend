@@ -59,7 +59,7 @@ class loginController extends Controller
         $base64data= base64_encode(json_encode($datos));
 
         $t->token=$base64data;
-        $t->fecha_creacion=Carbon::now();
+        $t->fecha_vencimiento=Carbon::now()->addMinutes(60);
         $t->save();
         
         return  $base64data;

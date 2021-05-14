@@ -5,7 +5,6 @@ use Illuminate\Support\Facades\Route;
 use App\User;
 use App\Http\Controllers;
 use Carbon\Carbon;
-
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -31,25 +30,13 @@ Route::get('/test', function (){
     // JSON_decode() -> JSON , ARRAY 
     // base64_decode() -> pasa de base64 a STRINGS  ONLY
     // @DISCOVER BY FEFECAST base64_encode(json_encode($json));
-    $fecha1=Carbon::now();
-    $fecha2=Carbon::now()->addMinutes(-2);
-
-    if($fecha1->gt($fecha2)){
-
-        return "ES MAYOR";
-    }
-    else{
-
-        return "ES MENOR";
-
-    };
-
+ return "Estas en /test";
 });
 
 
 
-Route::get('/1', function (){
-    return  'hola';
+Route::get('/1', function (Request $request){
+    return  $request->token;
 })->middleware('verificar_token');
 
 

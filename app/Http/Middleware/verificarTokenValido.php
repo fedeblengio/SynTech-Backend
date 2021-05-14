@@ -1,28 +1,34 @@
 <?php
 
 namespace App\Http\Middleware;
-
+use Carbon\Carbon;
+use App\Models\token;
 use Closure;
 use Illuminate\Http\Request;
 
 class verificarTokenValido
 {
-    /**
-     * Handle an incoming request.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \Closure  $next
-     * @return mixed
-     */
     public function handle(Request $request, Closure $next)
     {
-        if ($request->input('token') !== 'my-secret-token') {
-           
-            return redirect('api/test');
-        }
+        try {
+
+        $t = token::where('token', $request->token)->first();
+        $fecha_actual = Carbon::now();
+        $fecha_vencimiento = Carbon::parse($t->fecha_vencimiento);
         
-    
-        return $next($request);
+
+        if($fecha_vencimiento->gt($fecha_actual)){
+            return $next($request);
+            
+         }else{
+            $t->delete();   
+            return response()->json(['error' => 'Forbidden.'], 403);
+         }
+        
+        } catch (\Throwable $th) {
+            return response()->json(['error' => 'Invalid Token'], 403);
+        }
+     
         
     }
 }
