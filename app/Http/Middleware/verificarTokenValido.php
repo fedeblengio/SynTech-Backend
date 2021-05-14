@@ -11,8 +11,8 @@ class verificarTokenValido
     public function handle(Request $request, Closure $next)
     {
         try {
-
-        $t = token::where('token', $request->token)->first();
+            
+        $t = token::where('token', $request->header('token'))->first();
         $fecha_actual = Carbon::now();
         $fecha_vencimiento = Carbon::parse($t->fecha_vencimiento);
         

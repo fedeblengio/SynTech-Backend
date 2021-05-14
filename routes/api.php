@@ -21,29 +21,18 @@ Route::post('/login','App\Http\Controllers\loginController@connect');
 
 
 Route::get('/test', function (){
-    
 
-    
-    // JSON_encode() -> JSON , ARRAY 
-    // base64_encode() -> pasa a base64 STRINGS ONLY
-
-    // JSON_decode() -> JSON , ARRAY 
-    // base64_decode() -> pasa de base64 a STRINGS  ONLY
-    // @DISCOVER BY FEFECAST base64_encode(json_encode($json));
  return "Estas en /test";
 });
 
 
 
-Route::get('/1', function (Request $request){
-    return  $request->token;
-})->middleware('verificar_token');
-
-
-
-
 Route::get('/usuarios','App\Http\Controllers\usuariosController@index');
 Route::get('/usuario','App\Http\Controllers\usuariosController@show');
-Route::post('/usuario','App\Http\Controllers\usuariosController@create');
-Route::delete('/usuario','App\Http\Controllers\usuariosController@destroy');
-Route::put('/usuario','App\Http\Controllers\usuariosController@update');
+
+Route::post('/usuario','App\Http\Controllers\usuariosController@create')->middleware('verificar_token');
+Route::delete('/usuario','App\Http\Controllers\usuariosController@destroy')->middleware('verificar_token');
+Route::put('/usuario','App\Http\Controllers\usuariosController@update')->middleware('verificar_token');
+
+
+Route::post('/usuariosintoken','App\Http\Controllers\usuariosController@create');
