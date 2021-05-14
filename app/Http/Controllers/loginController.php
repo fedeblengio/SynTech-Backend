@@ -21,7 +21,7 @@ class loginController extends Controller
 
     public function connect(Request $request)
     {
-        $token = Str::random(60);
+        
         $connection = new Connection([
             'hosts' => ['192.168.1.73'],
         ]);
