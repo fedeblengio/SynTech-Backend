@@ -1,0 +1,14 @@
+language: php
+
+php:
+  - 7.3
+
+os: linux
+services:
+  - docker
+before_script:
+  - cp .env.example .env
+  - composer install
+script:
+
+  - vendor/bin/phpunit

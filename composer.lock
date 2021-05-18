@@ -187,16 +187,16 @@
         },
         {
             "name": "directorytree/ldaprecord-laravel",
-            "version": "v2.3.0",
+            "version": "v2.3.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/DirectoryTree/LdapRecord-Laravel.git",
-                "reference": "0b439c57c778f736d31a450c47873b6b53ce5fbd"
+                "reference": "672d3d1ddb89c6ed08d8a217c5557117b97619cd"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/DirectoryTree/LdapRecord-Laravel/zipball/0b439c57c778f736d31a450c47873b6b53ce5fbd",
-                "reference": "0b439c57c778f736d31a450c47873b6b53ce5fbd",
+                "url": "https://api.github.com/repos/DirectoryTree/LdapRecord-Laravel/zipball/672d3d1ddb89c6ed08d8a217c5557117b97619cd",
+                "reference": "672d3d1ddb89c6ed08d8a217c5557117b97619cd",
                 "shasum": ""
             },
             "require": {
@@ -243,7 +243,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2021-05-10T01:07:25+00:00"
+            "time": "2021-05-17T01:42:01+00:00"
         },
         {
             "name": "doctrine/inflector",
