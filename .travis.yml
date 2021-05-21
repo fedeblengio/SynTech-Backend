@@ -7,6 +7,5 @@ services:
 before_script:
   - cp .env.example .env
   - composer install
-  - docker-compose up
 script:
   - vendor/bin/phpunit
