@@ -21,7 +21,7 @@ Ejecutar: # ```docker-compose up```
 
 - ```php artisan ldap:test```
 
-- cd /etc/ldap/
+- cd /etc/openldap/
 
 - sudo su
 - echo 'TLS_REQCERT never' > ldap.conf
