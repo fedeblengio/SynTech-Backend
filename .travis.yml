@@ -5,7 +5,7 @@ os: linux
 services:
   - docker
 before_script:
-  - cp .env.test .env
+  - cp .env.example .env
   - composer install
   - docker-compose up
 script:
