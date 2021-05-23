@@ -44,5 +44,5 @@ Ejecutar: # ```docker-compose up```
 
 - ```php artisan serve``` # EJECUTA SERVER
 
-prueba tstt
+prueba
 
