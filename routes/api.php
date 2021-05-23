@@ -26,7 +26,7 @@ Route::get('/test', function (){
 });
 
 
-
+//USUARIOS
 Route::get('/usuarios','App\Http\Controllers\usuariosController@index');
 Route::get('/usuario','App\Http\Controllers\usuariosController@show');
 
@@ -36,3 +36,11 @@ Route::put('/usuario','App\Http\Controllers\usuariosController@update')->middlew
 
 
 Route::post('/usuariosintoken','App\Http\Controllers\usuariosController@create');
+
+//GRUPOS
+Route::get('/grupos','App\Http\Controllers\gruposController@index');
+Route::get('/grupo','App\Http\Controllers\gruposController@show');
+
+Route::post('/grupo','App\Http\Controllers\gruposController@create');
+Route::delete('/grupo','App\Http\Controllers\gruposController@destroy');
+Route::put('/grupo','App\Http\Controllers\gruposController@update');
