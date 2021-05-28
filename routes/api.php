@@ -44,3 +44,10 @@ Route::get('/grupo','App\Http\Controllers\gruposController@show');
 Route::post('/grupo','App\Http\Controllers\gruposController@create');
 Route::delete('/grupo','App\Http\Controllers\gruposController@destroy');
 Route::put('/grupo','App\Http\Controllers\gruposController@update');
+
+//ALUMNOS 
+Route::get('/alumnos','App\Http\Controllers\agregarUsuarioGrupoController@listarAlumnos');
+
+Route::post('/alumno','App\Http\Controllers\agregarUsuarioGrupoController@store');
+
+
