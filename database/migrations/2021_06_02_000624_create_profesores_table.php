@@ -15,9 +15,9 @@ class CreateProfesoresTable extends Migration
     {
         Schema::create('profesores', function (Blueprint $table) {
 
-            $table->integer("idProfesor");
+            $table->integer('idProfesor');
             $table->string('Cedula_Profesor',8);
-            $table->primary(['Cedula_Profesor', 'idProfesor']);
+            $table->primary(['idProfesor', 'Cedula_Profesor']);
             $table->string("grado")->nullable();
             $table->timestamps();
         });

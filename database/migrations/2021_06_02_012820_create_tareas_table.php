@@ -14,12 +14,11 @@ class CreateTareasTable extends Migration
     public function up()
     {
         Schema::create('tareas', function (Blueprint $table) {
-            $table->integer('idTareas')->primary();
-            $table->timestamp('created_at')->useCurrent();
+            $table->id('idTareas');
             $table->string("descripcion");
             $table->string("fecha_vencimiento");
             $table->binary('archivo')->nullable();
-
+            $table->timestamp('created_at')->useCurrent();
         });
     }
 

@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class ProfesorDictaMateria extends Migration
+class CreateProfesorDictaMateriasTable extends Migration
 {
     /**
      * Run the migrations.
@@ -15,15 +15,15 @@ class ProfesorDictaMateria extends Migration
     {
         Schema::enableForeignKeyConstraints();
         Schema::create('profesor_dicta_materia', function (Blueprint $table) {
-            
-            $table->string('Cedula',8);
-           
             $table->unsignedBigInteger('idMateria')->primary();
             $table->integer('idProfesor');
+            $table->string('Cedula',8);
+           
+            
         
             $table->timestamps();
         });
-        Schema::table('alumnos_pertenecen_grupos', function(Blueprint $table) {
+        Schema::table('profesor_dicta_materia', function(Blueprint $table) {
             $table->foreign('Cedula')->references('Cedula_Profesor')->on('profesores');
             $table->foreign('idProfesor')->references('idProfesor')->on('profesores');
             $table->foreign('idMateria')->references('idMateria')->on('materias');
@@ -37,6 +37,6 @@ class ProfesorDictaMateria extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('alumnos_pertenecen_grupos');
+        Schema::dropIfExists('profesor_dicta_materia');
     }
 }
