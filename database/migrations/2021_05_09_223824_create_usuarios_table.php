@@ -11,17 +11,19 @@ class CreateUsuariosTable extends Migration
      *
      * @return void
      */
+    
+    
     public function up()
     {
         Schema::create('usuarios', function (Blueprint $table) {
-            $table->id();
-            $table->string('username');
+         
+            $table->string('username',8)->primary();
             $table->string('nombre');
             $table->string('email')->nullable();
             $table->string('ou');
             $table->timestamps();
             $table->softDeletes();
-            
+        
         });
     }
 

@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateMateriasTable extends Migration
+class Materias extends Migration
 {
     /**
      * Run the migrations.
@@ -14,11 +14,8 @@ class CreateMateriasTable extends Migration
     public function up()
     {
         Schema::create('materias', function (Blueprint $table) {
-            $table->id();
-            $table->string("idProfesor");
-            $table->string("idGrupo");
-            $table->string('idForo');
-            $table->string('materia');
+            $table->id("idMateria");
+            $table->string("nombre");
             $table->timestamps();
         });
     }

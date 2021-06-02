@@ -14,8 +14,7 @@ class CreateForosTable extends Migration
     public function up()
     {
         Schema::create('foros', function (Blueprint $table) {
-            $table->id();
-            $table->string("idForo");
+            $table->id("idForo");            
             $table->string("informacion")->nullable();
             $table->binary('data')->nullable();
 
