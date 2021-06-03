@@ -4,7 +4,8 @@ namespace App\Http\Controllers;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use App\Models\grupos;
-use App\Models\usuarioGrupos;
+use Carbon\Carbon;
+
 class gruposController extends Controller
 {
     public function index()
@@ -23,6 +24,7 @@ class gruposController extends Controller
             $gruposDB = new grupos;
             $gruposDB->idGrupo = $request->idGrupo;
             $gruposDB->nombreCompleto = $request->nombreCompleto;
+	    $gruposDB->anioElectivo=Carbon::now()->format('Y');
             $gruposDB->save();
 
             return response()->json(['status' => 'Success'], 200);
@@ -31,7 +33,7 @@ class gruposController extends Controller
 
     public function show(request $request)
     {
-        $AlumnosDeGrupo = DB::table('listar_alumnos_con_grupos')->where('idGrupo', $request->idGrupo)->get();
+        $AlumnosDeGrupo = DB::table('listar_alumnos_sin_grupos')->get();
         return response()->json($AlumnosDeGrupo);
     }
 

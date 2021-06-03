@@ -38,23 +38,23 @@ class usuariosController extends Controller
                 self::agregarUsuarioAD($request);
 
                 switch ($request->ou) {
+                    case "Bedelias":
+                        self::agregarUsuarioBedelias($request);
+                        break;
                     case "Alumno":
                         self::agregarUsuarioAlumno($request);
                         break;
                     case "Profesor":
                         self::agregarUsuarioProfesor($request);
                         break;
-                    case "Bedelias":
-                        self::agregarUsuarioBedelias($request);
-                        break;
+                    
                 }
 
-
-
-
                 return response()->json(['status' => 'Success'], 200);
+
             } catch (\Throwable $th) {
-                return response()->json(['status' => 'Error'], 400);
+              /*   return response()->json(['status' => 'Chupapimuñaño'], 400); */
+              return $th;
             }
 
 
@@ -88,8 +88,8 @@ class usuariosController extends Controller
     public function agregarUsuarioBedelias($request){
         $bedelias = new bedelias;
         $bedelias->Cedula_Bedelia = $request->samaccountname;
-        $bedelias->idBedelia = $request->samaccountname;
-        $profesores->cargo="7";
+        $bedelias->idBedelias = $request->samaccountname;
+        $bedelias->cargo="Administrador";
         $bedelias->save();
 
     }
