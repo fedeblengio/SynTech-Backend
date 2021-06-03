@@ -16,26 +16,24 @@ class agregarUsuarioGrupoController extends Controller
      */
     public function listarAlumnos()
     {
-        $alumnosSinGrupo=DB::table('usuarios')->leftJoin('usuario_grupos', 'idAlumno', '=', 'username')->where('idGrupo',null)->get();
-
-        return response()->json($alumnosSinGrupo);
-        
+        return response()->json(DB::table('listar_alumnos_sin_grupo')->get());
     }
 
-    
+
 
     /**
      * Store a newly created resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
-     */ 
+     */
     public function store(Request $request)
     {
         try {
             $agregarUserGrupo= new usuarioGrupos;
             $agregarUserGrupo->idGrupo = $request->idGrupo;
             $agregarUserGrupo->idAlumno = $request->idAlumno;
+            $agregarUserGrupo->Cedula = $request->idAlumno;
             $agregarUserGrupo->save();
             return response()->json(['status' => 'Success'], 200);
         } catch (\Throwable $th) {
@@ -43,7 +41,7 @@ class agregarUsuarioGrupoController extends Controller
         }
 
 
-        
+
     }
 
     /**
