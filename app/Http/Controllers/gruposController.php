@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use App\Models\grupos;
+use App\Models\alumnos_pertenecen_grupos;
 use Carbon\Carbon;
 
 class gruposController extends Controller
@@ -33,8 +34,8 @@ class gruposController extends Controller
 
     public function show(request $request)
     {
-        $AlumnosDeGrupo = DB::table('listar_alumnos_sin_grupos')->get();
-        return response()->json($AlumnosDeGrupo);
+        $listarAlumnosGrupo=alumnos_pertenecen_grupos::all()->where('idGrupo', $request->idGrupo);
+        return response()->json($listarAlumnosGrupo);
     }
 
     public function destroy(request $request)

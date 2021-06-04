@@ -16,16 +16,15 @@ class CreateAlumnosPertenecenGruposTable extends Migration
         Schema::enableForeignKeyConstraints();
         Schema::create('alumnos_pertenecen_grupos', function (Blueprint $table) {
             
-            $table->string('Cedula',8);
+           
            
             $table->string('idGrupo',10);
             $table->integer('idAlumnos');
             
-            $table->primary(['idAlumnos', 'Cedula']);
+            $table->primary('idAlumnos');
             $table->timestamps();
         });
         Schema::table('alumnos_pertenecen_grupos', function(Blueprint $table) {
-            $table->foreign('Cedula')->references('Cedula_Alumno')->on('alumnos');
             $table->foreign('idGrupo')->references('idGrupo')->on('grupos');
             $table->foreign('idAlumnos')->references('idAlumnos')->on('alumnos');
         }); 
