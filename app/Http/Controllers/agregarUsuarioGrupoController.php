@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Models\usuarios;
 use App\Models\grupos;
-use App\Models\usuarioGrupos;
+use App\Models\alumnos_pertenecen_grupos;
 class agregarUsuarioGrupoController extends Controller
 {
     /**
@@ -16,7 +16,8 @@ class agregarUsuarioGrupoController extends Controller
      */
     public function listarAlumnos()
     {
-        return response()->json(DB::table('listar_alumnos_sin_grupo')->get());
+        
+        return response()->json(DB::table('vista_alumnos_sin_grupo')->get());
     }
 
 
@@ -30,18 +31,14 @@ class agregarUsuarioGrupoController extends Controller
     public function store(Request $request)
     {
         try {
-            $agregarUserGrupo= new usuarioGrupos;
+            $agregarUserGrupo= new alumnos_pertenecen_grupos;
             $agregarUserGrupo->idGrupo = $request->idGrupo;
-            $agregarUserGrupo->idAlumno = $request->idAlumno;
-            $agregarUserGrupo->Cedula = $request->idAlumno;
+            $agregarUserGrupo->idAlumnos = $request->idAlumnos;
             $agregarUserGrupo->save();
             return response()->json(['status' => 'Success'], 200);
         } catch (\Throwable $th) {
             return response()->json(['status' => 'Bad Request'], 400);
         }
-
-
-
     }
 
     /**
@@ -50,12 +47,7 @@ class agregarUsuarioGrupoController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show(Request $request)
-    {
-        $listarAlumnosGrupo=grupos::where('idGrupo', $request->idGrupo);
-
-        return $listarAlumnosGrupo->idAlumno;
-    }
+  
 
     /**
      * Update the specified resource in storage.
