@@ -46,8 +46,18 @@ Route::delete('/grupo','App\Http\Controllers\gruposController@destroy');
 Route::put('/grupo','App\Http\Controllers\gruposController@update');
 
 //ALUMNOS 
-Route::get('/alumnos','App\Http\Controllers\agregarUsuarioGrupoController@listarAlumnos');
+Route::get('/alumnos','App\Http\Controllers\agregarUsuarioGrupoController@index');
 
 Route::post('/alumno','App\Http\Controllers\agregarUsuarioGrupoController@store');
 
 
+//MATERIAS 
+
+Route::get('/materias','App\Http\Controllers\agregarMateriaController@index');
+Route::get('/materia','App\Http\Controllers\agregarMateriaController@show');
+
+Route::post('/materia','App\Http\Controllers\agregarMateriaController@store');
+
+Route::put('/materia','App\Http\Controllers\agregarMateriaController@update');
+
+Route::delete('/materia','App\Http\Controllers\agregarMateriaController@destroy');

@@ -14,7 +14,7 @@ class agregarUsuarioGrupoController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function listarAlumnos()
+    public function index()
     {
         
         return response()->json(DB::table('vista_alumnos_sin_grupo')->get());

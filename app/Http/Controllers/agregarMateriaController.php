@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
+use App\Models\materia;
 
 class agregarMateriaController extends Controller
 {
@@ -13,7 +15,7 @@ class agregarMateriaController extends Controller
      */
     public function index()
     {
-        //
+        return response()->json(materia::all());
     }
 
     /**
@@ -24,8 +26,22 @@ class agregarMateriaController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $existeMateria = materia::where('nombre', $request->nombre)->first();
+        try {
+            if (!$existeMateria) {
+                $agregarMateria = new materia;
+                $agregarMateria->nombre = $request->nombre;
+                $agregarMateria->save();
+                return response()->json(['status' => 'Success'], 200);
+            } else {
+                return response()->json(['status' => 'Materia Existe'], 416);
+            }
+        } catch (\Throwable $th) {
+            return response()->json(['status' => 'Bad Request'], 400);
+        }
     }
+
+
 
     /**
      * Display the specified resource.
@@ -33,9 +49,9 @@ class agregarMateriaController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show(Request $request)
     {
-        //
+        return response()->json(materia::where('nombre', $request->nombre)->get());
     }
 
     /**
@@ -45,10 +61,17 @@ class agregarMateriaController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request)
     {
-        //
+        try {
+            DB::update('UPDATE materias SET nombre="' . $request->nuevoNombre . '" WHERE nombre="' . $request->nombre . '"');
+            return response()->json(['status' => 'Success'], 200);
+        } catch (\Throwable $th) {
+            return response()->json(['status' => 'Bad Request'], 400);
+        }
     }
+
+
 
     /**
      * Remove the specified resource from storage.
@@ -56,8 +79,13 @@ class agregarMateriaController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(Request $request)
     {
-        //
+        try {
+            DB::delete('delete from materias where nombre="' . $request->nombre . '";');
+            return response()->json(['status' => 'Success'], 200);
+        } catch (\Throwable $th) {
+            return response()->json(['status' => 'Bad Request'], 400);
+        }
     }
 }
