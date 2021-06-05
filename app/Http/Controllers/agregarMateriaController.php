@@ -63,8 +63,11 @@ class agregarMateriaController extends Controller
      */
     public function update(Request $request)
     {
+        $modificarMateria = materia::where('nombre', $request->nombreMateria)->first();
+       
         try {
-            DB::update('UPDATE materias SET nombre="' . $request->nuevoNombre . '" WHERE nombre="' . $request->nombre . '"');
+            $modificarMateria->nombre = $request->nuevoNombre;
+            $modificarMateria->save();
             return response()->json(['status' => 'Success'], 200);
         } catch (\Throwable $th) {
             return response()->json(['status' => 'Bad Request'], 400);
@@ -81,8 +84,9 @@ class agregarMateriaController extends Controller
      */
     public function destroy(Request $request)
     {
+        $eliminarMateria = materia::where('nombre', $request->nombreMateria)->first();
         try {
-            DB::delete('delete from materias where nombre="' . $request->nombre . '";');
+            $eliminarMateria->delete();
             return response()->json(['status' => 'Success'], 200);
         } catch (\Throwable $th) {
             return response()->json(['status' => 'Bad Request'], 400);
