@@ -25,9 +25,9 @@ class CreateProfesorEscribeForosTable extends Migration
             $table->timestamps();
         });
         Schema::table('profesor_escribe_foro', function(Blueprint $table) {
-            $table->foreign('idForo')->references('idForo')->on('foros');
+            $table->foreign('idForo')->references('id')->on('foros');
             $table->foreign('idGrupo')->references('idGrupo')->on('grupos');
-            $table->foreign('idMateria')->references('idMateria')->on('materias');
+            $table->foreign('idMateria')->references('id')->on('materias');
             $table->foreign('idProfesor')->references('idProfesor')->on('profesores');
         }); 
     }

@@ -25,7 +25,7 @@ class CreateGruposTienenProfesorsTable extends Migration
 
         Schema::table('grupos_tienen_profesor', function(Blueprint $table) {
             $table->foreign('idGrupo')->references('idGrupo')->on('grupos');
-            $table->foreign('idMateria')->references('idMateria')->on('materias');
+            $table->foreign('idMateria')->references('id')->on('materias');
             $table->foreign('idProfesor')->references('idProfesor')->on('profesores');
         }); 
     }

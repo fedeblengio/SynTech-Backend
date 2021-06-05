@@ -26,7 +26,7 @@ class CreateProfesorCreaTareasTable extends Migration
         Schema::table('profesor_crea_tareas', function(Blueprint $table) {
             $table->foreign('idGrupo')->references('idGrupo')->on('grupos');
             $table->foreign('idTareas')->references('idTareas')->on('tareas');
-            $table->foreign('idMateria')->references('idMateria')->on('materias');
+            $table->foreign('idMateria')->references('id')->on('materias');
             $table->foreign('idProfesor')->references('idProfesor')->on('profesores');
         }); 
         

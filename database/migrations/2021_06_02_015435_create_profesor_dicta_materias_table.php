@@ -25,7 +25,7 @@ class CreateProfesorDictaMateriasTable extends Migration
         });
         Schema::table('profesor_dicta_materia', function(Blueprint $table) {
             $table->foreign('idProfesor')->references('idProfesor')->on('profesores');
-            $table->foreign('idMateria')->references('idMateria')->on('materias');
+            $table->foreign('idMateria')->references('id')->on('materias');
         }); 
     }
 
