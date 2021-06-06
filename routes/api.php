@@ -68,3 +68,5 @@ Route::delete('/materia','App\Http\Controllers\agregarMateriaController@destroy'
 Route::get('/profesor','App\Http\Controllers\profesorDictaMateriaController@index');
 
 Route::post('/profesor','App\Http\Controllers\profesorDictaMateriaController@store');
+
+Route::delete('/profesor','App\Http\Controllers\profesorDictaMateriaController@destroy');
