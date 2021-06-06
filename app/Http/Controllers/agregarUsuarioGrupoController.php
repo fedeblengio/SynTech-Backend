@@ -31,10 +31,10 @@ class agregarUsuarioGrupoController extends Controller
     public function store(Request $request)
     {
         try {
-            $agregarUserGrupo= new alumnos_pertenecen_grupos;
-            $agregarUserGrupo->idGrupo = $request->idGrupo;
-            $agregarUserGrupo->idAlumnos = $request->idAlumnos;
-            $agregarUserGrupo->save();
+            $agregarAlumnoGrupo= new alumnos_pertenecen_grupos;
+            $agregarAlumnoGrupo->idGrupo = $request->idGrupo;
+            $agregarAlumnoGrupo->idAlumnos = $request->idAlumnos;
+            $agregarAlumnoGrupo->save();
             return response()->json(['status' => 'Success'], 200);
         } catch (\Throwable $th) {
             return response()->json(['status' => 'Bad Request'], 400);
@@ -56,10 +56,7 @@ class agregarUsuarioGrupoController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
-    {
-        //
-    }
+  
 
     /**
      * Remove the specified resource from storage.
@@ -67,8 +64,15 @@ class agregarUsuarioGrupoController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(request $request)
     {
-        //
+        $eliminarUserGrupo = alumnos_pertenecen_grupos::where('idAlumnos', $request->idAlumnos)->first();
+
+        try {
+            $eliminarUserGrupo->delete();
+            return response()->json(['status' => 'Success'], 200);
+        } catch (\Throwable $th) {
+            return response()->json(['status' => 'Bad Request'], 400);
+        }
     }
 }

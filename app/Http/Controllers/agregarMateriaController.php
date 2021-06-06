@@ -26,11 +26,11 @@ class agregarMateriaController extends Controller
      */
     public function store(Request $request)
     {
-        $existeMateria = materia::where('nombre', $request->nombre)->first();
+        $existeMateria = materia::where('nombre', $request->nombreMateria)->first();
         try {
             if (!$existeMateria) {
                 $agregarMateria = new materia;
-                $agregarMateria->nombre = $request->nombre;
+                $agregarMateria->nombre = $request->nombreMateria;
                 $agregarMateria->save();
                 return response()->json(['status' => 'Success'], 200);
             } else {

@@ -50,6 +50,7 @@ Route::get('/alumnos','App\Http\Controllers\agregarUsuarioGrupoController@index'
 
 Route::post('/alumno','App\Http\Controllers\agregarUsuarioGrupoController@store');
 
+Route::delete('/alumno','App\Http\Controllers\agregarUsuarioGrupoController@destroy');
 
 //MATERIAS 
 
@@ -61,3 +62,9 @@ Route::post('/materia','App\Http\Controllers\agregarMateriaController@store');
 Route::put('/materia','App\Http\Controllers\agregarMateriaController@update');
 
 Route::delete('/materia','App\Http\Controllers\agregarMateriaController@destroy');
+
+
+// PROFESOR
+Route::get('/profesor','App\Http\Controllers\profesorDictaMateriaController@index');
+
+Route::post('/profesor','App\Http\Controllers\profesorDictaMateriaController@store');
