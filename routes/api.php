@@ -70,3 +70,10 @@ Route::get('/profesor','App\Http\Controllers\profesorDictaMateriaController@inde
 Route::post('/profesor','App\Http\Controllers\profesorDictaMateriaController@store');
 
 Route::delete('/profesor','App\Http\Controllers\profesorDictaMateriaController@destroy');
+
+
+
+
+// CURSOS DE
+
+Route::post('/curso','App\Http\Controllers\gruposTienenProfesorController@store');
