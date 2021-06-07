@@ -5,8 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\profesor_dicta_materia;
 use App\Models\grupos_tienen_profesor;
-use App\Models\materia;
-use App\Models\profesores;
+use Illuminate\Support\Facades\DB;
 class gruposTienenProfesorController extends Controller
 {
     /**
@@ -54,9 +53,10 @@ class gruposTienenProfesorController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show(Request $request)
     {
-        //
+
+        return response()->json(grupos_tienen_profesor::all()->where('idGrupo', $request->idGrupo));
     }
 
     /**
@@ -77,8 +77,18 @@ class gruposTienenProfesorController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(Request $request)
     {
-        //
+        $datos=grupos_tienen_profesor::where('idMateria', $request->idMateria)->where('idProfesor', $request->idProfesor)->where('idGrupo', $request->idGrupo)->first();
+        
+        try {
+            if($datos){
+                DB::delete('delete from grupos_tienen_profesor where idMateria="' . $datos->idMateria . '" AND idProfesor="' . $datos->idProfesor . '" AND idGrupo="' . $datos->idGrupo . '"   ;');
+                return response()->json(['status' => 'Success'], 200);
+            }
+            return response()->json(['status' => 'Bad Request'], 400);
+        } catch (\Throwable $th) {
+            return response()->json(['status' => 'Bad Request'], 400);
+        } 
     }
 }
