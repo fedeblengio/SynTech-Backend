@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\User;
+use Illuminate\Support\Facades\DB;
 use App\Http\Controllers;
 use Carbon\Carbon;
 /*
@@ -22,7 +23,9 @@ Route::post('/login','App\Http\Controllers\loginController@connect');
 
 Route::get('/test', function (){
 
- return "Estas en /test";
+    $idForo = DB::table('usuarios')->orderBy('created_at', 'desc')->limit(1)->get('username');
+   
+    return $idForo;
 });
 
 

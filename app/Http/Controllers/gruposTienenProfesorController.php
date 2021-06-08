@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\profesor_dicta_materia;
 use App\Models\grupos_tienen_profesor;
+use App\Models\foro;
+use App\Models\usuarios;
 use Illuminate\Support\Facades\DB;
 class gruposTienenProfesorController extends Controller
 {
@@ -46,6 +48,14 @@ class gruposTienenProfesorController extends Controller
             
  
     }
+
+  /*   public function crearForo($request){
+        $newForo = new foro;
+        $newForo->save();
+        $idForo = DB::table('foros')->orderBy('created_at', 'desc')->limit(1)->get('id');
+        
+
+    } */
 
     /**
      * Display the specified resource.
