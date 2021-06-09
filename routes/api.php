@@ -23,9 +23,9 @@ Route::post('/login','App\Http\Controllers\loginController@connect');
 
 Route::get('/test', function (){
 
-    $idForo = DB::table('usuarios')->orderBy('created_at', 'desc')->limit(1)->get('username');
+    $idForo = DB::table('foros')->orderBy('created_at', 'desc')->limit(1)->get('id');
    
-    return $idForo;
+    return $idForo[0]->id;
 });
 
 

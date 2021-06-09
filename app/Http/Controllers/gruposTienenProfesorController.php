@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use App\Models\profesor_dicta_materia;
 use App\Models\grupos_tienen_profesor;
 use App\Models\foro;
+use App\Models\profesorEstanGrupoForo;
+
 use App\Models\usuarios;
 use Illuminate\Support\Facades\DB;
 class gruposTienenProfesorController extends Controller
@@ -29,7 +31,7 @@ class gruposTienenProfesorController extends Controller
     public function store(Request $request)
     {
             $profesorTieneMateria=profesor_dicta_materia::where('idMateria',$request->idMateria)->where('idProfesor',$request->idProfesor)->first();
-        try {
+       // try {
 
             if($profesorTieneMateria){
                 $agregarProfesorGrupo = new grupos_tienen_profesor;
@@ -37,25 +39,34 @@ class gruposTienenProfesorController extends Controller
                 $agregarProfesorGrupo->idProfesor = $profesorTieneMateria->idProfesor;
                 $agregarProfesorGrupo->idGrupo = $request->idGrupo;
                 $agregarProfesorGrupo->save();
+                self::crearForo($request);
                 return response()->json(['status' => 'Success'], 200);
             }else{
                 return response()->json(['status' => 'Bad Request'], 400);
             }
 
-        } catch (\Throwable $th) {
-            return response()->json(['status' => 'Bad Request'], 400);
-        } 
+      //  } catch (\Throwable $th) {
+        //    return response()->json(['status' => 'Bad Request'], 400);
+       // } 
             
  
     }
 
-  /*   public function crearForo($request){
+    public function crearForo($request){
         $newForo = new foro;
+        $newForo->informacion=$request->idGrupo."-".$request->idProfesor."-".$request->idMateria ;
         $newForo->save();
-        $idForo = DB::table('foros')->orderBy('created_at', 'desc')->limit(1)->get('id');
-        
 
-    } */
+        $idForo = DB::table('foros')->orderBy('created_at', 'desc')->limit(1)->get('id');
+
+        $profesorEstanGrupoForo = new profesorEstanGrupoForo;
+        $profesorEstanGrupoForo->idMateria = $request->idMateria;
+        $profesorEstanGrupoForo->idProfesor = $request->idProfesor;
+        $profesorEstanGrupoForo->idGrupo = $request->idGrupo;
+        $profesorEstanGrupoForo->idForo =$idForo[0]->id;
+        $profesorEstanGrupoForo->save();
+
+    } 
 
     /**
      * Display the specified resource.
