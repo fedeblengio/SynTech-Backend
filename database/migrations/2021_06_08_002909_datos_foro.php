@@ -15,7 +15,7 @@ class DatosForo extends Migration
     {
         Schema::create('datosForo', function (Blueprint $table) {
             $table->unsignedBigInteger('idForo');
-            $table->increments('idDatos');
+            $table->id();
             $table->string('idUsuario',8);
             $table->string('mensaje');
             $table->binary('datos')->nullable();

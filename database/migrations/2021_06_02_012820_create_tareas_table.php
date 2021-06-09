@@ -14,7 +14,7 @@ class CreateTareasTable extends Migration
     public function up()
     {
         Schema::create('tareas', function (Blueprint $table) {
-            $table->id('idTareas');
+            $table->id();
             $table->string("descripcion");
             $table->string("fecha_vencimiento");
             $table->binary('archivo')->nullable();

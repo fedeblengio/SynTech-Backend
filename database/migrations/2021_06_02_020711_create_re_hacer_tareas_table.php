@@ -27,8 +27,8 @@ class CreateReHacerTareasTable extends Migration
 
         });
         Schema::table('re_hacer_tareas', function(Blueprint $table) {
-            $table->foreign('idTareas')->references('idTareas')->on('tareas');
-            $table->foreign('idTareasNueva')->references('idTareas')->on('tareas');
+            $table->foreign('idTareas')->references('id')->on('tareas');
+            $table->foreign('idTareasNueva')->references('id')->on('tareas');
         }); 
     }
 
