@@ -51,7 +51,7 @@ class agregarMateriaController extends Controller
      */
     public function show(Request $request)
     {
-        return response()->json(materia::where('nombre', $request->nombre)->get());
+        return response()->json(materia::where('nombre', $request->nombreMateria)->get());
     }
 
     /**
