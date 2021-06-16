@@ -19,8 +19,14 @@ class gruposTienenProfesorController extends Controller
      */
     public function index()
     {
-        //
+        
     }
+
+    public function mostrarProfesorMateria()
+    {
+        return response()->json(DB::table('vista_profesor_materia')->get());
+    }
+
 
     /**
      * Store a newly created resource in storage.
@@ -30,24 +36,24 @@ class gruposTienenProfesorController extends Controller
      */
     public function store(Request $request)
     {
-            $profesorTieneMateria=profesor_dicta_materia::where('idMateria',$request->idMateria)->where('idProfesor',$request->idProfesor)->first();
-       // try {
+            $profesorGrupo=grupos_tienen_profesor::where('idMateria',$request->idMateria)->where('idProfesor',$request->idProfesor)->where('idGrupo',$request->idGrupo)->first();
+       try {
 
-            if($profesorTieneMateria){
+            if(!$profesorGrupo){
                 $agregarProfesorGrupo = new grupos_tienen_profesor;
-                $agregarProfesorGrupo->idMateria = $profesorTieneMateria->idMateria;
-                $agregarProfesorGrupo->idProfesor = $profesorTieneMateria->idProfesor;
+                $agregarProfesorGrupo->idMateria = $request->idMateria;
+                $agregarProfesorGrupo->idProfesor = $request->idProfesor;
                 $agregarProfesorGrupo->idGrupo = $request->idGrupo;
                 $agregarProfesorGrupo->save();
                 self::crearForo($request);
                 return response()->json(['status' => 'Success'], 200);
             }else{
-                return response()->json(['status' => 'Bad Request'], 400);
+                return response()->json(['status' => 'Not Acceptable'], 406);
             }
 
-      //  } catch (\Throwable $th) {
-        //    return response()->json(['status' => 'Bad Request'], 400);
-       // } 
+       } catch (\Throwable $th) {
+        return response()->json(['status' => 'Bad Request'], 400);
+        } 
             
  
     }

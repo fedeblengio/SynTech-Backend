@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\DB;
 use App\Models\materia;
 use App\Models\profesores;
 use App\Models\profesor_dicta_materia;
+use App\Models\usuarios;
 
 class profesorDictaMateriaController extends Controller
 {
@@ -24,6 +25,11 @@ class profesorDictaMateriaController extends Controller
         return response()->json(profesor_dicta_materia::all());
     }
 
+    public function listarProfesores()
+    {
+        return response()->json(usuarios::all()->where('ou','Profesor'));
+    }
+
     /**
      * Store a newly created resource in storage.
      *
@@ -32,17 +38,25 @@ class profesorDictaMateriaController extends Controller
      */
     public function store(Request $request)
     {
-        $idMateria = materia::where('nombre', $request->nombreMateria)->first();
-        // $perteneceMateria=profesor_dicta_materia::all()->where(['idMateria', $idMateria],['idProfesor', $request->idProfesor]);
-        try {
-            $agregarProfesorMateria = new profesor_dicta_materia;
-            $agregarProfesorMateria->idMateria = $idMateria->id;
-            $agregarProfesorMateria->idProfesor = $request->idProfesor;
-            $agregarProfesorMateria->save();
-            return response()->json(['status' => 'Success'], 200);
-        } catch (\Throwable $th) {
-            return response()->json(['status' => 'Bad Request'], 400);
+
+        $perteneceMateria=profesor_dicta_materia::where('idMateria', $request->idMateria)->where('idProfesor', $request->idProfesor)->first();
+        if ($perteneceMateria) {
+            return response()->json(['status' => 'Not Acceptable'], 406);
+            
+        } else {
+            try {
+                $agregarProfesorMateria = new profesor_dicta_materia;
+                $agregarProfesorMateria->idMateria = $request->idMateria;
+                $agregarProfesorMateria->idProfesor = $request->idProfesor;
+                $agregarProfesorMateria->save();
+                return response()->json(['status' => 'Success'], 200);
+            } catch (\Throwable $th) {
+                return response()->json(['status' => 'Bad Request'], 400);
+            }
+          
+            
         }
+       
     }
 
     /**

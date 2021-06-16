@@ -48,6 +48,8 @@ Route::post('/grupo','App\Http\Controllers\gruposController@create');
 Route::delete('/grupo','App\Http\Controllers\gruposController@destroy');
 Route::put('/grupo','App\Http\Controllers\gruposController@update');
 
+
+
 //ALUMNOS 
 Route::get('/alumnos','App\Http\Controllers\agregarUsuarioGrupoController@index');
 
@@ -66,6 +68,8 @@ Route::put('/materia','App\Http\Controllers\agregarMateriaController@update');
 
 Route::delete('/materia','App\Http\Controllers\agregarMateriaController@destroy');
 
+Route::get('/profesorMateria','App\Http\Controllers\gruposTienenProfesorController@mostrarProfesorMateria');
+
 
 // PROFESOR
 Route::get('/profesor','App\Http\Controllers\profesorDictaMateriaController@index');
@@ -74,7 +78,7 @@ Route::post('/profesor','App\Http\Controllers\profesorDictaMateriaController@sto
 
 Route::delete('/profesor','App\Http\Controllers\profesorDictaMateriaController@destroy');
 
-
+Route::get('/profesores','App\Http\Controllers\profesorDictaMateriaController@listarProfesores');
 
 
 // CURSOS 

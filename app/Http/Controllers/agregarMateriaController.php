@@ -51,7 +51,7 @@ class agregarMateriaController extends Controller
      */
     public function show(Request $request)
     {
-        return response()->json(materia::where('nombre', $request->nombreMateria)->get());
+        return response()->json(materia::where('id', $request->idMateria)->get());
     }
 
     /**
@@ -63,13 +63,13 @@ class agregarMateriaController extends Controller
      */
     public function update(Request $request)
     {
-        $modificarMateria = materia::where('nombre', $request->nombreMateria)->first();
-       
+          $modificarMateria = materia::where('id', $request->idMateria)->first();
+        
         try {
             $modificarMateria->nombre = $request->nuevoNombre;
             $modificarMateria->save();
             return response()->json(['status' => 'Success'], 200);
-        } catch (\Throwable $th) {
+         } catch (\Throwable $th) {
             return response()->json(['status' => 'Bad Request'], 400);
         }
     }
@@ -84,7 +84,7 @@ class agregarMateriaController extends Controller
      */
     public function destroy(Request $request)
     {
-        $eliminarMateria = materia::where('nombre', $request->nombreMateria)->first();
+        $eliminarMateria = materia::where('id', $request->idMateria)->first();
         try {
             $eliminarMateria->delete();
             return response()->json(['status' => 'Success'], 200);
