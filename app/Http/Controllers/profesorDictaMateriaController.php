@@ -18,11 +18,24 @@ class profesorDictaMateriaController extends Controller
      */
     public function index(Request $request)
     {
-        /*        $sql = "SELECT id , nombre  FROM (SELECT * from materias) as A LEFT JOIN (SELECT * FROM profesor_dicta_materia WHERE idProfesor=51717999)  as B ON A.id = B.idMateria WHERE B.idMateria IS NULL;";
-        $resultado = DB::query($sql);
 
-        return response()->json($resultado); */
-        return response()->json(profesor_dicta_materia::all());
+        $variable = $request->idProfesor;
+             
+        $resultado = DB::select( DB::raw('SELECT id , nombre  FROM (SELECT * from materias) as A LEFT JOIN (SELECT * FROM profesor_dicta_materia WHERE idProfesor=:variable) as B ON A.id = B.idMateria WHERE B.idMateria IS NULL;'),
+    array('variable' => $variable));
+
+        /* $r = DB::table('materias') 
+        ->leftJoin(DB::table('profesor_dicta_materia')->where('idProfesor', '49895207'), 'materias.id', '=', 'profesor_dicta_materia.idMateria')
+        ->whereNull('profesor_dicta_materia.idMateria')
+        ->get();
+         */
+        
+
+        return response()->json($resultado);
+
+        
+
+      /*   return response()->json(profesor_dicta_materia::all()); */
     }
 
     public function listarProfesores()

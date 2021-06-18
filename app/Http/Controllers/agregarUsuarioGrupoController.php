@@ -16,8 +16,17 @@ class agregarUsuarioGrupoController extends Controller
      */
     public function index()
     {
-        
-        return response()->json(DB::table('vista_alumnos_sin_grupo')->get());
+       
+
+            $alumnos_sin_grupo = DB::table('alumnos')
+            ->select('usuarios.nombre','usuarios.username','usuarios.email')
+            ->join('usuarios', 'usuarios.username', '=', 'alumnos.idAlumnos')
+            ->leftJoin('alumnos_pertenecen_grupos', 'alumnos.idAlumnos', '=', 'alumnos_pertenecen_grupos.idAlumnos')
+            ->whereNull('alumnos_pertenecen_grupos.idAlumnos')
+            ->get();
+
+            return response()->json($alumnos_sin_grupo);
+
     }
 
 

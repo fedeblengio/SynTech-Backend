@@ -24,7 +24,14 @@ class gruposTienenProfesorController extends Controller
 
     public function mostrarProfesorMateria()
     {
-        return response()->json(DB::table('vista_profesor_materia')->get());
+
+        $profesor_materia = DB::table('profesor_dicta_materia')
+        ->select('usuarios.username AS cedulaProfesor', 'usuarios.nombre AS nombreProfesor', 'materias.id AS idMateria', 'materias.nombre AS nombreMateria')
+        ->join('materias', 'materias.id', '=', 'profesor_dicta_materia.idMateria')
+        ->join('usuarios', 'usuarios.username', '=', 'profesor_dicta_materia.idProfesor')
+        ->get();
+
+        return response()->json($profesor_materia);
     }
 
 
