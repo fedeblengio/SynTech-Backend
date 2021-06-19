@@ -88,3 +88,6 @@ Route::post('/curso','App\Http\Controllers\gruposTienenProfesorController@store'
 Route::get('/curso','App\Http\Controllers\gruposTienenProfesorController@show');
 
 Route::delete('/curso','App\Http\Controllers\gruposTienenProfesorController@destroy');
+
+
+Route::get('/grupo-materia','App\Http\Controllers\gruposTienenProfesorController@index');

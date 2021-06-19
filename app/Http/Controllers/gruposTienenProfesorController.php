@@ -10,6 +10,7 @@ use App\Models\profesorEstanGrupoForo;
 
 use App\Models\usuarios;
 use Illuminate\Support\Facades\DB;
+
 class gruposTienenProfesorController extends Controller
 {
     /**
@@ -17,19 +18,27 @@ class gruposTienenProfesorController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        
+        $variable = $request->idGrupo;
+
+        $resultado = DB::select(
+            DB::raw('SELECT A.idMateria, materias.nombre materia , A.idProfesor username , usuarios.nombre nombre  FROM (SELECT * from profesor_dicta_materia) as A LEFT JOIN (SELECT * FROM grupos_tienen_profesor WHERE idGrupo=:variable ) as B ON A.idMateria = B.idMateria JOIN materias ON A.idMateria=materias.id JOIN usuarios ON A.idProfesor=usuarios.username WHERE B.idMateria IS NULL;'),
+            array('variable' => $variable)
+        );
+
+        return response()->json($resultado);
+        return "Hola";
     }
 
     public function mostrarProfesorMateria()
     {
 
         $profesor_materia = DB::table('profesor_dicta_materia')
-        ->select('usuarios.username AS cedulaProfesor', 'usuarios.nombre AS nombreProfesor', 'materias.id AS idMateria', 'materias.nombre AS nombreMateria')
-        ->join('materias', 'materias.id', '=', 'profesor_dicta_materia.idMateria')
-        ->join('usuarios', 'usuarios.username', '=', 'profesor_dicta_materia.idProfesor')
-        ->get();
+            ->select('usuarios.username AS cedulaProfesor', 'usuarios.nombre AS nombreProfesor', 'materias.id AS idMateria', 'materias.nombre AS nombreMateria')
+            ->join('materias', 'materias.id', '=', 'profesor_dicta_materia.idMateria')
+            ->join('usuarios', 'usuarios.username', '=', 'profesor_dicta_materia.idProfesor')
+            ->get();
 
         return response()->json($profesor_materia);
     }
@@ -43,10 +52,10 @@ class gruposTienenProfesorController extends Controller
      */
     public function store(Request $request)
     {
-            $profesorGrupo=grupos_tienen_profesor::where('idMateria',$request->idMateria)->where('idProfesor',$request->idProfesor)->where('idGrupo',$request->idGrupo)->first();
-       try {
+        $profesorGrupo = grupos_tienen_profesor::where('idMateria', $request->idMateria)->where('idProfesor', $request->idProfesor)->where('idGrupo', $request->idGrupo)->first();
+        try {
 
-            if(!$profesorGrupo){
+            if (!$profesorGrupo) {
                 $agregarProfesorGrupo = new grupos_tienen_profesor;
                 $agregarProfesorGrupo->idMateria = $request->idMateria;
                 $agregarProfesorGrupo->idProfesor = $request->idProfesor;
@@ -54,20 +63,18 @@ class gruposTienenProfesorController extends Controller
                 $agregarProfesorGrupo->save();
                 self::crearForo($request);
                 return response()->json(['status' => 'Success'], 200);
-            }else{
+            } else {
                 return response()->json(['status' => 'Not Acceptable'], 406);
             }
-
-       } catch (\Throwable $th) {
-        return response()->json(['status' => 'Bad Request'], 400);
-        } 
-            
- 
+        } catch (\Throwable $th) {
+            return response()->json(['status' => 'Bad Request'], 400);
+        }
     }
 
-    public function crearForo($request){
+    public function crearForo($request)
+    {
         $newForo = new foro;
-        $newForo->informacion=$request->idGrupo."-".$request->idProfesor."-".$request->idMateria ;
+        $newForo->informacion = $request->idGrupo . "-" . $request->idProfesor . "-" . $request->idMateria;
         $newForo->save();
 
         $idForo = DB::table('foros')->orderBy('created_at', 'desc')->limit(1)->get('id');
@@ -76,10 +83,9 @@ class gruposTienenProfesorController extends Controller
         $profesorEstanGrupoForo->idMateria = $request->idMateria;
         $profesorEstanGrupoForo->idProfesor = $request->idProfesor;
         $profesorEstanGrupoForo->idGrupo = $request->idGrupo;
-        $profesorEstanGrupoForo->idForo =$idForo[0]->id;
+        $profesorEstanGrupoForo->idForo = $idForo[0]->id;
         $profesorEstanGrupoForo->save();
-
-    } 
+    }
 
     /**
      * Display the specified resource.
@@ -113,16 +119,16 @@ class gruposTienenProfesorController extends Controller
      */
     public function destroy(Request $request)
     {
-        $datos=grupos_tienen_profesor::where('idMateria', $request->idMateria)->where('idProfesor', $request->idProfesor)->where('idGrupo', $request->idGrupo)->first();
-        
+        $datos = grupos_tienen_profesor::where('idMateria', $request->idMateria)->where('idProfesor', $request->idProfesor)->where('idGrupo', $request->idGrupo)->first();
+
         try {
-            if($datos){
+            if ($datos) {
                 DB::delete('delete from grupos_tienen_profesor where idMateria="' . $datos->idMateria . '" AND idProfesor="' . $datos->idProfesor . '" AND idGrupo="' . $datos->idGrupo . '"   ;');
                 return response()->json(['status' => 'Success'], 200);
             }
             return response()->json(['status' => 'Bad Request'], 400);
         } catch (\Throwable $th) {
             return response()->json(['status' => 'Bad Request'], 400);
-        } 
+        }
     }
 }
