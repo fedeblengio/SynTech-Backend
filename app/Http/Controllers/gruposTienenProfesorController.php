@@ -21,10 +21,11 @@ class gruposTienenProfesorController extends Controller
     public function index(Request $request)
     {
         $variable = $request->idGrupo;
+        $variable2 = $request->idProfesor;
 
         $resultado = DB::select(
-            DB::raw('SELECT A.idMateria, materias.nombre materia , A.idProfesor username , usuarios.nombre nombre  FROM (SELECT * from profesor_dicta_materia) as A LEFT JOIN (SELECT * FROM grupos_tienen_profesor WHERE idGrupo=:variable ) as B ON A.idMateria = B.idMateria JOIN materias ON A.idMateria=materias.id JOIN usuarios ON A.idProfesor=usuarios.username WHERE B.idMateria IS NULL;'),
-            array('variable' => $variable)
+            DB::raw('SELECT A.idMateria, materias.nombre materia , A.idProfesor username , usuarios.nombre nombre  FROM (SELECT * from profesor_dicta_materia WHERE idProfesor=:variable2) as A LEFT JOIN (SELECT * FROM grupos_tienen_profesor WHERE idGrupo=:variable) as B ON A.idMateria = B.idMateria JOIN materias ON A.idMateria=materias.id JOIN usuarios ON A.idProfesor=usuarios.username WHERE B.idMateria IS NULL;'),
+            array('variable' => $variable, 'variable2' => $variable2)
         );
 
         return response()->json($resultado);
