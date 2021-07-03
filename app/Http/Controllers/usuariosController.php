@@ -20,7 +20,7 @@ class usuariosController extends Controller
 
     public function create(Request $request)
     {
-        $usuarioAD = User::find('cn=' . $request->cn . ',ou=UsuarioSistema,dc=syntech,dc=intra');
+        $usuarioAD = User::find('cn=' . $request->samaccountname . ',ou=UsuarioSistema,dc=syntech,dc=intra');
         $usuarioDB = usuarios::where('username', $request->samaccountname)->first();
 
 
@@ -53,7 +53,7 @@ class usuariosController extends Controller
                 return response()->json(['status' => 'Success'], 200);
 
             } catch (\Throwable $th) {
-              /*   return response()->json(['status' => 'Chupapimuñaño'], 400); */
+              return response()->json(['status' => 'Error'], 400); 
               return $th;
             }
 

@@ -63,9 +63,10 @@ class agregarMateriaController extends Controller
      */
     public function update(Request $request)
     {
+        try {
           $modificarMateria = materia::where('id', $request->idMateria)->first();
         
-        try {
+        
             $modificarMateria->nombre = $request->nuevoNombre;
             $modificarMateria->save();
             return response()->json(['status' => 'Success'], 200);
