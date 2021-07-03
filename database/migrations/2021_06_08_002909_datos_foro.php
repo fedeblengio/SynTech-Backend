@@ -17,7 +17,8 @@ class DatosForo extends Migration
             $table->unsignedBigInteger('idForo');
             $table->id();
             $table->string('idUsuario',8);
-            $table->string('mensaje');
+            $table->string('titulo');
+            $table->binary('mensaje');
             $table->binary('datos')->nullable();
            
             $table->timestamps();
