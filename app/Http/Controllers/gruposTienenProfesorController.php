@@ -117,7 +117,39 @@ class gruposTienenProfesorController extends Controller
      *
      * @param  int  $id
      * @return \Illuminate\Http\Response
+     * 
+     * 
      */
+    public function eliminarProfesorGrupoForo(Request $request)
+    {
+        $datos = profesorEstanGrupoForo::where('idForo', $request->idForo);
+
+        try {
+            if ($datos) {
+                DB::delete('delete from profesor_estan_grupo_foro where idForo='.$request->idForo.';');
+                return response()->json(['status' => 'Success'], 200);
+            }
+            return response()->json(['status' => 'Bad Request'], 400);
+        } catch (\Throwable $th) {
+            return response()->json(['status' => 'Bad Request'], 400);
+        }
+    }
+
+    public function eliminarForo(Request $request)
+    {
+        $datos = foro::where('id', $request->idForo);
+
+        try {
+            if ($datos) {
+                DB::delete('delete from foros where id='.$request->idForo.';');
+                return response()->json(['status' => 'Success'], 200);
+            }
+            return response()->json(['status' => 'Bad Request'], 400);
+        } catch (\Throwable $th) {
+            return response()->json(['status' => 'Bad Request'], 400);
+        }
+    }
+
     public function destroy(Request $request)
     {
         $datos = grupos_tienen_profesor::where('idMateria', $request->idMateria)->where('idProfesor', $request->idProfesor)->where('idGrupo', $request->idGrupo)->first();

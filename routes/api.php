@@ -23,8 +23,8 @@ Route::post('/login','App\Http\Controllers\loginController@connect');
 
 
 Route::get('/test', function (){
-    $mat = materia::where('nombre', 'Redstone')->first();
-    return $mat->id;
+    $mat = DB::table('foros')->orderBy('created_at', 'desc')->limit(1)->get('id');
+    return $mat[0]->id;
 });
 
 
@@ -90,3 +90,8 @@ Route::delete('/curso','App\Http\Controllers\gruposTienenProfesorController@dest
 
 
 Route::get('/grupo-materia','App\Http\Controllers\gruposTienenProfesorController@index')->middleware('verificar_token');
+
+
+//FORO
+Route::delete('/grupoForo','App\Http\Controllers\gruposTienenProfesorController@eliminarProfesorGrupoForo')->middleware('verificar_token');
+Route::delete('/foro','App\Http\Controllers\gruposTienenProfesorController@eliminarForo')->middleware('verificar_token');

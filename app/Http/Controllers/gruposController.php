@@ -21,7 +21,7 @@ class gruposController extends Controller
 
 
         if ($gruposDB) {
-            return response()->json(['error' => 'Forbidden'], 403);
+            return response()->json(['error' => 'Forbidden'], 416);
         } else {
             $gruposDB = new grupos;
             $gruposDB->idGrupo = $request->idGrupo;

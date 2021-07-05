@@ -75,10 +75,10 @@ class agregarUsuarioGrupoController extends Controller
      */
     public function destroy(request $request)
     {
-        $eliminarUserGrupo = alumnos_pertenecen_grupos::where('idAlumnos', $request->idAlumnos)->first();
+        
 
         try {
-            $eliminarUserGrupo->delete();
+            DB::delete('delete from alumnos_pertenecen_grupos where idAlumnos="'.$request->idAlumnos.'";');
             return response()->json(['status' => 'Success'], 200);
         } catch (\Throwable $th) {
             return response()->json(['status' => 'Bad Request'], 400);
