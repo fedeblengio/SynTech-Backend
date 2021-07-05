@@ -8,4 +8,4 @@ before_script:
   - cp .env.example .env
   - composer install
 script:
-  - vendor/bin/phpunit
+  - php artisan test --filter=TrayectoCompletoTest
