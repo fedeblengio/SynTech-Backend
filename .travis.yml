@@ -5,7 +5,7 @@ os: linux
 services:
   - docker
 before_script:
-  - cp .env.example .env
+  - cp .env.testing .env
   - composer install
 script:
   - php artisan test --filter=TrayectoCompletoTest
