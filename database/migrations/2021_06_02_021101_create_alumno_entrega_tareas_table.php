@@ -21,7 +21,7 @@ class CreateAlumnoEntregaTareasTable extends Migration
             $table->integer('idAlumnos');
             $table->string('calificacion')->nullable();
             $table->binary('archivo')->nullable();
-            $table->timestamp('created_at')->useCurrent();
+            $table->timestamps();
             $table->primary(['idAlumnos','idTareas']);
             
         });

@@ -15,10 +15,11 @@ class CreateTareasTable extends Migration
     {
         Schema::create('tareas', function (Blueprint $table) {
             $table->id();
+            $table->string("titulo");
             $table->string("descripcion");
             $table->string("fecha_vencimiento");
             $table->binary('archivo')->nullable();
-            $table->timestamp('created_at')->useCurrent();
+            $table->timestamps();
         });
     }
 
