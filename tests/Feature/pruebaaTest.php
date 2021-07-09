@@ -52,6 +52,7 @@ class pruebaaTest extends TestCase{
         var_dump($salida);
         
         $this->assertTrue(true);
+        
     } 
 
 
