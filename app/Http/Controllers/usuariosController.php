@@ -7,6 +7,7 @@ use App\Models\alumnos;
 use App\Models\profesores;
 use App\Models\bedelias;
 
+use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use LdapRecord\Models\ActiveDirectory\User;
 
@@ -121,9 +122,9 @@ class usuariosController extends Controller
     }
 
 
-    public function update(Request $request, usuarios $usuarios)
+    public function update(Request $request)
     {
-        try {
+       try { 
             $user = User::find('cn=' . $request->username . ',ou=UsuarioSistema,dc=syntech,dc=intra');
             $user->unicodePwd = $request->newPassword;
             $user->save();
@@ -132,27 +133,54 @@ class usuariosController extends Controller
             return response()->json(['status' => 'Success'], 200);
         } catch (\Throwable $th) {
             return response()->json(['status' => 'Bad Request'], 400);
-        }
+        } 
     }
 
     public function update_db($request)
     {
         $usuarios = usuarios::where('username', $request->username)->first();
-        $usuarios->nombre = $request->nuevoNombre;
-        $usuarios->email = $request->nuevoEmail;
-        $usuarios->save();
+        if($usuarios){
+            DB::update('UPDATE usuarios SET nombre="' . $request->nuevoNombre . '" ,  email="' . $request->nuevoEmail . '" WHERE username="' . $request->username . '";');  
+        }
     }
 
+    
     public function destroy(request $request)
     {
+        $existe = usuarios::where('username', $request->username)->first();
         $user = User::find('cn=' . $request->username . ',ou=UsuarioSistema,dc=syntech,dc=intra');
         try {
-            $user->delete();
-            $u = usuarios::where('username', $request->username)->first();
-            $u->delete();
-            return response()->json(['status' => 'Success'], 200);
+            if ($existe) {
+                $user->delete();
+                self::eliminarPersona($request);
+                DB::delete('delete from usuarios where username="' . $request->username . '" ;');
+                
+                return response()->json(['status' => 'Success'], 200);
+            }
+            return response()->json(['status' => 'Bad Request'], 400);
         } catch (\Throwable $th) {
             return response()->json(['status' => 'Bad Request'], 400);
         }
+    }
+    public function eliminarPersona($request) {
+
+        try {
+            switch ($request->ou) {
+                case "Bedelias":
+                    DB::delete('delete from bedelias where idBedelias="' . $request->username . '" ;');
+                    break;
+                case "Alumno":
+                    DB::delete('delete from alumnos where idAlumnos="' . $request->username . '" ;');
+                    break;
+                case "Profesor":
+                    DB::delete('delete from profesores where idProfesor="' . $request->username . '" ;');
+                    break;
+                
+            }
+        } catch (\Throwable $th) {
+            return response()->json(['status' => 'Bad Request'], 400);
+        }
+        
+
     }
 }
