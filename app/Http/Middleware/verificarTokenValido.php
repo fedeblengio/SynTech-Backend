@@ -17,16 +17,22 @@ class verificarTokenValido
         $fecha_vencimiento = Carbon::parse($t->fecha_vencimiento);
         
 
-        if($fecha_vencimiento->gt($fecha_actual)){
-            return $next($request);
+        if($t){ 
+
+            if($fecha_vencimiento->gt($fecha_actual)){
+             return $next($request);
             
-         }else{
-            $t->delete();   
-            return response()->json(['error' => 'Forbidden.'], 403);
-         }
+             }else{
+                $t->delete();   
+                return response()->json(['error' => 'Forbidden.'], 230);
+             }
+
+        }else{
+            return response()->json(['error' => 'Invalid Token'], 230);
+        }
         
         } catch (\Throwable $th) {
-            return response()->json(['error' => 'Invalid Token'], 403);
+            return response()->json(['status' => 'Error'], 406);
         }
      
         

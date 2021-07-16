@@ -28,7 +28,6 @@ class gruposController extends Controller
             $gruposDB->nombreCompleto = $request->nombreCompleto;
             $gruposDB->anioElectivo = Carbon::now()->format('Y');
             $gruposDB->save();
-
             return response()->json(['status' => 'Success'], 200);
         }
     }

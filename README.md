@@ -46,3 +46,6 @@ Ejecutar: # ```docker-compose up```
 
 prueba
 
+- ```vendor/bin/phpunit --filter=pruebaaTest --debug``` #EJECUTAR PRUEBAS
+
+

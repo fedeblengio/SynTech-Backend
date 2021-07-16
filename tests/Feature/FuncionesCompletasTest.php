@@ -17,11 +17,7 @@ use Illuminate\Support\Facades\DB;
 
 class FuncionesCompletasTest extends TestCase
 {
-    /**
-     * A basic feature test example.
-     *
-     * @return void
-     */
+   
     public function test_agregar_usuario()
     {
         $this->withoutExceptionHandling();

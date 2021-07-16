@@ -21,15 +21,15 @@ use App\Models\materia;
 
 Route::post('/login','App\Http\Controllers\loginController@connect');
 
-
 Route::get('/test', function (){
-    $mat = DB::table('foros')->orderBy('created_at', 'desc')->limit(1)->get('id');
-    return $mat[0]->id;
+    $materia = materia::all();
+    return $materia;
 });
 
 
 //USUARIOS
 Route::get('/usuarios','App\Http\Controllers\usuariosController@index');
+
 Route::get('/usuario','App\Http\Controllers\usuariosController@show')->middleware('verificar_token');
 
 Route::post('/usuario','App\Http\Controllers\usuariosController@create')->middleware('verificar_token');

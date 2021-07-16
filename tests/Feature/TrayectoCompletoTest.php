@@ -15,7 +15,7 @@ class TrayectoCompletoTest extends TestCase
      *
      * @return void
      */
-    public function test_login()
+    /* public function test_login()
     {
 
         $data = ['username' => '77777777','password'=>'1'];
@@ -25,6 +25,7 @@ class TrayectoCompletoTest extends TestCase
 
     public function test_listar_usuarios()
     {
+        
         $token = "c3ludGVjaDIwMjEuZGRucy5uZXQ=";
         $response = $this->withHeaders([
             'token' => $token,
@@ -380,7 +381,7 @@ class TrayectoCompletoTest extends TestCase
         $response->assertStatus(200);
     }
 
-
+ */
 
 
 }

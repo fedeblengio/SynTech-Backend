@@ -124,7 +124,9 @@ class usuariosController extends Controller
 
     public function update(Request $request)
     {
+        if($request->newPassword){
        try { 
+           
             $user = User::find('cn=' . $request->username . ',ou=UsuarioSistema,dc=syntech,dc=intra');
             $user->unicodePwd = $request->newPassword;
             $user->save();
@@ -133,7 +135,12 @@ class usuariosController extends Controller
             return response()->json(['status' => 'Success'], 200);
         } catch (\Throwable $th) {
             return response()->json(['status' => 'Bad Request'], 400);
-        } 
+        
+    }
+    }
+    else{
+        self::update_db($request);
+    }
     }
 
     public function update_db($request)
@@ -180,7 +187,5 @@ class usuariosController extends Controller
         } catch (\Throwable $th) {
             return response()->json(['status' => 'Bad Request'], 400);
         }
-        
-
     }
 }

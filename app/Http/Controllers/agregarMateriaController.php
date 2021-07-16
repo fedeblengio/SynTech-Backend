@@ -8,22 +8,11 @@ use App\Models\materia;
 
 class agregarMateriaController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
     public function index()
     {
         return response()->json(materia::all());
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
     public function store(Request $request)
     {
         $existeMateria = materia::where('nombre', $request->nombreMateria)->first();
@@ -40,33 +29,16 @@ class agregarMateriaController extends Controller
             return response()->json(['status' => 'Bad Request'], 400);
         }
     }
-
-
-
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
     public function show(Request $request)
     {
         return response()->json(materia::where('id', $request->idMateria)->get());
     }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
+ 
     public function update(Request $request)
     {
         try {
-          $modificarMateria = materia::where('id', $request->idMateria)->first();
-        
-        
+          $modificarMateria = materia::where('id', $request->idMateria)->first(); 
             $modificarMateria->nombre = $request->nuevoNombre;
             $modificarMateria->save();
             return response()->json(['status' => 'Success'], 200);
@@ -74,15 +46,6 @@ class agregarMateriaController extends Controller
             return response()->json(['status' => 'Bad Request'], 400);
         }
     }
-
-
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
     public function destroy(Request $request)
     {
         $eliminarMateria = materia::where('id', $request->idMateria)->first();

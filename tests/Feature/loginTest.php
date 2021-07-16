@@ -13,15 +13,6 @@ use LdapRecord\Connection;
 
 class loginTest extends TestCase
 {
-    /**
-     * A basic feature test example.
-     *
-     * @return void
-     */
-
-
-  
-  
     
     public function test_login()
     {
@@ -39,24 +30,4 @@ class loginTest extends TestCase
         $this->assertTrue(true);
     } 
  
-
-   /*  public function test_eliminar_usuario()
-    {
-        $this->withoutExceptionHandling();
-
-        $request = new Request([
-            'username'   => '49895208',
-            'ou'=> 'Bedelias'
-            
-        ]);
-        
-
-        $user = new usuariosController();
-        $resultado = $user->destroy($request);
-        $salida4 = json_encode($resultado);
-        var_dump($salida4);
-        $this->assertTrue(true);
-    }  */
-
-  
  } 

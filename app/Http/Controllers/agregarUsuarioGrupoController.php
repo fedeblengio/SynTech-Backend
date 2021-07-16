@@ -9,11 +9,6 @@ use App\Models\grupos;
 use App\Models\alumnos_pertenecen_grupos;
 class agregarUsuarioGrupoController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
     public function index()
     {
        
@@ -28,15 +23,6 @@ class agregarUsuarioGrupoController extends Controller
             return response()->json($alumnos_sin_grupo);
 
     }
-
-
-
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
     public function store(Request $request)
     {
         try {
@@ -49,30 +35,6 @@ class agregarUsuarioGrupoController extends Controller
             return response()->json(['status' => 'Bad Request'], 400);
         }
     }
-
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-  
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-  
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
     public function destroy(request $request)
     {
         

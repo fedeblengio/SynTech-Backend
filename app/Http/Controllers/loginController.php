@@ -77,14 +77,4 @@ class loginController extends Controller
         $t->save();
     }
    
-
-
-
-
-
-
-
-
-
-   
 }

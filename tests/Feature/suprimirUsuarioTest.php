@@ -31,11 +31,6 @@ class suprimirUsuarioTest extends TestCase{
         var_dump($salida4);
         $this->assertTrue(true);
     } 
-
-
-
-
-
 }
 
 

@@ -13,11 +13,7 @@ use Illuminate\Support\Facades\DB;
 
 class gruposTienenProfesorController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
+
     public function index(Request $request)
     {
         $variable = $request->idGrupo;
@@ -44,13 +40,6 @@ class gruposTienenProfesorController extends Controller
         return response()->json($profesor_materia);
     }
 
-
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
     public function store(Request $request)
     {
         $profesorGrupo = grupos_tienen_profesor::where('idMateria', $request->idMateria)->where('idProfesor', $request->idProfesor)->where('idGrupo', $request->idGrupo)->first();
@@ -88,38 +77,19 @@ class gruposTienenProfesorController extends Controller
         $profesorEstanGrupoForo->save();
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
     public function show(Request $request)
     {
 
         return response()->json(grupos_tienen_profesor::all()->where('idGrupo', $request->idGrupo));
     }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
+
     public function update(Request $request, $id)
     {
-        //
+       
     }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     * 
-     * 
-     */
+
     public function eliminarProfesorGrupoForo(Request $request)
     {
         $datos = profesorEstanGrupoForo::where('idForo', $request->idForo);
