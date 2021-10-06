@@ -30,6 +30,7 @@ class loginController extends Controller
 
         $connection-> connect();
 
+        
         if ($connection->auth()->attempt($request->username.'@syntech.intra', $request->password, $stayBound = true)) {
             return [
                 'connection' => 'Success',
@@ -49,7 +50,8 @@ class loginController extends Controller
         $datos=[
             "username" => $u->username,
             "nombre" => $u->nombre,
-            "ou" => $u->ou
+            "ou" => $u->ou,
+            "imagen_perfil" => $u->imagen_perfil
         ];
 
         $base64data = base64_encode(json_encode($datos));
