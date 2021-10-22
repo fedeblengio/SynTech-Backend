@@ -19,7 +19,7 @@ class DatosForo extends Migration
             $table->string('idUsuario',8);
             $table->string('titulo');
             $table->binary('mensaje');
-            $table->binary('datos')->nullable();
+          /*   $table->binary('datos')->nullable(); */
            
             $table->timestamps();
 

@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateTareasTable extends Migration
+class ArchivosTarea extends Migration
 {
     /**
      * Run the migrations.
@@ -13,14 +13,15 @@ class CreateTareasTable extends Migration
      */
     public function up()
     {
-        Schema::create('tareas', function (Blueprint $table) {
+        Schema::create('archivos_tarea', function (Blueprint $table) {
             $table->id();
-            $table->string("titulo");
-            $table->string("descripcion");
-            $table->string("fecha_vencimiento");
-            /* $table->binary('archivo')->nullable(); */
+            $table->unsignedBigInteger('idTarea');
+            $table->string('nombreArchivo')->nullable();
             $table->timestamps();
         });
+        Schema::table('archivos_tarea', function(Blueprint $table) {
+            $table->foreign('idTarea')->references('id')->on('tareas');
+        }); 
     }
 
     /**
@@ -30,6 +31,6 @@ class CreateTareasTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('tareas');
+        Schema::dropIfExists('archivos_tarea');
     }
 }
