@@ -75,7 +75,7 @@ class loginController extends Controller
     public function guardarToken($token){
         $t = new token;
         $t->token=$token;
-        $t->fecha_vencimiento=Carbon::now()->addMinutes(60);
+        $t->fecha_vencimiento=Carbon::now()->addMinutes(190);
         $t->save();
     }
    
