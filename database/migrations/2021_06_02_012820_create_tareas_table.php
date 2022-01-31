@@ -18,8 +18,8 @@ class CreateTareasTable extends Migration
             $table->string("titulo");
             $table->string("descripcion");
             $table->string("fecha_vencimiento");
-            /* $table->binary('archivo')->nullable(); */
             $table->timestamps();
+            
         });
     }
 

@@ -15,21 +15,23 @@ class CreateAlumnoEntregaTareasTable extends Migration
     {
         Schema::enableForeignKeyConstraints();
         Schema::create('alumno_entrega_tareas', function (Blueprint $table) {
-            
-          
+           
+           
             $table->unsignedBigInteger('idTareas');
             $table->integer('idAlumnos');
             $table->string('calificacion')->nullable();
-            /* $table->binary('archivo')->nullable(); */
+            
+            $table->string('mensaje_profesor')->nullable();
+            $table->boolean('re_hacer');
             $table->string('mensaje')->nullable();
-            $table->timestamps();
             $table->primary(['idAlumnos','idTareas']);
+            $table->timestamps();
             
         });
         Schema::table('alumno_entrega_tareas', function(Blueprint $table) {
-      
+           
             $table->foreign('idAlumnos')->references('idAlumnos')->on('alumnos');
-            $table->foreign('idTareas')->references('id')->on('tareas');
+            $table->foreign('idTareas')->references('idTareas')->on('profesor_crea_tareas');
         }); 
     }
 

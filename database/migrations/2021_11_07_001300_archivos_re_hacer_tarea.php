@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateReHacerTareasTable extends Migration
+class ArchivosReHacerTarea extends Migration
 {
     /**
      * Run the migrations.
@@ -13,25 +13,20 @@ class CreateReHacerTareasTable extends Migration
      */
     public function up()
     {
-        Schema::enableForeignKeyConstraints();
-        Schema::create('re_hacer_tareas', function (Blueprint $table) {
+   /*      Schema::create('archivos_re_hacer_tarea', function (Blueprint $table) {
+            $table->id();
             $table->unsignedBigInteger('idTareasNueva');
             $table->unsignedBigInteger('idTareas');
-            $table->string('calificacion')->nullable();
-            $table->primary(['idTareasNueva', 'idTareas']);
-            $table->integer('idAlumnos');
-            $table->string('mensaje')->nullable();
-            $table->string('mensaje_profesor')->nullable();
+            $table->unsignedBigInteger('idAlumnos');
+        
+            $table->string('nombreArchivo')->nullable();
             $table->timestamps();
-            
-            
-
         });
-        Schema::table('re_hacer_tareas', function(Blueprint $table) {
+        Schema::table('archivos_re_hacer_tarea', function(Blueprint $table) {
             $table->foreign('idTareas')->references('id')->on('tareas');
             $table->foreign('idTareasNueva')->references('id')->on('tareas');
             $table->foreign('idAlumnos')->references('idAlumnos')->on('alumnos');
-        }); 
+        });  */
     }
 
     /**
@@ -41,6 +36,6 @@ class CreateReHacerTareasTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('re_hacer_tareas');
+        /* Schema::dropIfExists('archivos_re_hacer_tarea'); */
     }
 }
