@@ -16,12 +16,12 @@ class ArchivosEntrega extends Migration
         Schema::create('archivos_entrega', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('idTareas');
-            $table->unsignedBigInteger('idAlumnos');
+            $table->integer('idAlumnos');
             $table->string('nombreArchivo')->nullable();
             $table->timestamps();
         });
-        Schema::table('archivos_tarea', function(Blueprint $table) {
-            $table->foreign('idTarea')->references('id')->on('tareas');
+        Schema::table('archivos_entrega', function(Blueprint $table) {
+            $table->foreign('idTareas')->references('id')->on('tareas');
             $table->foreign('idAlumnos')->references('idAlumnos')->on('alumnos');
         }); 
     }
