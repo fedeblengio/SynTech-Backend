@@ -22,7 +22,7 @@ class ArchivosForo extends Migration
 
         });
         Schema::table('archivos_foro', function(Blueprint $table) {
-            $table->foreign('idForo')->references('idForo')->on('datosForo');
+            $table->foreign('idForo')->references('id')->on('foros');
             $table->foreign('idDato')->references('id')->on('datosForo');
         }); 
     }

@@ -1,8 +1,9 @@
 <?php
 
 use Illuminate\Http\Request;
+use App\Models\usuarios;
 use Illuminate\Support\Facades\Route;
-use App\User;
+use LdapRecord\Models\ActiveDirectory\User;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers;
 use Carbon\Carbon;
@@ -22,7 +23,7 @@ use App\Models\materia;
 Route::post('/login','App\Http\Controllers\loginController@connect');
 
 Route::get('/test', function (){
-    $materia = materia::all();
+    $materia = usuarios::all();
     return $materia;
 });
 

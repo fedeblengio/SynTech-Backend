@@ -10,7 +10,7 @@
     'locale' => 'en',
     'fallback_locale' => 'en',
     'faker_locale' => 'en_US',
-    'key' => 'base64:mVq77iRbxXImxwfSHb6PvFTjS/tNpZ1O95G3X452RXU=',
+    'key' => 'base64:j3BTRkvr7htVm8M0KMF24hAMgSiJhRrlCQHiBoapzEg=',
     'cipher' => 'AES-256-CBC',
     'providers' => 
     array (
@@ -280,7 +280,7 @@
       array (
         'driver' => 'mysql',
         'url' => NULL,
-        'host' => 'syntechdatabase.ddns.net',
+        'host' => '192.168.50.138',
         'port' => '3306',
         'database' => 'laravel',
         'username' => 'test',
@@ -300,7 +300,7 @@
       array (
         'driver' => 'pgsql',
         'url' => NULL,
-        'host' => 'syntechdatabase.ddns.net',
+        'host' => '192.168.50.138',
         'port' => '3306',
         'database' => 'laravel',
         'username' => 'test',
@@ -315,7 +315,7 @@
       array (
         'driver' => 'sqlsrv',
         'url' => NULL,
-        'host' => 'syntechdatabase.ddns.net',
+        'host' => '192.168.50.138',
         'port' => '3306',
         'database' => 'laravel',
         'username' => 'test',
@@ -408,10 +408,10 @@
       array (
         'hosts' => 
         array (
-          0 => '192.168.1.73',
+          0 => '192.168.50.139',
         ),
-        'username' => 'test@syntech.intra',
-        'password' => 'test',
+        'username' => 'administrador@syntech.intra',
+        'password' => 'SynTech2021',
         'port' => '636',
         'base_dn' => 'DC=syntech,DC=intra',
         'timeout' => '5',
