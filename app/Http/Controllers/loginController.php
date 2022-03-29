@@ -23,7 +23,7 @@ class loginController extends Controller
     {
         
         $connection = new Connection([
-            'hosts' => ['192.168.1.73'],
+            'hosts' => ['192.168.50.139'],
         ]);
 
         $datos = self::traerDatos($request); 
