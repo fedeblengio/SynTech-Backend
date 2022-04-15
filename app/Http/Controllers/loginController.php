@@ -51,7 +51,9 @@ class loginController extends Controller
             "username" => $u->username,
             "nombre" => $u->nombre,
             "ou" => $u->ou,
-            "imagen_perfil" => $u->imagen_perfil
+            "email" => $u->email,
+            "genero" => $u->genero,
+            "imagen_perfil" => $u->imagen_perfil,
         ];
 
         $base64data = base64_encode(json_encode($datos));
@@ -75,7 +77,7 @@ class loginController extends Controller
     public function guardarToken($token){
         $t = new token;
         $t->token=$token;
-        $t->fecha_vencimiento=Carbon::now()->addMinutes(190);
+        $t->fecha_vencimiento=Carbon::now()->addMinutes(90);
         $t->save();
     }
    
