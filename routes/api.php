@@ -23,7 +23,7 @@ use App\Models\materia;
 Route::post('/login','App\Http\Controllers\loginController@connect');
 
 Route::get('/test', function (){
-    $materia = usuarios::all();
+    $materia = User::all();
     return $materia;
 });
 
@@ -33,7 +33,7 @@ Route::get('/usuarios','App\Http\Controllers\usuariosController@index');
 
 Route::get('/usuario','App\Http\Controllers\usuariosController@show')->middleware('verificar_token');
 
-Route::post('/usuario','App\Http\Controllers\usuariosController@create')->middleware('verificar_token');
+Route::post('/usuario','App\Http\Controllers\usuariosController@create');
 Route::delete('/usuario','App\Http\Controllers\usuariosController@destroy')->middleware('verificar_token');
 Route::put('/usuario','App\Http\Controllers\usuariosController@update')->middleware('verificar_token');
 
