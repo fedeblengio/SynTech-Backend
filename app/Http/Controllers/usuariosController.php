@@ -90,7 +90,7 @@ class usuariosController extends Controller
         $bedelias = new bedelias;
         $bedelias->Cedula_Bedelia = $request->samaccountname;
         $bedelias->idBedelias = $request->samaccountname;
-        $bedelias->cargo="Administrador";
+        $bedelias->cargo=$request->cargo;
         $bedelias->save();
 
     }
