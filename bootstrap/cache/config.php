@@ -10,7 +10,7 @@
     'locale' => 'en',
     'fallback_locale' => 'en',
     'faker_locale' => 'en_US',
-    'key' => 'base64:a/TYNAAInqlcfzsO3X4HkAl3dyBPUNw8VZg0t7znt4w=',
+    'key' => 'base64:mw0vS0+2AHZP4yIoKdfcZaFh0UgPtOXJS48onIe/gOs=',
     'cipher' => 'AES-256-CBC',
     'providers' => 
     array (
@@ -410,8 +410,8 @@
         array (
           0 => '192.168.50.139',
         ),
-        'username' => 'test@syntech.intra',
-        'password' => 'test',
+        'username' => 'administrador@syntech.intra',
+        'password' => 'SynTech2022',
         'port' => '636',
         'base_dn' => 'DC=syntech,DC=intra',
         'timeout' => '5',
