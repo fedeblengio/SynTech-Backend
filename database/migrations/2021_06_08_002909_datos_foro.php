@@ -29,7 +29,7 @@ class DatosForo extends Migration
 
         Schema::table('datosForo', function(Blueprint $table) {
             $table->foreign('idForo')->references('id')->on('foros');
-            $table->foreign('idUsuario')->references('username')->on('usuarios');
+            $table->foreign('idUsuario')->references('id')->on('usuarios');
         }); 
     }
 

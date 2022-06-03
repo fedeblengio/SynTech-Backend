@@ -22,7 +22,7 @@ class CreateProfesoresTable extends Migration
             $table->timestamps();
         });
         Schema::table('profesores', function(Blueprint $table) {
-            $table->foreign('Cedula_Profesor')->references('username')->on('usuarios');
+            $table->foreign('Cedula_Profesor')->references('id')->on('usuarios');
         }); 
     }
 

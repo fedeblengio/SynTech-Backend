@@ -25,7 +25,7 @@ class CreateAlumnosTable extends Migration
         });
          
         Schema::table('alumnos', function(Blueprint $table) {
-            $table->foreign('Cedula_Alumno')->references('username')->on('usuarios');
+            $table->foreign('Cedula_Alumno')->references('id')->on('usuarios');
         }); 
     }
 
