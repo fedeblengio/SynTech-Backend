@@ -16,13 +16,13 @@ class CreateHistorialRegistrosTable extends Migration
         Schema::create('historial_registros', function (Blueprint $table) {
             $table->id();
             $table->string('idUsuario', 8);
-            $table->string('App');
-            $table->string('Accion');
-            $table->string('Mensaje');
+            $table->string('app');
+            $table->string('accion');
+            $table->string('mensaje');
             $table->timestamps();
         });
         Schema::table('historial_registros', function (Blueprint $table) {
-            $table->foreign('idUsuario')->references('username')->on('usuarios');
+            $table->foreign('idUsuario')->references('id')->on('usuarios');
         });
     }
 
