@@ -45,10 +45,10 @@ class loginController extends Controller
     public function traerDatos($request){
 
 
-        $u = usuarios::where('username', $request->username)->first(); 
+        $u = usuarios::where('id', $request->username)->first(); 
 
         $datos=[
-            "username" => $u->username,
+            "username" => $u->id,
             "nombre" => $u->nombre,
             "ou" => $u->ou,
             "email" => $u->email,

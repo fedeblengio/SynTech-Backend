@@ -14,8 +14,8 @@ class agregarUsuarioGrupoController extends Controller
        
 
             $alumnos_sin_grupo = DB::table('alumnos')
-            ->select('usuarios.nombre','usuarios.username','usuarios.email')
-            ->join('usuarios', 'usuarios.username', '=', 'alumnos.idAlumnos')
+            ->select('usuarios.nombre','usuarios.id','usuarios.email')
+            ->join('usuarios', 'usuarios.id', '=', 'alumnos.idAlumnos')
             ->leftJoin('alumnos_pertenecen_grupos', 'alumnos.idAlumnos', '=', 'alumnos_pertenecen_grupos.idAlumnos')
             ->whereNull('alumnos_pertenecen_grupos.idAlumnos')
             ->get();

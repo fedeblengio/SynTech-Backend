@@ -20,7 +20,7 @@ class gruposTienenProfesorController extends Controller
         $variable2 = $request->idProfesor;
 
         $resultado = DB::select(
-            DB::raw('SELECT A.idMateria, materias.nombre materia , A.idProfesor username , usuarios.nombre nombre  FROM (SELECT * from profesor_dicta_materia WHERE idProfesor=:variable2) as A LEFT JOIN (SELECT * FROM grupos_tienen_profesor WHERE idGrupo=:variable) as B ON A.idMateria = B.idMateria JOIN materias ON A.idMateria=materias.id JOIN usuarios ON A.idProfesor=usuarios.username WHERE B.idMateria IS NULL;'),
+            DB::raw('SELECT A.idMateria, materias.nombre materia , A.idProfesor username , usuarios.nombre nombre  FROM (SELECT * from profesor_dicta_materia WHERE idProfesor=:variable2) as A LEFT JOIN (SELECT * FROM grupos_tienen_profesor WHERE idGrupo=:variable) as B ON A.idMateria = B.idMateria JOIN materias ON A.idMateria=materias.id JOIN usuarios ON A.idProfesor=usuarios.id WHERE B.idMateria IS NULL;'),
             array('variable' => $variable, 'variable2' => $variable2)
         );
 
@@ -32,9 +32,9 @@ class gruposTienenProfesorController extends Controller
     {
 
         $profesor_materia = DB::table('profesor_dicta_materia')
-            ->select('usuarios.username AS cedulaProfesor', 'usuarios.nombre AS nombreProfesor', 'materias.id AS idMateria', 'materias.nombre AS nombreMateria')
+            ->select('usuarios.id AS cedulaProfesor', 'usuarios.nombre AS nombreProfesor', 'materias.id AS idMateria', 'materias.nombre AS nombreMateria')
             ->join('materias', 'materias.id', '=', 'profesor_dicta_materia.idMateria')
-            ->join('usuarios', 'usuarios.username', '=', 'profesor_dicta_materia.idProfesor')
+            ->join('usuarios', 'usuarios.id', '=', 'profesor_dicta_materia.idProfesor')
             ->get();
 
         return response()->json($profesor_materia);

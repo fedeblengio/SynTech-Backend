@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
-
+use Illuminate\Support\Facades\Storage;
 use App\Models\usuarios;
 use App\Models\alumnos;
 use App\Models\profesores;
@@ -22,7 +22,7 @@ class usuariosController extends Controller
     public function create(Request $request)
     {
         $usuarioAD = User::find('cn=' . $request->samaccountname . ',ou=UsuarioSistema,dc=syntech,dc=intra');
-        $usuarioDB = usuarios::where('username', $request->samaccountname)->first();
+        $usuarioDB = usuarios::where('id', $request->samaccountname)->first();
 
 
 
@@ -64,7 +64,7 @@ class usuariosController extends Controller
 
     public function agregarUsuarioDB($request){
         $usuarioDB = new usuarios;
-        $usuarioDB->username = $request->samaccountname;
+        $usuarioDB->id = $request->samaccountname;
         $usuarioDB->nombre = $request->cn;
         $usuarioDB->email = $request->userPrincipalName;
         $usuarioDB->ou = $request->ou;
@@ -89,7 +89,7 @@ class usuariosController extends Controller
     public function agregarUsuarioBedelias($request){
         $bedelias = new bedelias;
         $bedelias->Cedula_Bedelia = $request->samaccountname;
-        $bedelias->idBedelias = $request->samaccountname;
+        $bedelias->id = $request->samaccountname;
         $bedelias->cargo=$request->cargo;
         $bedelias->save();
 
@@ -116,9 +116,14 @@ class usuariosController extends Controller
 
 
     public function show(request $request)
-    {
-        $userDB = usuarios::where('username', $request->username)->first();
-        return response()->json($userDB);
+    {   
+            
+        $userDB = usuarios::where('id', $request->username)->first();
+        $profile_img= base64_encode(Storage::disk('ftp')->get($userDB->imagen_perfil));
+        return response()->json([
+            "user" => $userDB,
+            "profile_img" => $profile_img
+        ]);
     }
 
 
@@ -145,36 +150,37 @@ class usuariosController extends Controller
 
     public function update_db($request)
     {
-        $usuarios = usuarios::where('username', $request->username)->first();
+        $usuarios = usuarios::where('id', $request->username)->first();
         if($usuarios){
-            DB::update('UPDATE usuarios SET nombre="' . $request->nuevoNombre . '" ,  email="' . $request->nuevoEmail . '" WHERE username="' . $request->username . '";');  
+            DB::update('UPDATE usuarios SET nombre="' . $request->nuevoNombre . '" ,  email="' . $request->nuevoEmail . '" WHERE id="' . $request->username . '";');  
         }
     }
 
     
     public function destroy(request $request)
     {
-        $existe = usuarios::where('username', $request->username)->first();
-        $user = User::find('cn=' . $request->username . ',ou=UsuarioSistema,dc=syntech,dc=intra');
-        try {
+        $existe = usuarios::where('id', $request->id)->first();
+        $existe->delete();
+        $user = User::find('cn=' . $request->id . ',ou=UsuarioSistema,dc=syntech,dc=intra');
+       /*  try { */
             if ($existe) {
                 $user->delete();
-                self::eliminarPersona($request);
-                DB::delete('delete from usuarios where username="' . $request->username . '" ;');
+                /* self::eliminarPersona($request); */
+                /* DB::delete('delete from usuarios where username="' . $request->username . '" ;'); */
                 
                 return response()->json(['status' => 'Success'], 200);
             }
             return response()->json(['status' => 'Bad Request'], 400);
-        } catch (\Throwable $th) {
+        /* } catch (\Throwable $th) {
             return response()->json(['status' => 'Bad Request'], 400);
-        }
+        } */
     }
     public function eliminarPersona($request) {
 
         try {
             switch ($request->ou) {
                 case "Bedelias":
-                    DB::delete('delete from bedelias where idBedelias="' . $request->username . '" ;');
+                    DB::delete('delete from bedelias where id="' . $request->username . '" ;');
                     break;
                 case "Alumno":
                     DB::delete('delete from alumnos where idAlumnos="' . $request->username . '" ;');
