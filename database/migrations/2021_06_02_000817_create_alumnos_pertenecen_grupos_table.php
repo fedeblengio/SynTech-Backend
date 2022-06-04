@@ -17,16 +17,18 @@ class CreateAlumnosPertenecenGruposTable extends Migration
         Schema::create('alumnos_pertenecen_grupos', function (Blueprint $table) {
             
            
-           
+           $table->id();
             $table->string('idGrupo',10);
             $table->integer('idAlumnos');
-            
-            $table->primary('idAlumnos');
+           
+            $table->unique(['idAlumnos', 'idGrupo']);
+           
             $table->timestamps();
+            $table->softDeletes();
         });
         Schema::table('alumnos_pertenecen_grupos', function(Blueprint $table) {
             $table->foreign('idGrupo')->references('idGrupo')->on('grupos');
-            $table->foreign('idAlumnos')->references('idAlumnos')->on('alumnos');
+            $table->foreign('idAlumnos')->references('id')->on('alumnos');
         }); 
     }
 

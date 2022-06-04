@@ -9,5 +9,6 @@ class profesorEstanGrupoForo extends Model
 {
     use HasFactory;
     protected $table = 'profesor_estan_grupo_foro';
-    
+
+
 }

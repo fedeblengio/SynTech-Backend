@@ -22,7 +22,7 @@ class ArchivosEntrega extends Migration
         });
         Schema::table('archivos_entrega', function(Blueprint $table) {
             $table->foreign('idTareas')->references('id')->on('tareas');
-            $table->foreign('idAlumnos')->references('idAlumnos')->on('alumnos');
+            $table->foreign('idAlumnos')->references('id')->on('alumnos');
         }); 
     }
 

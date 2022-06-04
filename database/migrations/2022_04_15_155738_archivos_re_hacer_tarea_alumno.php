@@ -24,7 +24,7 @@ class ArchivosReHacerTareaAlumno extends Migration
         Schema::table('archivos_re_hacer_tarea', function(Blueprint $table) {
             $table->foreign('idTareas')->references('id')->on('tareas');
             $table->foreign('idTareasNueva')->references('id')->on('tareas');
-            $table->foreign('idAlumnos')->references('idAlumnos')->on('alumnos');
+            $table->foreign('idAlumnos')->references('id')->on('alumnos');
         });  
     }
 

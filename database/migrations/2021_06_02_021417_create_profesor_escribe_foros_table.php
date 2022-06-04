@@ -28,7 +28,7 @@ class CreateProfesorEscribeForosTable extends Migration
             $table->foreign('idForo')->references('id')->on('foros');
             $table->foreign('idGrupo')->references('idGrupo')->on('grupos');
             $table->foreign('idMateria')->references('id')->on('materias');
-            $table->foreign('idProfesor')->references('idProfesor')->on('profesores');
+            $table->foreign('idProfesor')->references('id')->on('profesores');
         }); 
     }
 

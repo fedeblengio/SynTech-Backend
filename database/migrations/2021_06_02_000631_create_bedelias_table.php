@@ -19,6 +19,7 @@ class CreateBedeliasTable extends Migration
             $table->primary(['Cedula_Bedelia', 'id']);
             $table->string("cargo")->nullable();
             $table->timestamps();
+            $table->softDeletes();
         });
 
         Schema::table('bedelias', function(Blueprint $table) {

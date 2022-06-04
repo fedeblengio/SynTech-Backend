@@ -30,7 +30,7 @@ class CreateAlumnoEntregaTareasTable extends Migration
         });
         Schema::table('alumno_entrega_tareas', function(Blueprint $table) {
            
-            $table->foreign('idAlumnos')->references('idAlumnos')->on('alumnos');
+            $table->foreign('idAlumnos')->references('id')->on('alumnos');
             $table->foreign('idTareas')->references('idTareas')->on('profesor_crea_tareas');
         }); 
     }

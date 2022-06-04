@@ -15,16 +15,18 @@ class CreateProfesorDictaMateriasTable extends Migration
     {
         Schema::enableForeignKeyConstraints();
         Schema::create('profesor_dicta_materia', function (Blueprint $table) {
+            $table->id();
             $table->unsignedBigInteger('idMateria');
             $table->integer('idProfesor');
-            $table->primary(['idMateria', 'idProfesor']);
+            $table->unique(['idMateria', 'idProfesor']);
            
             
         
             $table->timestamps();
+            $table->softDeletes();
         });
         Schema::table('profesor_dicta_materia', function(Blueprint $table) {
-            $table->foreign('idProfesor')->references('idProfesor')->on('profesores');
+            $table->foreign('idProfesor')->references('id')->on('profesores');
             $table->foreign('idMateria')->references('id')->on('materias');
         }); 
     }

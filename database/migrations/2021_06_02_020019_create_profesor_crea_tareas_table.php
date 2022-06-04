@@ -27,7 +27,7 @@ class CreateProfesorCreaTareasTable extends Migration
             $table->foreign('idGrupo')->references('idGrupo')->on('grupos');
             $table->foreign('idTareas')->references('id')->on('tareas');
             $table->foreign('idMateria')->references('id')->on('materias');
-            $table->foreign('idProfesor')->references('idProfesor')->on('profesores');
+            $table->foreign('idProfesor')->references('id')->on('profesores');
         }); 
         
     }

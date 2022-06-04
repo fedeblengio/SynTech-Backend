@@ -24,7 +24,7 @@ class ListaAulaVirtual extends Migration
 
         Schema::table('lista_aula_virtual', function(Blueprint $table) {
             $table->foreign('idClase')->references('id')->on('agenda_clase_virtual');
-            $table->foreign('idAlumnos')->references('idAlumnos')->on('alumnos');
+            $table->foreign('idAlumnos')->references('id')->on('alumnos');
         });
     }
 

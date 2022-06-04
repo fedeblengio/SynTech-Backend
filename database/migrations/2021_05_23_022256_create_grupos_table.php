@@ -14,10 +14,13 @@ class CreateGruposTable extends Migration
     public function up()
     {
         Schema::create('grupos', function (Blueprint $table) {
-            $table->string('idGrupo',10)->primary();
+            $table->id();
+            $table->string('idGrupo',10);
+            $table->unique('idGrupo');
             $table->string('nombreCompleto')->nullable();
             $table->string('anioElectivo');
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

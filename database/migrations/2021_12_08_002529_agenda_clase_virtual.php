@@ -26,7 +26,7 @@ class AgendaClaseVirtual extends Migration
         Schema::table('agenda_clase_virtual', function (Blueprint $table) {
             $table->foreign('idGrupo')->references('idGrupo')->on('grupos');
             $table->foreign('idMateria')->references('id')->on('materias');
-            $table->foreign('idProfesor')->references('idProfesor')->on('profesores');
+            $table->foreign('idProfesor')->references('id')->on('profesores');
         });
     }
 

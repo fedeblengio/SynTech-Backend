@@ -17,11 +17,12 @@ class CreateAlumnosTable extends Migration
    
         Schema::create('alumnos', function (Blueprint $table) {
            
-            $table->integer('idAlumnos');
+            $table->integer('id');
             //$table->foreign('Cedula')->references('username')->on('usuarios')->onDelete('cascade');
             $table->string('Cedula_Alumno',8);
-            $table->primary(['idAlumnos', 'Cedula_Alumno']);
+            $table->primary(['id', 'Cedula_Alumno']);
             $table->timestamps();
+            $table->softDeletes();
         });
          
         Schema::table('alumnos', function(Blueprint $table) {
