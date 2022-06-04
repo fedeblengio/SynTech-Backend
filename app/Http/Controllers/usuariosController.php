@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
+
 use Illuminate\Support\Facades\Storage;
 use App\Models\usuarios;
 use App\Models\alumnos;
@@ -22,18 +23,20 @@ class usuariosController extends Controller
     public function create(Request $request)
     {
         $usuarioAD = User::find('cn=' . $request->samaccountname . ',ou=UsuarioSistema,dc=syntech,dc=intra');
-        $usuarioDB = usuarios::where('id', $request->samaccountname)->first();
-
-
-
-        if ($usuarioAD) {
-            return response()->json(['error' => 'Forbidden'], 403);
-            $this->exit();
-        }
+        /* $usuarioDB = usuarios::where('id', $request->samaccountname)->first(); */
+        $usuarioDB = DB::table('usuarios')
+            ->select('*')
+            ->where('id', $request->samaccountname)
+            ->first();
         if ($usuarioDB) {
+            if ($usuarioDB->deleted_at) {
+                self::activarUsuarioAD($usuarioAD);
+                self::activarUsuarioDB($request);
+                return response()->json(['status' => 'Success'], 200);
+            }
+
             return response()->json(['error' => 'Forbidden'], 403);
         } else {
-
             try {
                 self::agregarUsuarioDB($request);
                 self::agregarUsuarioAD($request);
@@ -48,21 +51,23 @@ class usuariosController extends Controller
                     case "Profesor":
                         self::agregarUsuarioProfesor($request);
                         break;
-                    
                 }
 
                 return response()->json(['status' => 'Success'], 200);
-
             } catch (\Throwable $th) {
-              return response()->json(['status' => 'Error'], 400); 
-              return $th;
+                return response()->json(['status' => 'Error'], 400);
+                return $th;
             }
+        }
 
-
+        if ($usuarioAD) {
+            return response()->json(['error' => 'Forbidden'], 403);
+            $this->exit();
         }
     }
 
-    public function agregarUsuarioDB($request){
+    public function agregarUsuarioDB($request)
+    {
         $usuarioDB = new usuarios;
         $usuarioDB->id = $request->samaccountname;
         $usuarioDB->nombre = $request->cn;
@@ -70,29 +75,65 @@ class usuariosController extends Controller
         $usuarioDB->ou = $request->ou;
         $usuarioDB->save();
     }
-    public function agregarUsuarioAlumno($request){
-        $alumno = new alumnos;
-        $alumno->Cedula_Alumno = $request->samaccountname;
-        $alumno->idAlumnos = $request->samaccountname;
-        $alumno->save();
-
+    public function agregarUsuarioAlumno($request)
+    {
+        $alumno = DB::table('alumnos')
+            ->select('*')
+            ->where('id', $request->samaccountname)
+            ->first();
+        if ($alumno) {
+            if ($alumno->deleted_at) {
+                DB::table('alumnos')
+                    ->where('id', $request->samaccountname)
+                    ->update(['deleted_at' => null]);
+            }
+        } else {
+            $alumno = new alumnos;
+            $alumno->Cedula_Alumno = $request->samaccountname;
+            $alumno->id = $request->samaccountname;
+            $alumno->save();
+        }
     }
 
-    public function agregarUsuarioProfesor($request){
-        $profesores = new profesores;
-        $profesores->Cedula_Profesor = $request->samaccountname;
-        $profesores->idProfesor = $request->samaccountname;
-        $profesores->grado="7";
-        $profesores->save();
+    public function agregarUsuarioProfesor($request)
+    {
+        $profesores = DB::table('profesores')
+            ->select('*')
+            ->where('id', $request->samaccountname)
+            ->first();
+        if ($profesores) {
+            if ($profesores->deleted_at) {
+                DB::table('profesores')
+                    ->where('id', $request->samaccountname)
+                    ->update(['deleted_at' => null]);
+            }
+        } else {
+            $profesores = new profesores;
+            $profesores->Cedula_Profesor = $request->samaccountname;
+            $profesores->id = $request->samaccountname;
+            $profesores->save();
+        }
     }
 
-    public function agregarUsuarioBedelias($request){
-        $bedelias = new bedelias;
-        $bedelias->Cedula_Bedelia = $request->samaccountname;
-        $bedelias->id = $request->samaccountname;
-        $bedelias->cargo=$request->cargo;
-        $bedelias->save();
-
+    public function agregarUsuarioBedelias($request)
+    {
+        $bedelias = DB::table('bedelias')
+            ->select('*')
+            ->where('id', $request->samaccountname)
+            ->first();
+        if ($bedelias) {
+            if ($bedelias->deleted_at) {
+                DB::table('bedelias')
+                    ->where('id', $request->samaccountname)
+                    ->update(['deleted_at' => null, 'cargo' => $request->cargo]);
+            }
+        } else {
+            $bedelias = new bedelias;
+            $bedelias->Cedula_Bedelia = $request->samaccountname;
+            $bedelias->id = $request->samaccountname;
+            $bedelias->cargo = $request->cargo;
+            $bedelias->save();
+        }
     }
 
     public function agregarUsuarioAD(Request $request)
@@ -114,12 +155,44 @@ class usuariosController extends Controller
         }
     }
 
+    public function activarUsuarioAD($usuarioAD)
+    {
+        $usuarioAD->userAccountControl = 66048;
+        $usuarioAD->save();
+        $usuarioAD->refresh();
+    }
+
+    public function activarUsuarioDB($request)
+    {
+        $usuarioDB = [
+            "nombre" => $request->cn,
+            "email" => $request->userPrincipalName,
+            "ou" => $request->ou,
+            "deleted_at" => null
+        ];
+        DB::table('usuarios')
+            ->where('id', $request->samaccountname)
+            ->update($usuarioDB);
+
+        switch ($request->ou) {
+            case "Bedelias":
+                self::agregarUsuarioBedelias($request);
+                break;
+            case "Alumno":
+                self::agregarUsuarioAlumno($request);
+                break;
+            case "Profesor":
+                self::agregarUsuarioProfesor($request);
+                break;
+        }
+    }
+
 
     public function show(request $request)
-    {   
-            
+    {
+
         $userDB = usuarios::where('id', $request->username)->first();
-        $profile_img= base64_encode(Storage::disk('ftp')->get($userDB->imagen_perfil));
+        $profile_img = base64_encode(Storage::disk('ftp')->get($userDB->imagen_perfil));
         return response()->json([
             "user" => $userDB,
             "profile_img" => $profile_img
@@ -129,69 +202,73 @@ class usuariosController extends Controller
 
     public function update(Request $request)
     {
-        if($request->newPassword){
-       try { 
-           
-            $user = User::find('cn=' . $request->username . ',ou=UsuarioSistema,dc=syntech,dc=intra');
-            $user->unicodePwd = $request->newPassword;
-            $user->save();
-            $user->refresh();
+        if ($request->newPassword) {
+            try {
+
+                $user = User::find('cn=' . $request->username . ',ou=UsuarioSistema,dc=syntech,dc=intra');
+                $user->unicodePwd = $request->newPassword;
+                $user->save();
+                $user->refresh();
+                self::update_db($request);
+                return response()->json(['status' => 'Success'], 200);
+            } catch (\Throwable $th) {
+                return response()->json(['status' => 'Bad Request'], 400);
+            }
+        } else {
             self::update_db($request);
-            return response()->json(['status' => 'Success'], 200);
-        } catch (\Throwable $th) {
-            return response()->json(['status' => 'Bad Request'], 400);
-        
-    }
-    }
-    else{
-        self::update_db($request);
-    }
+        }
     }
 
     public function update_db($request)
     {
         $usuarios = usuarios::where('id', $request->username)->first();
-        if($usuarios){
-            DB::update('UPDATE usuarios SET nombre="' . $request->nuevoNombre . '" ,  email="' . $request->nuevoEmail . '" WHERE id="' . $request->username . '";');  
+        if ($usuarios) {
+            DB::update('UPDATE usuarios SET nombre="' . $request->nuevoNombre . '" ,  email="' . $request->nuevoEmail . '" WHERE id="' . $request->username . '";');
         }
     }
 
-    
+
     public function destroy(request $request)
     {
         $existe = usuarios::where('id', $request->id)->first();
-        $existe->delete();
+
         $user = User::find('cn=' . $request->id . ',ou=UsuarioSistema,dc=syntech,dc=intra');
-       /*  try { */
+        try {
             if ($existe) {
-                $user->delete();
-                /* self::eliminarPersona($request); */
+                $existe->delete();
+                $user->userAccountControl = 514;
+                $user->save();
+                $user->refresh();
+
+                self::eliminarPersona($existe);
                 /* DB::delete('delete from usuarios where username="' . $request->username . '" ;'); */
-                
+
                 return response()->json(['status' => 'Success'], 200);
             }
             return response()->json(['status' => 'Bad Request'], 400);
-        /* } catch (\Throwable $th) {
-            return response()->json(['status' => 'Bad Request'], 400);
-        } */
-    }
-    public function eliminarPersona($request) {
-
-        try {
-            switch ($request->ou) {
-                case "Bedelias":
-                    DB::delete('delete from bedelias where id="' . $request->username . '" ;');
-                    break;
-                case "Alumno":
-                    DB::delete('delete from alumnos where idAlumnos="' . $request->username . '" ;');
-                    break;
-                case "Profesor":
-                    DB::delete('delete from profesores where idProfesor="' . $request->username . '" ;');
-                    break;
-                
-            }
         } catch (\Throwable $th) {
             return response()->json(['status' => 'Bad Request'], 400);
+        }
+    }
+
+
+    public function eliminarPersona($existe)
+    {
+
+
+        switch ($existe->ou) {
+            case "Bedelias":
+                $bedelias = bedelias::where('id', $existe->id)->first();
+                $bedelias->delete();
+                break;
+            case "Alumno":
+                $alumnos = alumnos::where('id', $existe->id)->first();
+                $alumnos->delete();
+                break;
+            case "Profesor":
+                $profesores = profesores::where('id', $existe->id)->first();
+                $profesores->delete();
+                break;
         }
     }
 }
