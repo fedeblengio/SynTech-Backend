@@ -7,10 +7,13 @@ use App\Models\usuarios;
 use App\Models\alumnos;
 use App\Models\profesores;
 use App\Models\bedelias;
-
+use App\Models\alumnos_pertenecen_grupos;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
+use Carbon\Carbon;
 use LdapRecord\Models\ActiveDirectory\User;
+use App\Http\Controllers\agregarUsuarioGrupoController;
+use App\Http\Controllers\profesorDictaMateriaController;
 
 class usuariosController extends Controller
 {
@@ -70,7 +73,7 @@ class usuariosController extends Controller
     {
         $usuarioDB = new usuarios;
         $usuarioDB->id = $request->samaccountname;
-        $usuarioDB->nombre = $request->cn;
+        $usuarioDB->nombre = $request->name . " " . $request->surname;
         $usuarioDB->email = $request->userPrincipalName;
         $usuarioDB->ou = $request->ou;
         $usuarioDB->save();
@@ -93,6 +96,11 @@ class usuariosController extends Controller
             $alumno->id = $request->samaccountname;
             $alumno->save();
         }
+        if ($request->idGrupos) {
+            foreach ($request->idGrupos as $idG) {
+                agregarUsuarioGrupoController::store($request->samaccountname, $idG);
+            }
+        }
     }
 
     public function agregarUsuarioProfesor($request)
@@ -112,6 +120,11 @@ class usuariosController extends Controller
             $profesores->Cedula_Profesor = $request->samaccountname;
             $profesores->id = $request->samaccountname;
             $profesores->save();
+        }
+        if ($request->idMaterias) {
+            foreach ($request->idMaterias as $m) {
+                profesorDictaMateriaController::store($m, $request->samaccountname);
+            }
         }
     }
 
@@ -141,7 +154,7 @@ class usuariosController extends Controller
 
         $user = (new User)->inside('ou=UsuarioSistema,dc=syntech,dc=intra');
         $user->cn = $request->samaccountname;
-        $user->unicodePwd = $request->unicodePwd;
+        $user->unicodePwd =  $request->samaccountname;
         $user->samaccountname = $request->samaccountname;
 
         $user->save();
@@ -190,13 +203,9 @@ class usuariosController extends Controller
 
     public function show(request $request)
     {
-
         $userDB = usuarios::where('id', $request->username)->first();
-        $profile_img = base64_encode(Storage::disk('ftp')->get($userDB->imagen_perfil));
-        return response()->json([
-            "user" => $userDB,
-            "profile_img" => $profile_img
-        ]);
+        $userDB->imagen_perfil =base64_encode(Storage::disk('ftp')->get($userDB->imagen_perfil));
+        return response()->json($userDB);
     }
 
 
@@ -264,11 +273,34 @@ class usuariosController extends Controller
             case "Alumno":
                 $alumnos = alumnos::where('id', $existe->id)->first();
                 $alumnos->delete();
+                self::eliminarAlumnoGrupo($existe);
                 break;
             case "Profesor":
                 $profesores = profesores::where('id', $existe->id)->first();
                 $profesores->delete();
+                self::eliminarMateriaProfesor($existe);
+                self::eliminarMateriaGrupo($existe);
                 break;
         }
+    }
+
+    public function eliminarAlumnoGrupo(Request $request)
+    {
+        DB::table('alumnos_pertenecen_grupos')
+            ->where('idAlumnos', $request->id)
+            ->update(['deleted_at' => Carbon::now()->addMinutes(23)]);
+    }
+
+    public function eliminarMateriaProfesor($existe)
+    {
+        DB::table('profesor_dicta_materia')
+            ->where('idProfesor', $existe->id)
+            ->update(['deleted_at' => Carbon::now()->addMinutes(23)]);
+    }
+    public function eliminarMateriaGrupo($existe)
+    {
+        DB::table('grupos_tienen_profesor')
+            ->where('idProfesor', $existe->id)
+            ->update(['deleted_at' => Carbon::now()->addMinutes(23)]);
     }
 }

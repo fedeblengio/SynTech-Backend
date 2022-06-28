@@ -22,50 +22,113 @@ class profesorDictaMateriaController extends Controller
         );
         return response()->json($resultado);
     }
-
-    public function listarProfesores()
+    public function todosProfesorSegunMateria(Request $request)
     {
-        return response()->json(usuarios::all()->where('ou', 'Profesor'));
+        return   DB::table('profesor_dicta_materia')
+            ->select('profesor_dicta_materia.idProfesor', 'usuarios.nombre', 'usuarios.email', 'materias.id as idMateria', 'materias.nombre as materia')
+            ->join('usuarios', 'profesor_dicta_materia.idProfesor', '=', 'usuarios.id')
+            ->join('materias', 'materias.id', '=', 'profesor_dicta_materia.idMateria')
+            ->where('materias.id', $request->idMateria)
+            ->whereNull('profesor_dicta_materia.deleted_at')
+            ->get();
+    }
+    public function listarProfesores(Request $request)
+    {
+        $variable = $request->idMateria;
+        $resultado = DB::select(
+            DB::raw('SELECT A.id , A.nombre  FROM (SELECT profesores.id , usuarios.nombre from profesores JOIN usuarios ON profesores.Cedula_Profesor = usuarios.id) as A LEFT JOIN (SELECT * FROM profesor_dicta_materia WHERE idMateria=:variable) as B ON A.id = B.idProfesor WHERE B.idProfesor IS NULL ;'),
+            array('variable' => $variable)
+        );
+        return response()->json($resultado);
+
+        $a =  DB::table('usuarios')
+            ->select('usuarios.id', 'usuarios.nombre')
+            ->leftJoin('profesor_dicta_materia', 'profesor_dicta_materia.idProfesor', '=', 'usuarios.id')
+            ->where('profesor_dicta_materia.idMateria', $request->idMateria)
+           
+            ->get();
+
+            /* $a =  DB::table('usuarios') */
+            /* ->select('*') */
+            /* ->leftJoin('profesor_dicta_materia', 'profesor_dicta_materia.idProfesor', '=', 'usuarios.id')
+            ->where('profesor_dicta_materia.idMateria', $request->idMateria) */
+          /*   ->get();
+ */
+        return response()->json($a);
     }
 
-    public function store(Request $request)
+    public  function agregarListaDeProfesoresMateria(Request $request)
+    {
+       
+        try {
+            foreach ($request->profesores as $p) {
+                self::store($request->idMateria, $p);
+            }
+
+            return response()->json(['status' => 'Success'], 200);
+        } catch (\Throwable $th) {
+            return response()->json(['status' => 'Bad Request'], 400);
+        }
+    }
+    public static function store($idMateria, $idProfesor)
     {
 
-        $perteneceMateria = profesor_dicta_materia::where('idMateria', $request->idMateria)->where('idProfesor', $request->idProfesor)->first();
+        $perteneceMateria = DB::table('profesor_dicta_materia')
+            ->select('*')
+            ->where('idMateria', $idMateria)
+            ->where('idProfesor', $idProfesor)
+            ->first();
         if ($perteneceMateria) {
-            return response()->json(['status' => 'Not Acceptable'], 406);
-        } else {
-            try {
-                $agregarProfesorMateria = new profesor_dicta_materia;
-                $agregarProfesorMateria->idMateria = $request->idMateria;
-                $agregarProfesorMateria->idProfesor = $request->idProfesor;
-                $agregarProfesorMateria->save();
+            if ($perteneceMateria->deleted_at) {
+                DB::table('profesor_dicta_materia')
+                ->where('idMateria', $idMateria)
+                ->where('idProfesor', $idProfesor)
+                ->update(['deleted_at' => null]);
                 return response()->json(['status' => 'Success'], 200);
-            } catch (\Throwable $th) {
-                return response()->json(['status' => 'Bad Request'], 400);
             }
+            return response()->json(['status' => 'Materia Existe'], 416);
+        } else {
+
+            $agregarProfesorMateria = new profesor_dicta_materia;
+            $agregarProfesorMateria->idMateria = $idMateria;
+            $agregarProfesorMateria->idProfesor = $idProfesor;
+            $agregarProfesorMateria->save();
         }
     }
 
-  
+
+
+
     public function show(Request $request)
     {
         return response()->json(profesor_dicta_materia::all()->where('idProfesor', $request->idProfesor));
     }
 
-   
+
     public function update(Request $request, $id)
     {
     }
 
-    
+
     public function destroy(Request $request)
     {
         try {
-            DB::delete('delete from profesor_dicta_materia where idMateria="' . $request->idMateria . '" AND idProfesor="' . $request->idProfesor . '" ;');
+            /* DB::delete('delete from profesor_dicta_materia where idMateria="' . $request->idMateria . '" AND idProfesor="' . $request->idProfesor . '" ;'); */
+            $perteneceMateria = profesor_dicta_materia::where('idMateria', $request->idMateria)->where('idProfesor', $request->idProfesor)->first();
+            $perteneceMateria->delete();
+            self::eliminarProfesorGrupo($request);
+
             return response()->json(['status' => 'Success'], 200);
         } catch (\Throwable $th) {
             return response()->json(['status' => 'Bad Request'], 400);
         }
+    }
+
+    public function eliminarProfesorGrupo($request)
+    {
+        DB::table('grupos_tienen_profesor')
+            ->where('idMateria', $request->idMateria)
+            ->where('idProfesor', $request->idProfesor)
+            ->delete();
     }
 }

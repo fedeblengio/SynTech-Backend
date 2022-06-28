@@ -26,7 +26,9 @@ Route::get('/test', function (){
     $materia = User::all();
     return $materia;
 });
-
+// FTP TRAER ARCHIVOS
+Route::get('/archivos','App\Http\Controllers\loginController@traerArchivos');
+Route::get('/imagenPerfil','App\Http\Controllers\loginController@traerImagenPerfil');
 
 //USUARIOS
 Route::get('/usuarios','App\Http\Controllers\usuariosController@index');
@@ -48,6 +50,8 @@ Route::post('/grupo','App\Http\Controllers\gruposController@create')->middleware
 Route::delete('/grupo','App\Http\Controllers\gruposController@destroy')->middleware('verificar_token');
 Route::put('/grupo','App\Http\Controllers\gruposController@update')->middleware('verificar_token');
 
+Route::get('/materiaSinGrupo','App\Http\Controllers\gruposTienenProfesorController@traerMateriasSinGrupo')->middleware('verificar_token');
+
 
 
 //ALUMNOS 
@@ -68,13 +72,14 @@ Route::put('/materia','App\Http\Controllers\agregarMateriaController@update')->m
 
 Route::delete('/materia','App\Http\Controllers\agregarMateriaController@destroy')->middleware('verificar_token');
 
+Route::get('/materia-profesores','App\Http\Controllers\profesorDictaMateriaController@todosProfesorSegunMateria');
 Route::get('/profesorMateria','App\Http\Controllers\gruposTienenProfesorController@mostrarProfesorMateria')->middleware('verificar_token');
 
 
 // PROFESOR
 Route::get('/profesor','App\Http\Controllers\profesorDictaMateriaController@index')->middleware('verificar_token');
 
-Route::post('/profesor','App\Http\Controllers\profesorDictaMateriaController@store')->middleware('verificar_token');
+Route::post('/profesor','App\Http\Controllers\profesorDictaMateriaController@agregarListaDeProfesoresMateria')->middleware('verificar_token');
 
 Route::delete('/profesor','App\Http\Controllers\profesorDictaMateriaController@destroy')->middleware('verificar_token');
 
@@ -91,6 +96,9 @@ Route::delete('/curso','App\Http\Controllers\gruposTienenProfesorController@dest
 
 
 Route::get('/grupo-materia','App\Http\Controllers\gruposTienenProfesorController@index')->middleware('verificar_token');
+
+//
+Route::get('/integrantes-curso','App\Http\Controllers\gruposTienenProfesorController@listarIntegrantesDeUnGrupo')->middleware('verificar_token');
 
 
 //FORO
