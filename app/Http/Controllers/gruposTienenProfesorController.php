@@ -44,22 +44,24 @@ class gruposTienenProfesorController extends Controller
 
     public function store(Request $request)
     {
-       
+
         $profesorGrupo = DB::table('grupos_tienen_profesor')
             ->select('*')
             ->where('idMateria', $request->idMateria)
-            ->where('idMateria', $request->idProfesor)
             ->where('idGrupo', $request->idGrupo)
             ->first();
         if ($profesorGrupo) {
-            if ($profesorGrupo->deleted_at) {
-                DB::table('grupos_tienen_profesor')
-                    ->where('idMateria', $request->idMateria)
-                    ->where('idGrupo', $request->idGrupo)
-                    ->where('idMateria', $request->idProfesor)
-                    ->update(['deleted_at' => null]);
+            DB::table('grupos_tienen_profesor')
+                ->where('idMateria', $request->idMateria)
+                ->where('idGrupo', $request->idGrupo)
+                ->update(['idProfesor' => $request->idProfesor]);
+            DB::table('grupos_tienen_profesor')
+                ->where('idMateria', $request->idMateria)
+                ->where('idGrupo', $request->idGrupo)
+                ->update(['deleted_at' => null]);
                 self::actualizarForoProfesor($request);
-            }
+                 return response()->json(['status' => 'Success'], 200);
+          
         } else {
             $agregarProfesorGrupo = new grupos_tienen_profesor;
             $agregarProfesorGrupo->idMateria = $request->idMateria;
@@ -75,9 +77,11 @@ class gruposTienenProfesorController extends Controller
 
     public function actualizarForoProfesor($request)
     {
-        $profesorForo = profesorEstanGrupoForo::where('idGrupo', $request->idGrupo)->where('idMateria', $request->idMateria)->first();
-        $profesorForo->idProfesor = $request->idProfesor;
-        $profesorForo->save();
+        DB::table('profesor_estan_grupo_foro')
+        ->where('idMateria', $request->idMateria)
+        ->where('idGrupo', $request->idGrupo)
+        ->update(['idProfesor' => $request->idProfesor]);
+
     }
 
 
