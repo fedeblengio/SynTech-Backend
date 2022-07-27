@@ -44,10 +44,11 @@ class gruposTienenProfesorController extends Controller
 
     public function store(Request $request)
     {
-
+       
         $profesorGrupo = DB::table('grupos_tienen_profesor')
             ->select('*')
             ->where('idMateria', $request->idMateria)
+            ->where('idMateria', $request->idProfesor)
             ->where('idGrupo', $request->idGrupo)
             ->first();
         if ($profesorGrupo) {
@@ -55,6 +56,7 @@ class gruposTienenProfesorController extends Controller
                 DB::table('grupos_tienen_profesor')
                     ->where('idMateria', $request->idMateria)
                     ->where('idGrupo', $request->idGrupo)
+                    ->where('idMateria', $request->idProfesor)
                     ->update(['deleted_at' => null]);
                 self::actualizarForoProfesor($request);
             }
@@ -79,15 +81,48 @@ class gruposTienenProfesorController extends Controller
     }
 
 
-    public function traerMateriasSinGrupo($request)
+    public function traerMateriasSinGrupo(Request $request)
     {
 
-        $variable = $request->idGrupo;
+
         $resultado = DB::select(
-            DB::raw('SELECT A.id , A.nombre  FROM (SELECT * from materias WHERE deleted_at is NULL) as A LEFT JOIN (SELECT * FROM grupos_tienen_profesor WHERE idGrupo=:variable) as B ON A.id = B.idMateria WHERE B.idMateria IS NULL;'),
-            array('variable' => $variable)
+            DB::raw('SELECT A.id , A.nombre  FROM (SELECT * from materias WHERE deleted_at is NULL) as A LEFT JOIN (SELECT * FROM grupos_tienen_profesor WHERE idGrupo=:variable AND deleted_at IS NULL) as B ON A.id = B.idMateria WHERE B.idMateria IS NULL;'),
+            array('variable' => $request->idGrupo)
         );
-        return response()->json($resultado);
+
+
+        $dataResponse = array();
+
+        foreach ($resultado as $r) {
+
+            $profesoresmateria = DB::table('profesor_dicta_materia')
+                ->select('profesor_dicta_materia.idProfesor', 'usuarios.nombre', 'usuarios.email', 'materias.id as idMateria', 'materias.nombre as materia')
+                ->join('usuarios', 'profesor_dicta_materia.idProfesor', '=', 'usuarios.id')
+                ->join('materias', 'materias.id', '=', 'profesor_dicta_materia.idMateria')
+                ->where('materias.id', $r->id)
+                ->whereNull('profesor_dicta_materia.deleted_at')
+                ->get();
+
+
+
+
+
+            foreach ($profesoresmateria as $p) {
+
+
+                $datos = [
+                    "idProfesor" => $p->idProfesor,
+                    "nombre" => $p->nombre,
+                    "idMateria" => $r->id,
+                    "nombreMateria" => $r->nombre
+
+                ];
+
+                array_push($dataResponse, $datos);
+            }
+        }
+
+        return response()->json($dataResponse);
     }
 
 
@@ -171,6 +206,7 @@ class gruposTienenProfesorController extends Controller
             ->join('materias', 'materias.id', '=', 'grupos_tienen_profesor.idMateria')
             ->join('usuarios', 'usuarios.id', '=', 'grupos_tienen_profesor.idProfesor')
             ->where('grupos_tienen_profesor.idGrupo', '=', $request->idGrupo)
+            ->whereNull('grupos_tienen_profesor.deleted_at')
             ->get();
 
         foreach ($profesores as $p) {
@@ -180,6 +216,7 @@ class gruposTienenProfesorController extends Controller
             ->select('usuarios.id AS idAlumno', 'usuarios.nombre AS nombreAlumno', 'usuarios.imagen_perfil')
             ->join('usuarios', 'usuarios.id', '=', 'alumnos_pertenecen_grupos.idAlumnos')
             ->where('alumnos_pertenecen_grupos.idGrupo', '=', $request->idGrupo)
+            ->whereNull('alumnos_pertenecen_grupos.deleted_at')
             ->get();
 
         foreach ($alumnos as $a) {

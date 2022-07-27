@@ -11,50 +11,64 @@ use App\Models\alumnos_pertenecen_grupos;
 
 class agregarUsuarioGrupoController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
+     
 
+        $variable = $request->idGrupo;
+        $resultado = DB::select(
+            DB::raw('SELECT A.id , A.nombre, A.email  FROM (SELECT * from usuarios WHERE deleted_at is NULL) as A JOIN (SELECT * FROM alumnos) as B ON A.id = B.id LEFT JOIN (SELECT * FROM alumnos_pertenecen_grupos WHERE idGrupo=:variable) as C ON A.id = C.idAlumnos WHERE C.idGrupo IS NULL;'),
+            array('variable' => $variable)
+        );
 
-        $alumnos_sin_grupo = DB::table('alumnos')
-            ->select('usuarios.nombre', 'usuarios.id', 'usuarios.email')
-            ->join('usuarios', 'usuarios.id', '=', 'alumnos.idAlumnos')
-            ->leftJoin('alumnos_pertenecen_grupos', 'alumnos.idAlumnos', '=', 'alumnos_pertenecen_grupos.idAlumnos')
-            ->whereNull('alumnos_pertenecen_grupos.idAlumnos')
+        $alumnoseliminados = DB::table('alumnos_pertenecen_grupos')
+            ->select('usuarios.id', 'usuarios.nombre', 'usuarios.email')
+            ->join('usuarios', 'usuarios.id', '=', 'alumnos_pertenecen_grupos.idAlumnos')
+            ->where('alumnos_pertenecen_grupos.idGrupo', '=', $request->idGrupo)
+            ->where('alumnos_pertenecen_grupos.deleted_at')
             ->get();
 
-        return response()->json($alumnos_sin_grupo);
+
+            foreach ($alumnoseliminados as $a) {
+                array_push($resultado,$a);
+            }
+
+
+
+
+        return response()->json($resultado);
     }
-    public static function store($idAlumno, $idGrupo)
+    
+    public static function store(Request $request)
     {
         $alumnoGrupo = DB::table('alumnos_pertenecen_grupos')
             ->select('*')
-            ->where('idAlumnos', $idAlumno)
-            ->where('idGrupo', $idGrupo)
+            ->where('idAlumnos', $request->idAlumno)
+            ->where('idGrupo', $request->idGrupo)
             ->first();
         if ($alumnoGrupo) {
             if ($alumnoGrupo->deleted_at) {
                 DB::table('alumnos_pertenecen_grupos')
-                    ->where('idAlumnos', $idAlumno)
-                    ->where('idGrupo', $idGrupo)
+                    ->where('idAlumnos', $request->idAlumno)
+                    ->where('idGrupo', $request->idGrupo)
                     ->update(['deleted_at' => null]);
                 return response()->json(['status' => 'Success'], 200);
             }
-            return response()->json(['status' => 'Materia Existe'], 416);
+           
         } else {
             $agregarAlumnoGrupo = new alumnos_pertenecen_grupos;
-            $agregarAlumnoGrupo->idGrupo = $idGrupo;
-            $agregarAlumnoGrupo->idAlumnos = $idAlumno;
+            $agregarAlumnoGrupo->idGrupo = $request->idGrupo;
+            $agregarAlumnoGrupo->idAlumnos = $request->idAlumno;
             $agregarAlumnoGrupo->save();
             return response()->json(['status' => 'Success'], 200);
         }
     }
     public function destroy(request $request)
     {
-
-
         try {
             DB::table('alumnos_pertenecen_grupos')
-                ->where('idAlumnos', $request->idAlumnos)
+                ->where('idAlumnos', $request->idAlumno)
+                ->where('idGrupo', $request->idGrupo)
                 ->update(['deleted_at' => Carbon::now()->addMinutes(23)]);
             return response()->json(['status' => 'Success'], 200);
         } catch (\Throwable $th) {

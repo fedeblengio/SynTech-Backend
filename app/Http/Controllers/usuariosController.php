@@ -98,7 +98,11 @@ class usuariosController extends Controller
         }
         if ($request->idGrupos) {
             foreach ($request->idGrupos as $idG) {
-                agregarUsuarioGrupoController::store($request->samaccountname, $idG);
+
+                agregarUsuarioGrupoController::store(new Request([
+                    "idAlumno" => $request->samaccountname,
+                    "idGrupo" =>  $idG,
+                ]));
             }
         }
     }
@@ -204,7 +208,7 @@ class usuariosController extends Controller
     public function show(request $request)
     {
         $userDB = usuarios::where('id', $request->username)->first();
-        $userDB->imagen_perfil =base64_encode(Storage::disk('ftp')->get($userDB->imagen_perfil));
+        $userDB->imagen_perfil = base64_encode(Storage::disk('ftp')->get($userDB->imagen_perfil));
         return response()->json($userDB);
     }
 
