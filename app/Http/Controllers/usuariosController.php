@@ -18,8 +18,19 @@ use App\Http\Controllers\profesorDictaMateriaController;
 class usuariosController extends Controller
 {
 
-    public function index()
+    public function index(Request $request)
     {
+        $cargo = json_decode(base64_decode($request->header('token')))->cargo;
+
+        if ($cargo == "Adscripto" || $cargo == "Administrativo") {  
+            return response()->json(
+                DB::table('usuarios')
+                    ->select('*')
+                    ->where('ou','!=', "Bedelias")
+                    ->get()
+            );
+        }
+
         return response()->json(usuarios::all());
     }
 
@@ -288,10 +299,10 @@ class usuariosController extends Controller
         }
     }
 
-    public function eliminarAlumnoGrupo(Request $request)
+    public function eliminarAlumnoGrupo($existe)
     {
         DB::table('alumnos_pertenecen_grupos')
-            ->where('idAlumnos', $request->id)
+            ->where('idAlumnos', $existe->id)
             ->update(['deleted_at' => Carbon::now()->addMinutes(23)]);
     }
 

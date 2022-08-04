@@ -17,11 +17,11 @@ class agregarUsuarioGrupoController extends Controller
 
         $variable = $request->idGrupo;
         $resultado = DB::select(
-            DB::raw('SELECT A.id , A.nombre, A.email  FROM (SELECT * from usuarios WHERE deleted_at is NULL) as A JOIN (SELECT * FROM alumnos) as B ON A.id = B.id LEFT JOIN (SELECT * FROM alumnos_pertenecen_grupos WHERE idGrupo=:variable) as C ON A.id = C.idAlumnos WHERE C.idGrupo IS NULL;'),
+            DB::raw('SELECT A.id , A.nombre, A.email  FROM (SELECT * from usuarios WHERE deleted_at is NULL) as A JOIN (SELECT * FROM alumnos) as B ON A.id = B.id LEFT JOIN (SELECT * FROM alumnos_pertenecen_grupos WHERE idGrupo=:variable AND deleted_at IS NULL) as C ON A.id = C.idAlumnos WHERE C.idGrupo IS NULL;'),
             array('variable' => $variable)
         );
 
-        $alumnoseliminados = DB::table('alumnos_pertenecen_grupos')
+       /*  $alumnoseliminados = DB::table('alumnos_pertenecen_grupos')
             ->select('usuarios.id', 'usuarios.nombre', 'usuarios.email')
             ->join('usuarios', 'usuarios.id', '=', 'alumnos_pertenecen_grupos.idAlumnos')
             ->where('alumnos_pertenecen_grupos.idGrupo', '=', $request->idGrupo)
@@ -31,7 +31,7 @@ class agregarUsuarioGrupoController extends Controller
 
             foreach ($alumnoseliminados as $a) {
                 array_push($resultado,$a);
-            }
+            } */
 
 
 

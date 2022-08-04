@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
-
+use Illuminate\Support\Facades\DB;
 use App\Models\token;
 use App\Models\usuarios;
 use Illuminate\Http\Request;
@@ -45,12 +45,17 @@ class loginController extends Controller
     public function traerDatos($request)
     {
 
-
-        $u = usuarios::where('id', $request->username)->first();
+            $u= DB::table('usuarios')
+            ->select('usuarios.id','usuarios.nombre','usuarios.email','usuarios.ou','bedelias.cargo','usuarios.genero','usuarios.imagen_perfil')
+            ->join('bedelias', 'bedelias.id', '=', 'usuarios.id')
+            ->where('usuarios.id', $request->username)
+            ->whereNull('usuarios.deleted_at')
+            ->first();
 
         $datos = [
             "username" => $u->id,
             "nombre" => $u->nombre,
+            "cargo" => $u->cargo,
             "ou" => $u->ou,
             "email" => $u->email,
             "genero" => $u->genero,

@@ -17,10 +17,18 @@ class gruposController extends Controller
 
     public function create(Request $request)
     {
-        $gruposDB = grupos::where('idGrupo', $request->idGrupo)->first();
-
+        $gruposDB = DB::table('grupos')
+            ->select('*')
+            ->where('idGrupo', $request->idGrupo)
+            ->first();
 
         if ($gruposDB) {
+            if ($gruposDB->deleted_at) {
+                DB::table('grupos')
+                ->where('idGrupo', $request->idGrupo)
+                ->update(['deleted_at' => null]);
+                return response()->json(['status' => 'Success'], 200);
+            }
             return response()->json(['error' => 'Forbidden'], 416);
         } else {
             $gruposDB = new grupos;
@@ -39,11 +47,13 @@ class gruposController extends Controller
 
     public function destroy(request $request)
     {
-        $existe = grupos::where('idGrupo', $request->idGrupo)->first();
+        $grupo = grupos::where('idGrupo', $request->idGrupo)->first();
 
         try {
-            if ($existe) {
-                DB::delete('delete from grupos where idGrupo="' . $request->idGrupo . '" ;');
+            if ($grupo) {
+                self::eliminarProfesoresGrupo($request);
+                self::eliminarAlumnosGrupo($request);
+                $grupo->delete();
                 return response()->json(['status' => 'Success'], 200);
             }
             return response()->json(['status' => 'Bad Request'], 400);
@@ -51,6 +61,21 @@ class gruposController extends Controller
             return response()->json(['status' => 'Bad Request'], 400);
         }
     }
+
+    public function eliminarProfesoresGrupo($request)
+    {
+        DB::table('grupos_tienen_profesor')
+        ->where('idGrupo', $request->idGrupo)
+        ->update(['deleted_at' => Carbon::now()->addMinutes(23)]);
+    }
+
+    public function eliminarAlumnosGrupo($request)
+    {
+        DB::table('alumnos_pertenecen_grupos')
+        ->where('idGrupo', $request->idGrupo)
+        ->update(['deleted_at' => Carbon::now()->addMinutes(23)]);
+    }
+
 
     public function update(request $request)
     {
