@@ -22,11 +22,12 @@ class usuariosController extends Controller
     {
         $cargo = json_decode(base64_decode($request->header('token')))->cargo;
 
-        if ($cargo == "Adscripto" || $cargo == "Administrativo") {  
+        if ($cargo == "Adscripto" || $cargo == "Administrativo") {
             return response()->json(
                 DB::table('usuarios')
                     ->select('*')
-                    ->where('ou','!=', "Bedelias")
+                    ->where('ou', '!=', "Bedelias")
+                    ->where('deleted_at', NULL)
                     ->get()
             );
         }
@@ -220,9 +221,20 @@ class usuariosController extends Controller
     {
         $userDB = usuarios::where('id', $request->username)->first();
         $userDB->imagen_perfil = base64_encode(Storage::disk('ftp')->get($userDB->imagen_perfil));
-        return response()->json($userDB);
+
+        $infoUser = self::returnMoreInfoUser($userDB);
+        return response()->json(['user' => $userDB, 'info' => $infoUser]);
     }
 
+    public function returnMoreInfoUser($userOBJ)
+    {
+        if ($userOBJ->ou == 'Bedelias')
+            return DB::table('bedelias')->select('*')->where('id', $userOBJ->id)->first();
+        if ($userOBJ->ou == 'Profesor')
+            return DB::table('profesor_dicta_materia')->select('materias.nombre','materias.id')->join('materias','profesor_dicta_materia.idMateria','=','materias.id')->where('idProfesor', $userOBJ->id)->get();
+        if ($userOBJ->ou == 'Alumno')
+            return DB::table('alumnos_pertenecen_grupos')->select('grupos.idGrupo')->join('grupos','alumnos_pertenecen_grupos.idGrupo','=','grupos.idGrupo')->where('alumnos_pertenecen_grupos.idAlumnos', $userOBJ->id)->where('alumnos_pertenecen_grupos.deleted_at','=',' ')->get(); // Me lista grupos que estan eliminados Aaron help ??
+    }
 
     public function update(Request $request)
     {
