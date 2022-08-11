@@ -91,10 +91,12 @@ class loginController extends Controller
     {
         return base64_encode(Storage::disk('ftp')->get($request->nombre_archivo));
     }
-    public function traerImagenPerfil(Request $request)
-    {
-        $usuario = usuarios::where('id', $request->idUsuario)->first();
-        $base64imagen = base64_encode(Storage::disk('ftp')->get($usuario->imagen_perfil));
-        return $base64imagen;
+    public function traerImagenPerfil(Request $request )
+    { 
+        $usuarioDB = usuarios::where('id', $request->id)->first();
+        
+        $base64imagen = base64_encode(Storage::disk('ftp')->get($usuarioDB->imagen_perfil));
+    
+        return response()->json($base64imagen);
     }
 }

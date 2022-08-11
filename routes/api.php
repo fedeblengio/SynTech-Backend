@@ -28,7 +28,7 @@ Route::get('/test', function (){
 });
 // FTP TRAER ARCHIVOS
 Route::get('/archivos','App\Http\Controllers\loginController@traerArchivos');
-Route::get('/imagenPerfil','App\Http\Controllers\loginController@traerImagenPerfil');
+Route::get('/foto','App\Http\Controllers\loginController@traerImagenPerfil');
 
 //USUARIOS
 Route::get('/usuarios','App\Http\Controllers\usuariosController@index');
@@ -39,6 +39,9 @@ Route::post('/usuario','App\Http\Controllers\usuariosController@create');
 Route::delete('/usuario','App\Http\Controllers\usuariosController@destroy')->middleware('verificar_token');
 Route::put('/usuario','App\Http\Controllers\usuariosController@update')->middleware('verificar_token');
 
+Route::put('/foto','App\Http\Controllers\usuariosController@reestablecerImagenPerfil')->middleware('verificar_token');
+
+Route::put('/contrasenia','App\Http\Controllers\usuariosController@reestablecerContrasenia')->middleware('verificar_token');
 
 Route::post('/usuariosintoken','App\Http\Controllers\usuariosController@create');
 

@@ -31,6 +31,25 @@ class usuariosController extends Controller
                     ->get()
             );
         }
+        elseif ($cargo == "Director" || $cargo == "Subdirector"){
+            
+                $second = DB::table('usuarios')
+                    ->select('*')
+                    ->leftJoin('bedelias','usuarios.id','=','bedelias.id')
+                    ->where('bedelias.cargo', '!=', "administrador")
+                    ->where('usuarios.deleted_at', NULL)
+                    ->get();
+
+                  $final = DB::table('usuarios')
+                    ->select('*')
+                    ->where('ou', '!=', "Bedelias")
+                    ->where('deleted_at', NULL)
+                    ->get();
+
+                    return response()->json($second->merge($final) );
+            
+
+        }
 
         return response()->json(usuarios::all());
     }
@@ -231,9 +250,50 @@ class usuariosController extends Controller
         if ($userOBJ->ou == 'Bedelias')
             return DB::table('bedelias')->select('*')->where('id', $userOBJ->id)->first();
         if ($userOBJ->ou == 'Profesor')
-            return DB::table('profesor_dicta_materia')->select('materias.nombre','materias.id')->join('materias','profesor_dicta_materia.idMateria','=','materias.id')->where('idProfesor', $userOBJ->id)->get();
+            return DB::table('profesor_dicta_materia')
+            ->select('materias.nombre','materias.id')
+            ->join('materias','profesor_dicta_materia.idMateria','=','materias.id')
+            ->where('profesor_dicta_materia.idProfesor', $userOBJ->id)
+            ->where('profesor_dicta_materia.deleted_at', NULL)
+            ->get();
         if ($userOBJ->ou == 'Alumno')
-            return DB::table('alumnos_pertenecen_grupos')->select('grupos.idGrupo')->join('grupos','alumnos_pertenecen_grupos.idGrupo','=','grupos.idGrupo')->where('alumnos_pertenecen_grupos.idAlumnos', $userOBJ->id)->where('alumnos_pertenecen_grupos.deleted_at','=',' ')->get(); // Me lista grupos que estan eliminados Aaron help ??
+            return DB::table('alumnos_pertenecen_grupos')
+            ->select('grupos.idGrupo')
+            ->join('grupos','alumnos_pertenecen_grupos.idGrupo','=','grupos.idGrupo')
+            ->where('alumnos_pertenecen_grupos.idAlumnos', $userOBJ->id)
+            ->where('alumnos_pertenecen_grupos.deleted_at', NULL)
+            ->get(); // Me lista grupos que estan eliminados Aaron help ??
+    }
+
+    public function reestablecerImagenPerfil(Request $request){
+        $usuarioDB = DB::table('usuarios')
+            ->select('*')
+            ->where('id', $request->id)
+            ->first();
+
+            if($usuarioDB->imagen_perfil != "default_picture.png"){  
+
+            Storage::disk('ftp')->delete($usuarioDB->imagen_perfil);
+
+            DB::table('usuarios')
+                ->where('id', $request->id)
+                ->update(['imagen_perfil' => "default_picture.png"]);
+
+                return response()->json(['status' => 'Success'], 200);
+            }
+            return response()->json(['status' => 'Success'], 200);
+        
+    }
+
+    public function reestablecerContrasenia(Request $request){
+        
+        $user = User::find('cn=' . $request->id . ',ou=UsuarioSistema,dc=syntech,dc=intra');
+        $user->unicodePwd = $request->id;
+        $user->save();
+        $user->refresh();
+
+        return response()->json(['status' => 'Success'], 200);
+
     }
 
     public function update(Request $request)
