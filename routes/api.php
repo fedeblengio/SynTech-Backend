@@ -47,9 +47,9 @@ Route::post('/usuario','App\Http\Controllers\usuariosController@create');
 Route::delete('/usuario','App\Http\Controllers\usuariosController@destroy')->middleware('verificar_token');
 Route::put('/usuario','App\Http\Controllers\usuariosController@update')->middleware('verificar_token');
 
-Route::put('/foto','App\Http\Controllers\usuariosController@reestablecerImagenPerfil')->middleware('verificar_token');
+Route::post('/foto','App\Http\Controllers\usuariosController@cambiarFotoUsuario')->middleware('verificar_token');
 
-Route::put('/contrasenia','App\Http\Controllers\usuariosController@reestablecerContrasenia')->middleware('verificar_token');
+Route::put('/contrasenia','App\Http\Controllers\usuariosController@cambiarContrasenia')->middleware('verificar_token');
 
 Route::post('/usuariosintoken','App\Http\Controllers\usuariosController@create');
 

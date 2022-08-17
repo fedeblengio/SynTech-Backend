@@ -9,6 +9,7 @@ use LdapRecord\Models\ActiveDirectory\User;
 use Illuminate\Support\Str;
 use LdapRecord\Connection;
 use Carbon\Carbon;
+use App\Models\Registros;
 use Illuminate\Support\Facades\Storage;
 
 class loginController extends Controller
@@ -33,6 +34,12 @@ class loginController extends Controller
 
 
         if ($connection->auth()->attempt($request->username . '@syntech.intra', $request->password, $stayBound = true)) {
+            $registros = new registros;
+            $registros->idUsuario = $request->username;
+            $registros->app = "BACKOFFICE";
+            $registros->accion = "LOGIN";
+            $registros->mensaje = "Inicio sesion ";
+            $registros->save();
             return [
                 'connection' => 'Success',
                 'datos' => $datos,

@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\DB;
 use App\Models\materia;
 use App\Models\profesores;
 use App\Models\profesor_dicta_materia;
+use App\Http\Controllers\RegistrosController;
 use App\Models\usuarios;
 
 class profesorDictaMateriaController extends Controller
@@ -61,7 +62,7 @@ class profesorDictaMateriaController extends Controller
        
         try {
             foreach ($request->profesores as $p) {
-                self::store($request->idMateria, $p);
+                self::store($request->idMateria, $p, $request->header('token'));
             }
 
             return response()->json(['status' => 'Success'], 200);
@@ -69,7 +70,7 @@ class profesorDictaMateriaController extends Controller
             return response()->json(['status' => 'Bad Request'], 400);
         }
     }
-    public static function store($idMateria, $idProfesor)
+    public static function store($idMateria, $idProfesor, $token)
     {
 
         $perteneceMateria = DB::table('profesor_dicta_materia')
@@ -83,6 +84,7 @@ class profesorDictaMateriaController extends Controller
                 ->where('idMateria', $idMateria)
                 ->where('idProfesor', $idProfesor)
                 ->update(['deleted_at' => null]);
+                RegistrosController::store("PROFESOR MATERIA",$token,"ACTIVATE",$idProfesor);
                 return response()->json(['status' => 'Success'], 200);
             }
             return response()->json(['status' => 'Materia Existe'], 416);
@@ -92,6 +94,8 @@ class profesorDictaMateriaController extends Controller
             $agregarProfesorMateria->idMateria = $idMateria;
             $agregarProfesorMateria->idProfesor = $idProfesor;
             $agregarProfesorMateria->save();
+            RegistrosController::store("PROFESOR MATERIA",$token,"CREATE",$idProfesor);
+            return response()->json(['status' => 'Success'], 200);
         }
     }
 
@@ -116,7 +120,7 @@ class profesorDictaMateriaController extends Controller
             $perteneceMateria = profesor_dicta_materia::where('idMateria', $request->idMateria)->where('idProfesor', $request->idProfesor)->first();
             $perteneceMateria->delete();
             self::eliminarProfesorGrupo($request);
-
+            RegistrosController::store("PROFESOR MATERIA",$request->header('token'),"DELETE",$request->idMateria." - ".$request->idProfesor);
             return response()->json(['status' => 'Success'], 200);
         } catch (\Throwable $th) {
             return response()->json(['status' => 'Bad Request'], 400);
@@ -129,5 +133,6 @@ class profesorDictaMateriaController extends Controller
             ->where('idMateria', $request->idMateria)
             ->where('idProfesor', $request->idProfesor)
             ->delete();
+            RegistrosController::store("MATERIA GRUPOS",$request->header('token'),"DELETE",$request->idMateria." - ".$request->idProfesor);
     }
 }

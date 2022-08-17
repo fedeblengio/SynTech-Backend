@@ -13,6 +13,7 @@ use Illuminate\Http\Request;
 use Carbon\Carbon;
 use LdapRecord\Models\ActiveDirectory\User;
 use App\Http\Controllers\agregarUsuarioGrupoController;
+use App\Http\Controllers\RegistrosController;
 use App\Http\Controllers\profesorDictaMateriaController;
 
 class usuariosController extends Controller
@@ -63,6 +64,7 @@ class usuariosController extends Controller
             if ($usuarioDB->deleted_at) {
                 self::activarUsuarioAD($usuarioAD);
                 self::activarUsuarioDB($request);
+
                 return response()->json(['status' => 'Success'], 200);
             }
 
@@ -117,12 +119,14 @@ class usuariosController extends Controller
                 DB::table('alumnos')
                     ->where('id', $request->samaccountname)
                     ->update(['deleted_at' => null]);
+                RegistrosController::store("ALUMNO", $request->header('token'), "ACTIVATE", $request->samaccountname);
             }
         } else {
             $alumno = new alumnos;
             $alumno->Cedula_Alumno = $request->samaccountname;
             $alumno->id = $request->samaccountname;
             $alumno->save();
+            RegistrosController::store("ALUMNO", $request->header('token'), "CREATE", $request->samaccountname);
         }
         if ($request->idGrupos) {
             foreach ($request->idGrupos as $idG) {
@@ -146,16 +150,18 @@ class usuariosController extends Controller
                 DB::table('profesores')
                     ->where('id', $request->samaccountname)
                     ->update(['deleted_at' => null]);
+                RegistrosController::store("PROFESOR", $request->header('token'), "ACTIVATE", $request->samaccountname);
             }
         } else {
             $profesores = new profesores;
             $profesores->Cedula_Profesor = $request->samaccountname;
             $profesores->id = $request->samaccountname;
             $profesores->save();
+            RegistrosController::store("PROFESOR", $request->header('token'), "CREATE", $request->samaccountname);
         }
         if ($request->idMaterias) {
             foreach ($request->idMaterias as $m) {
-                profesorDictaMateriaController::store($m, $request->samaccountname);
+                profesorDictaMateriaController::store($m, $request->samaccountname, $request->header('token'));
             }
         }
     }
@@ -171,6 +177,7 @@ class usuariosController extends Controller
                 DB::table('bedelias')
                     ->where('id', $request->samaccountname)
                     ->update(['deleted_at' => null, 'cargo' => $request->cargo]);
+                RegistrosController::store("BEDELIAS", $request->header('token'), "ACTIVATE", $request->samaccountname . " - " . $request->cargo);
             }
         } else {
             $bedelias = new bedelias;
@@ -178,6 +185,7 @@ class usuariosController extends Controller
             $bedelias->id = $request->samaccountname;
             $bedelias->cargo = $request->cargo;
             $bedelias->save();
+            RegistrosController::store("BEDELIAS", $request->header('token'), "CREATE", $request->samaccountname . " - " . $request->cargo);
         }
     }
 
@@ -235,9 +243,10 @@ class usuariosController extends Controller
     public function getFullHistory()
     {
         return DB::table('historial_registros')
-                ->select('historial_registros.id','historial_registros.idUsuario','usuarios.nombre','historial_registros.app','historial_registros.accion','historial_registros.mensaje','historial_registros.created_at')
-                ->join('usuarios','usuarios.id', '=','historial_registros.idUsuario')
-                ->get();
+            ->select('historial_registros.id', 'historial_registros.idUsuario', 'usuarios.nombre', 'historial_registros.app', 'historial_registros.accion', 'historial_registros.mensaje', 'historial_registros.created_at')
+            ->join('usuarios', 'usuarios.id', '=', 'historial_registros.idUsuario')
+            ->orderByDesc('created_at')
+            ->get();
     }
 
     public function show(request $request)
@@ -269,15 +278,28 @@ class usuariosController extends Controller
                 ->get(); // Me lista grupos que estan eliminados Aaron help ??
     }
 
-    public function reestablecerImagenPerfil(Request $request)
+    public function cambiarFotoUsuario(Request $request)
     {
         $usuarioDB = DB::table('usuarios')
             ->select('*')
             ->where('id', $request->id)
             ->first();
 
-        if ($usuarioDB->imagen_perfil != "default_picture.png") {
 
+        if ($request->hasFile("archivo")) {
+            $file = $request->archivo;
+
+            $nombre = time() . "_" . $file->getClientOriginalName();
+            Storage::disk('ftp')->put($nombre, fopen($request->archivo, 'r+'));
+
+            DB::table('usuarios')
+                ->where('id', $request->id)
+                ->update(['imagen_perfil' => $nombre]);
+
+            return response()->json(['status' => 'Success'], 200);
+        }
+
+        if ($usuarioDB->imagen_perfil != "default_picture.png") {
             Storage::disk('ftp')->delete($usuarioDB->imagen_perfil);
 
             DB::table('usuarios')
@@ -289,14 +311,17 @@ class usuariosController extends Controller
         return response()->json(['status' => 'Success'], 200);
     }
 
-    public function reestablecerContrasenia(Request $request)
+    public function cambiarContrasenia(Request $request)
     {
-
         $user = User::find('cn=' . $request->id . ',ou=UsuarioSistema,dc=syntech,dc=intra');
-        $user->unicodePwd = $request->id;
+        if ($request->contrasenia) {
+            $user->unicodePwd = $request->contrasenia;
+        } else {
+            $user->unicodePwd = $request->id;
+        }
         $user->save();
         $user->refresh();
-
+        RegistrosController::store("CONTRASEÑA", $request->header('token'), "UPDATE", $request->id);
         return response()->json(['status' => 'Success'], 200);
     }
 
@@ -310,6 +335,7 @@ class usuariosController extends Controller
                 $usuario->genero = $request->genero;
                 $usuario->save();
             }
+            RegistrosController::store("USUARIO", $request->header('token'), "UPDATE", $request->idUsuario);
             return response()->json(['status' => 'Success'], 200);
         } catch (\Throwable $th) {
             return response()->json(['status' => 'Bad Request'], 400);
@@ -330,9 +356,9 @@ class usuariosController extends Controller
                 $user->save();
                 $user->refresh();
 
-                self::eliminarPersona($existe);
+                self::eliminarPersona($existe, $request->header('token'));
                 /* DB::delete('delete from usuarios where username="' . $request->username . '" ;'); */
-
+                RegistrosController::store("USUARIO", $request->header('token'), "DELETE", $request->id);
                 return response()->json(['status' => 'Success'], 200);
             }
             return response()->json(['status' => 'Bad Request'], 400);
@@ -342,7 +368,7 @@ class usuariosController extends Controller
     }
 
 
-    public function eliminarPersona($existe)
+    public function eliminarPersona($existe, $token)
     {
 
 
@@ -350,38 +376,44 @@ class usuariosController extends Controller
             case "Bedelias":
                 $bedelias = bedelias::where('id', $existe->id)->first();
                 $bedelias->delete();
+                RegistrosController::store("BEDELIAS", $token, "DELETE", $existe->id);
                 break;
             case "Alumno":
                 $alumnos = alumnos::where('id', $existe->id)->first();
                 $alumnos->delete();
-                self::eliminarAlumnoGrupo($existe);
+                self::eliminarAlumnoGrupo($existe, $token);
+                RegistrosController::store("ALUMNO", $token, "DELETE", $existe->id);
                 break;
             case "Profesor":
                 $profesores = profesores::where('id', $existe->id)->first();
                 $profesores->delete();
-                self::eliminarMateriaProfesor($existe);
-                self::eliminarMateriaGrupo($existe);
+                self::eliminarMateriaProfesor($existe, $token);
+                self::eliminarMateriaGrupo($existe, $token);
+                RegistrosController::store("PROFESOR", $token, "DELETE", $existe->id);
                 break;
         }
     }
 
-    public function eliminarAlumnoGrupo($existe)
+    public function eliminarAlumnoGrupo($existe, $token)
     {
         DB::table('alumnos_pertenecen_grupos')
             ->where('idAlumnos', $existe->id)
             ->update(['deleted_at' => Carbon::now()->addMinutes(23)]);
+        RegistrosController::store("ALUMNO GRUPO", $token, "DELETE", $existe->id);
     }
 
-    public function eliminarMateriaProfesor($existe)
+    public function eliminarMateriaProfesor($existe, $token)
     {
         DB::table('profesor_dicta_materia')
             ->where('idProfesor', $existe->id)
             ->update(['deleted_at' => Carbon::now()->addMinutes(23)]);
+        RegistrosController::store("MATERIA PROFESOR", $token, "DELETE", $existe->id);
     }
-    public function eliminarMateriaGrupo($existe)
+    public function eliminarMateriaGrupo($existe, $token)
     {
         DB::table('grupos_tienen_profesor')
             ->where('idProfesor', $existe->id)
             ->update(['deleted_at' => Carbon::now()->addMinutes(23)]);
+        RegistrosController::store("GRUPO PROFESOR", $token, "DELETE", $existe->id);
     }
 }

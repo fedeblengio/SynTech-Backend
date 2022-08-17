@@ -8,6 +8,7 @@ use App\Models\usuarios;
 use App\Models\grupos;
 use Carbon\Carbon;
 use App\Models\alumnos_pertenecen_grupos;
+use App\Http\Controllers\RegistrosController;
 
 class agregarUsuarioGrupoController extends Controller
 {
@@ -52,6 +53,7 @@ class agregarUsuarioGrupoController extends Controller
                     ->where('idAlumnos', $request->idAlumno)
                     ->where('idGrupo', $request->idGrupo)
                     ->update(['deleted_at' => null]);
+                    RegistrosController::store("ALUMNO GRUPO",$request->header('token'),"ACTIVATE",$request->idAlumno." - ".$request->idGrupo);
                 return response()->json(['status' => 'Success'], 200);
             }
            
@@ -60,6 +62,7 @@ class agregarUsuarioGrupoController extends Controller
             $agregarAlumnoGrupo->idGrupo = $request->idGrupo;
             $agregarAlumnoGrupo->idAlumnos = $request->idAlumno;
             $agregarAlumnoGrupo->save();
+            RegistrosController::store("ALUMNO GRUPO",$request->header('token'),"CREATE",$request->idAlumno." - ".$request->idGrupo);
             return response()->json(['status' => 'Success'], 200);
         }
     }
@@ -70,6 +73,7 @@ class agregarUsuarioGrupoController extends Controller
                 ->where('idAlumnos', $request->idAlumno)
                 ->where('idGrupo', $request->idGrupo)
                 ->update(['deleted_at' => Carbon::now()->addMinutes(23)]);
+                RegistrosController::store("ALUMNO GRUPO",$request->header('token'),"DELETE",$request->idAlumno." - ".$request->idGrupo);
             return response()->json(['status' => 'Success'], 200);
         } catch (\Throwable $th) {
             return response()->json(['status' => 'Bad Request'], 400);

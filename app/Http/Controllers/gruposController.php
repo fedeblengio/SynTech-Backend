@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\grupos;
 use App\Models\alumnos_pertenecen_grupos;
 use Carbon\Carbon;
+use App\Http\Controllers\RegistrosController;
 
 class gruposController extends Controller
 {
@@ -27,6 +28,7 @@ class gruposController extends Controller
                 DB::table('grupos')
                 ->where('idGrupo', $request->idGrupo)
                 ->update(['deleted_at' => null]);
+                RegistrosController::store("GRUPO",$request->header('token'),"ACTIVATE",$request->idGrupo);
                 return response()->json(['status' => 'Success'], 200);
             }
             return response()->json(['error' => 'Forbidden'], 416);
@@ -36,6 +38,7 @@ class gruposController extends Controller
             $gruposDB->nombreCompleto = $request->nombreCompleto;
             $gruposDB->anioElectivo = Carbon::now()->format('Y');
             $gruposDB->save();
+            RegistrosController::store("GRUPO",$request->header('token'),"CREATE",$request->idGrupo);
             return response()->json(['status' => 'Success'], 200);
         }
     }
@@ -53,6 +56,7 @@ class gruposController extends Controller
             if ($grupo) {
                 self::eliminarProfesoresGrupo($request);
                 self::eliminarAlumnosGrupo($request);
+                RegistrosController::store("GRUPO",$request->header('token'),"DELETE",$request->idGrupo);
                 $grupo->delete();
                 return response()->json(['status' => 'Success'], 200);
             }
@@ -67,6 +71,7 @@ class gruposController extends Controller
         DB::table('grupos_tienen_profesor')
         ->where('idGrupo', $request->idGrupo)
         ->update(['deleted_at' => Carbon::now()->addMinutes(23)]);
+        RegistrosController::store("GRUPO PROFESOR",$request->header('token'),"UPDATE",$request->idGrupo);
     }
 
     public function eliminarAlumnosGrupo($request)
@@ -74,6 +79,7 @@ class gruposController extends Controller
         DB::table('alumnos_pertenecen_grupos')
         ->where('idGrupo', $request->idGrupo)
         ->update(['deleted_at' => Carbon::now()->addMinutes(23)]);
+        RegistrosController::store("GRUPO ALUMNOS",$request->header('token'),"CREATE",$request->idGrupo);
     }
 
 
@@ -84,9 +90,11 @@ class gruposController extends Controller
             if ($existe) {
                 if($request->nuevoGrupo){
                     DB::update('UPDATE grupos SET idGrupo="' . $request->nuevoGrupo . '" ,  nombreCompleto="' . $request->nuevoNombreCompleto . '" WHERE idGrupo="' . $request->idGrupo . '";');
+                    RegistrosController::store("GRUPO",$request->header('token'),"UPDATE",$request->idGrupo." - ".$request->nuevoGrupo);
                     return response()->json(['status' => 'Success'], 200);
                 }else{
                     DB::update('UPDATE grupos SET idGrupo="' . $request->idGrupo . '" ,  nombreCompleto="' . $request->nuevoNombreCompleto . '" WHERE idGrupo="' . $request->idGrupo . '";');
+                    RegistrosController::store("GRUPO",$request->header('token'),"UPDATE",$request->idGrupo." - ".$request->nuevoNombreCompleto);
                     return response()->json(['status' => 'Success'], 200);
                 }
                
