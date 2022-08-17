@@ -15,6 +15,9 @@ use LdapRecord\Models\ActiveDirectory\User;
 use App\Http\Controllers\agregarUsuarioGrupoController;
 use App\Http\Controllers\RegistrosController;
 use App\Http\Controllers\profesorDictaMateriaController;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\TestMail;
+
 
 class usuariosController extends Controller
 {
@@ -70,7 +73,7 @@ class usuariosController extends Controller
 
             return response()->json(['error' => 'Forbidden'], 403);
         } else {
-            try {
+            /* try { */
                 self::agregarUsuarioDB($request);
                 self::agregarUsuarioAD($request);
 
@@ -85,12 +88,18 @@ class usuariosController extends Controller
                         self::agregarUsuarioProfesor($request);
                         break;
                 }
+                $details = [
+                    'usuario' => $request->samaccountname,
+                    'contrasenia' => $request->samaccountname
+                ];
 
+                 Mail::to($request->userPrincipalName)->send(new \App\Mail\MyTestMail($details));
+        
                 return response()->json(['status' => 'Success'], 200);
-            } catch (\Throwable $th) {
+            /* } catch (\Throwable $th) {
                 return response()->json(['status' => 'Error'], 400);
                 return $th;
-            }
+            } */
         }
 
         if ($usuarioAD) {
@@ -218,7 +227,7 @@ class usuariosController extends Controller
     public function activarUsuarioDB($request)
     {
         $usuarioDB = [
-            "nombre" => $request->cn,
+            "nombre" => $request->name . " " . $request->surname,
             "email" => $request->userPrincipalName,
             "ou" => $request->ou,
             "deleted_at" => null

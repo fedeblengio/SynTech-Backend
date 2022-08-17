@@ -10,7 +10,7 @@ use Carbon\Carbon;
 use App\Models\materia;
 
 use Illuminate\Support\Facades\Mail;
-use App\Mail\TestMail;
+
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -115,3 +115,8 @@ Route::get('/integrantes-curso','App\Http\Controllers\gruposTienenProfesorContro
 //FORO
 Route::delete('/grupoForo','App\Http\Controllers\gruposTienenProfesorController@eliminarProfesorGrupoForo')->middleware('verificar_token');
 Route::delete('/foro','App\Http\Controllers\gruposTienenProfesorController@eliminarForo')->middleware('verificar_token');
+
+//NOTICIAS
+Route::post('/noticia','App\Http\Controllers\MaterialPublicoController@store')->middleware('verificar_token');
+Route::get('/noticia','App\Http\Controllers\MaterialPublicoController@show')->middleware('verificar_token');
+Route::delete('/noticia','App\Http\Controllers\MaterialPublicoController@destroy')->middleware('verificar_token');
