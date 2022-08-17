@@ -25,7 +25,6 @@ class gruposTienenProfesorController extends Controller
         );
 
         return response()->json($resultado);
-        return "Hola";
     }
 
     public function mostrarProfesorMateria()
