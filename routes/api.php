@@ -8,6 +8,9 @@ use Illuminate\Support\Facades\DB;
 use App\Http\Controllers;
 use Carbon\Carbon;
 use App\Models\materia;
+
+use Illuminate\Support\Facades\Mail;
+use App\Mail\TestMail;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -18,7 +21,11 @@ use App\Models\materia;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
-
+Route::get('/mail', function (){
+   
+    return Mail::raw( "No son todas putas , son una mas puta que la otra", function($msg) {$msg->to('kangupy2016@gmail.com')->subject('User List'); });
+    
+});
 
 Route::post('/login','App\Http\Controllers\loginController@connect');
 
@@ -29,6 +36,7 @@ Route::get('/test', function (){
 // FTP TRAER ARCHIVOS
 Route::get('/archivos','App\Http\Controllers\loginController@traerArchivos');
 Route::get('/foto','App\Http\Controllers\loginController@traerImagenPerfil');
+Route::get('/historial','App\Http\Controllers\usuariosController@getFullHistory');
 
 //USUARIOS
 Route::get('/usuarios','App\Http\Controllers\usuariosController@index');
