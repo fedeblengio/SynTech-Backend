@@ -14,6 +14,7 @@ use Carbon\Carbon;
 class MaterialPublicoController extends Controller
 {
 
+
     public function store(Request $request)
     {
         
@@ -39,16 +40,16 @@ class MaterialPublicoController extends Controller
             }
     }
 
-        RegistrosController::store("PUBLICACION PUBLICA", $request->header('token'), "CREATE", "");
+        RegistrosController::store("PUBLICACION PUBLICA", $request->header('token'), "CREATE", $request->idUsuario);
         return response()->json(['status' => 'Success'], 200);
     }
 
-    public function show(Request $request)
+    public function index(Request $request)
     {
-        $peticionSQL = DB::table('material_publicos')
-            ->select('material_publicos.id AS id', 'material_publicos.titulo AS titulo', 'material_publicos.mensaje AS mensaje', 'material_publicos.idUsuario AS idUsuario', 'material_publicos.created_at AS fecha', 'usuarios.nombre AS nombreAutor', 'usuarios.id AS postAuthor')
-            ->join('usuarios', 'usuarios.id', '=', 'material_publicos.idUsuario')
-            ->join('bedelias', 'bedelias.id', '=', 'material_publicos.idUsuario')
+        $peticionSQL = DB::table('bedelias')
+            ->select('material_publicos.id', 'material_publicos.titulo AS titulo', 'material_publicos.mensaje AS mensaje', 'material_publicos.idUsuario', 'material_publicos.created_at AS fecha', 'usuarios.nombre AS nombreAutor')
+            ->join('usuarios', 'usuarios.id', '=', 'bedelias.id')
+            ->join('material_publicos', 'material_publicos.idUsuario', '=', 'bedelias.id')
             ->orderBy('id', 'desc')
             ->take($request->limit)
             ->get();
@@ -57,7 +58,7 @@ class MaterialPublicoController extends Controller
 
 
         foreach ($peticionSQL as $p) {
-            $peticionSQLFiltrada = DB::table('archivos_mateiral_publico')
+            $peticionSQLFiltrada = DB::table('archivos_material_publico')
                 ->select('nombreArchivo AS archivo')
                 ->where('idMaterialPublico', $p->id)
                 ->distinct()
@@ -65,7 +66,7 @@ class MaterialPublicoController extends Controller
 
             $arrayArchivos = array();
             $arrayImagenes = array();
-            $postAuthor = $p->postAuthor;
+            $postAuthor = $p->idUsuario;
             $imgPerfil = DB::table('usuarios')
                 ->select('imagen_perfil')
                 ->where('id', $postAuthor)
@@ -88,7 +89,8 @@ class MaterialPublicoController extends Controller
                 "id" => $p->id,
                 "profile_picture" => $img,
                 "mensaje" => $p->mensaje,
-                "idUsuario" => $p->postAuthor,
+                "titulo" => $p->titulo,
+                "idUsuario" => $p->idUsuario,
                 "nombreAutor" => $p->nombreAutor,
                 "fecha" => $p->fecha
             ];
@@ -104,6 +106,11 @@ class MaterialPublicoController extends Controller
         return response()->json($dataResponse);
     }
 
+    public function traerArchivo(Request $request)
+    {
+        return Storage::disk('ftp')->get($request->archivo);
+    }
+
     public function destroy(Request $request)
     {
 
@@ -116,7 +123,7 @@ class MaterialPublicoController extends Controller
         }
         try {
             $materialPublico->delete();
-            RegistrosController::store("PUBLICACION PUBLICA", $request->header('token'), "DELETE", "");
+            RegistrosController::store("PUBLICACION PUBLICA", $request->header('token'), "DELETE", $request->idUsuario);
             return response()->json(['status' => 'Success'], 200);
         } catch (\Throwable $th) {
             return response()->json(['status' => 'Bad Request'], 400);

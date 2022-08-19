@@ -13,17 +13,17 @@ class primerosUsuariosController extends usuariosController
 
         $usuario1 = new Request([
             "samaccountname" => "33667835",
-            "unicodePwd" => "MzM2Njc4MzU=",
-            "cn" => 'Admin',
-            "userPrincipalName" => 'bedelias@syntech.com',
+            "name" => 'Admin',
+            "surname" => '1',
+            "userPrincipalName" => 'akusterpiriz@gmail.com',
             "ou" => "Bedelias",
             "cargo" => "administrador",
         ]);
         $usuario2 = new Request([
             "samaccountname" => "32282024",
-            "unicodePwd" => "MzIyODIwMjQ=",
-            "cn" => 'Admin',
-            "userPrincipalName" => 'bedelias@syntech.com',
+            "name" => 'Admin',
+            "surname" => '2',
+            "userPrincipalName" => 'aaronnoguera07@gmail.com',
             "ou" => "Bedelias",
             "cargo" => "administrador",
         ]);
