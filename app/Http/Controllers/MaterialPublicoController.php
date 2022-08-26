@@ -17,16 +17,20 @@ class MaterialPublicoController extends Controller
 
     public function store(Request $request)
     {
-        
+        $nombreEncabezado = "encabezadoPredeterminado.jpg";
+        if($request->imagenEncabezado){
+            $nombreEncabezado = random_int(0,1000000)."_".$request->nombreEncabezado;
+            Storage::disk('ftp')->put($nombreEncabezado, fopen($request->imagenEncabezado, 'r+'));
+        }
+           
         $materialPublico = new material_publico;
         $materialPublico->idUsuario = $request->idUsuario;
         $materialPublico->titulo = $request->titulo;
         $materialPublico->mensaje = $request->mensaje;
+        $materialPublico->imgEncabezado = $nombreEncabezado;
         $materialPublico->save();
 
-
         $idDatos = DB::table('material_publicos')->orderBy('created_at', 'desc')->limit(1)->get('id');
-        $nombreArchivosArray = explode(',', $request->nombre_archivos);
 
         if ($request->archivos) {
             
@@ -47,7 +51,7 @@ class MaterialPublicoController extends Controller
     public function index(Request $request)
     {
         $peticionSQL = DB::table('bedelias')
-            ->select('material_publicos.id', 'material_publicos.titulo AS titulo', 'material_publicos.mensaje AS mensaje', 'material_publicos.idUsuario', 'material_publicos.created_at AS fecha', 'usuarios.nombre AS nombreAutor')
+            ->select('material_publicos.id', 'material_publicos.imgEncabezado', 'material_publicos.titulo AS titulo', 'material_publicos.mensaje AS mensaje', 'material_publicos.idUsuario', 'material_publicos.created_at AS fecha', 'usuarios.nombre AS nombreAutor')
             ->join('usuarios', 'usuarios.id', '=', 'bedelias.id')
             ->join('material_publicos', 'material_publicos.idUsuario', '=', 'bedelias.id')
             ->orderBy('id', 'desc')
@@ -74,6 +78,7 @@ class MaterialPublicoController extends Controller
 
             $img = base64_encode(Storage::disk('ftp')->get($imgPerfil[0]->imagen_perfil));
 
+            $imgEncabezado = base64_encode(Storage::disk('ftp')->get($p->imgEncabezado));
 
             foreach ($peticionSQLFiltrada as $p2) {
 
@@ -88,6 +93,7 @@ class MaterialPublicoController extends Controller
             $datos = [
                 "id" => $p->id,
                 "profile_picture" => $img,
+                "imagenEncabezado" => $imgEncabezado,
                 "mensaje" => $p->mensaje,
                 "titulo" => $p->titulo,
                 "idUsuario" => $p->idUsuario,

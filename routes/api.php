@@ -21,11 +21,6 @@ use Illuminate\Support\Facades\Mail;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
-Route::get('/mail', function (){
-   
-    return Mail::raw( "No son todas putas , son una mas puta que la otra", function($msg) {$msg->to('kangupy2016@gmail.com')->subject('User List'); });
-    
-});
 
 Route::post('/login','App\Http\Controllers\loginController@connect');
 
@@ -34,7 +29,7 @@ Route::get('/test', function (){
     return $materia;
 });
 // FTP TRAER ARCHIVOS
-Route::get('/archivos','App\Http\Controllers\loginController@traerArchivos');
+Route::get('/traerArchivo','App\Http\Controllers\MaterialPublicoController@traerArchivo')->middleware('verificar_token');
 Route::get('/foto','App\Http\Controllers\loginController@traerImagenPerfil');
 Route::get('/historial','App\Http\Controllers\usuariosController@getFullHistory');
 
@@ -118,5 +113,6 @@ Route::delete('/foro','App\Http\Controllers\gruposTienenProfesorController@elimi
 
 //NOTICIAS
 Route::post('/noticia','App\Http\Controllers\MaterialPublicoController@store')->middleware('verificar_token');
-Route::get('/noticia','App\Http\Controllers\MaterialPublicoController@show')->middleware('verificar_token');
+Route::get('/noticia','App\Http\Controllers\MaterialPublicoController@index')->middleware('verificar_token');
 Route::delete('/noticia','App\Http\Controllers\MaterialPublicoController@destroy')->middleware('verificar_token');
+
