@@ -18,11 +18,11 @@ class MaterialPublicoController extends Controller
     public function store(Request $request)
     {
         $nombreEncabezado = "encabezadoPredeterminado.jpg";
-        if($request->imagenEncabezado){
-            $nombreEncabezado = random_int(0,1000000)."_".$request->nombreEncabezado;
+        if ($request->imagenEncabezado) {
+            $nombreEncabezado = random_int(0, 1000000) . "_" . $request->nombreEncabezado;
             Storage::disk('ftp')->put($nombreEncabezado, fopen($request->imagenEncabezado, 'r+'));
         }
-           
+
         $materialPublico = new material_publico;
         $materialPublico->idUsuario = $request->idUsuario;
         $materialPublico->titulo = $request->titulo;
@@ -33,16 +33,16 @@ class MaterialPublicoController extends Controller
         $idDatos = DB::table('material_publicos')->orderBy('created_at', 'desc')->limit(1)->get('id');
 
         if ($request->archivos) {
-            
-            for ($i=0; $i < count($request->nombresArchivo); $i++){
-                $nombreArchivo = random_int(0,1000000)."_".$request->nombresArchivo[$i];
+
+            for ($i = 0; $i < count($request->nombresArchivo); $i++) {
+                $nombreArchivo = random_int(0, 1000000) . "_" . $request->nombresArchivo[$i];
                 Storage::disk('ftp')->put($nombreArchivo, fopen($request->archivos[$i], 'r+'));
                 $archivosForo = new archivos_material_publico;
                 $archivosForo->idMaterialPublico = $idDatos[0]->id;
                 $archivosForo->nombreArchivo = $nombreArchivo;
                 $archivosForo->save();
             }
-    }
+        }
 
         RegistrosController::store("PUBLICACION PUBLICA", $request->header('token'), "CREATE", $request->idUsuario);
         return response()->json(['status' => 'Success'], 200);
@@ -51,7 +51,7 @@ class MaterialPublicoController extends Controller
     public function index(Request $request)
     {
         $peticionSQL = DB::table('bedelias')
-            ->select('material_publicos.id', 'material_publicos.imgEncabezado', 'material_publicos.titulo AS titulo', 'material_publicos.mensaje AS mensaje', 'material_publicos.idUsuario', 'material_publicos.created_at AS fecha', 'usuarios.nombre AS nombreAutor')
+            ->select('material_publicos.id', 'material_publicos.imgEncabezado', 'material_publicos.titulo AS titulo', 'material_publicos.mensaje AS mensaje', 'material_publicos.idUsuario', 'material_publicos.imgEncabezado', 'material_publicos.created_at AS fecha', 'usuarios.nombre AS nombreAutor')
             ->join('usuarios', 'usuarios.id', '=', 'bedelias.id')
             ->join('material_publicos', 'material_publicos.idUsuario', '=', 'bedelias.id')
             ->orderBy('id', 'desc')
@@ -68,32 +68,19 @@ class MaterialPublicoController extends Controller
                 ->distinct()
                 ->get();
 
+            $p->imgEncabezado = base64_encode(Storage::disk('ftp')->get($p->imgEncabezado));
+
             $arrayArchivos = array();
-            $arrayImagenes = array();
-            $postAuthor = $p->idUsuario;
-            $imgPerfil = DB::table('usuarios')
-                ->select('imagen_perfil')
-                ->where('id', $postAuthor)
-                ->get();
 
-            $img = base64_encode(Storage::disk('ftp')->get($imgPerfil[0]->imagen_perfil));
-
-            $imgEncabezado = base64_encode(Storage::disk('ftp')->get($p->imgEncabezado));
 
             foreach ($peticionSQLFiltrada as $p2) {
-
-                $resultado = strpos($p2->archivo, ".pdf");
-                if ($resultado) {
-                    array_push($arrayArchivos, $p2->archivo);
-                } else {
-                    array_push($arrayImagenes, base64_encode(Storage::disk('ftp')->get($p2->archivo)));
-                }
+                array_push($arrayArchivos, $p2->archivo);
             }
 
+            
             $datos = [
                 "id" => $p->id,
-                "profile_picture" => $img,
-                "imagenEncabezado" => $imgEncabezado,
+                "imagenEncabezado" => $p->imgEncabezado,
                 "mensaje" => $p->mensaje,
                 "titulo" => $p->titulo,
                 "idUsuario" => $p->idUsuario,
@@ -104,7 +91,6 @@ class MaterialPublicoController extends Controller
             $p = [
                 "data" => $datos,
                 "archivos" => $arrayArchivos,
-                "imagenes" => $arrayImagenes,
             ];
 
             array_push($dataResponse, $p);
