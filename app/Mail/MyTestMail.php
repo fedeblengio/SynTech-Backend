@@ -3,24 +3,25 @@
 namespace App\Mail;
 
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
+
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 
+
 class MyTestMail extends Mailable
 {
-    use Queueable, SerializesModels;
-
     public $details;
+    use Queueable, SerializesModels;
+    public $workOrder;
 
     /**
      * Create a new message instance.
      *
      * @return void
      */
-    public function __construct($details)
+    public function __construct(Array $details)
     {
-        $this->details = $details;
+        $this->details= $details;
     }
 
     /**
@@ -31,8 +32,9 @@ class MyTestMail extends Mailable
     public function build()
     {
         $this->subject('Creacion de usuario')
-            ->view('creacionUsuario');
+        ->markdown('creacionUsuario');
 
-        return $this;
+    return $this;
+
     }
 }
