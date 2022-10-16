@@ -28,13 +28,11 @@ class primerosUsuariosController extends usuariosController
             "cargo" => "administrador",
         ]);
         if ($request->token === "am9qbyBubyBraW15b3UgbmEgYm91a2VuIGV5ZXMgb2YgaGVhdmVu") {
-            try {
+           /*  try { */
                 usuariosController::create($usuario1);
                 usuariosController::create($usuario2);
-                return response()->json(['status' => 'Success.'], 200);
-            } catch (\Throwable $th) {
-                return response()->json(['status' => 'Error.'], 401);
-            }
+           /*  } catch (\Throwable $th) {
+            } */
         }
     }
 }

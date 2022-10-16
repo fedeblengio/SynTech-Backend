@@ -13,7 +13,7 @@ class RegistrosController extends Controller
         return response()->json(Registros::all());
     }
 
-    public  static function store($objeto,$token,$accion, $info)
+    public  static function store($objeto, $token, $accion, $info)
     {
         try {
             $registros = new registros;
@@ -22,16 +22,16 @@ class RegistrosController extends Controller
             $registros->accion = $accion;
             switch ($accion) {
                 case ('CREATE');
-                    $registros->mensaje = "Creo " . $objeto . " " . $info;
+                    $registros->mensaje = "Generó " . $objeto . " " . $info;
                     break;
                 case ('UPDATE'):
-                    $registros->mensaje = "Modifico " . $objeto . " " . $info;
+                    $registros->mensaje = "Modificó " . $objeto . " " . $info;
                     break;
                 case ('DELETE'):
-                    $registros->mensaje = "Elimino " . $objeto . " " . $info;
+                    $registros->mensaje = "Eliminó " . $objeto . " " . $info;
                     break;
                 case ('ACTIVATE'):
-                    $registros->mensaje = "Activo " . $objeto . " " . $info;
+                    $registros->mensaje = "Activó " . $objeto . " " . $info;
                     break;
             }
             $registros->save();
@@ -43,7 +43,5 @@ class RegistrosController extends Controller
 
     public function show(Request $request)
     {
-       
     }
-
 }

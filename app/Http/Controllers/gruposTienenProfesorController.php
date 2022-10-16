@@ -51,27 +51,9 @@ class gruposTienenProfesorController extends Controller
             ->where('idGrupo', $request->idGrupo)
             ->first();
         if ($profesorGrupo) {
-            DB::table('grupos_tienen_profesor')
-                ->where('idMateria', $request->idMateria)
-                ->where('idGrupo', $request->idGrupo)
-                ->update(['idProfesor' => $request->idProfesor]);
-            DB::table('grupos_tienen_profesor')
-                ->where('idMateria', $request->idMateria)
-                ->where('idGrupo', $request->idGrupo)
-                ->update(['deleted_at' => null]);
-                self::actualizarForoProfesor($request);
-                RegistrosController::store("PROFESOR GRUPO",$request->header('token'),"ACTIVATE",$request->idGrupo." - ".$request->idProfesor);
-                 return response()->json(['status' => 'Success'], 200);
-          
+            return $this->activarProfesorGrupo($request);
         } else {
-            $agregarProfesorGrupo = new grupos_tienen_profesor;
-            $agregarProfesorGrupo->idMateria = $request->idMateria;
-            $agregarProfesorGrupo->idProfesor = $request->idProfesor;
-            $agregarProfesorGrupo->idGrupo = $request->idGrupo;
-            $agregarProfesorGrupo->save();
-            self::crearForo($request);
-            RegistrosController::store("PROFESOR GRUPO",$request->header('token'),"CREATE",$request->idGrupo." - ".$request->idProfesor);
-            return response()->json(['status' => 'Success'], 200);
+            return $this->agregarProfesorGrupo($request);
         }
 
         return response()->json(['status' => 'Not Acceptable'], 406);
@@ -80,11 +62,10 @@ class gruposTienenProfesorController extends Controller
     public function actualizarForoProfesor($request)
     {
         DB::table('profesor_estan_grupo_foro')
-        ->where('idMateria', $request->idMateria)
-        ->where('idGrupo', $request->idGrupo)
-        ->update(['idProfesor' => $request->idProfesor]);
-        RegistrosController::store("FORO PROFESOR",$request->header('token'),"UPDATE",$request->idGrupo." - ".$request->idProfesor);
-
+            ->where('idMateria', $request->idMateria)
+            ->where('idGrupo', $request->idGrupo)
+            ->update(['idProfesor' => $request->idProfesor]);
+        RegistrosController::store("FORO PROFESOR", $request->header('token'), "UPDATE", $request->idGrupo . " - " . $request->idProfesor);
     }
 
 
@@ -148,7 +129,7 @@ class gruposTienenProfesorController extends Controller
         $profesorEstanGrupoForo->idForo = $idForo[0]->id;
         $profesorEstanGrupoForo->save();
 
-        RegistrosController::store("FORO PROFESOR",$request->header('token'),"CREATE",$request->idGrupo." - ".$request->idProfesor);
+        RegistrosController::store("FORO PROFESOR", $request->header('token'), "CREATE", $request->idGrupo . " - " . $request->idProfesor);
     }
 
     public function show(Request $request)
@@ -170,7 +151,7 @@ class gruposTienenProfesorController extends Controller
         try {
             if ($datos) {
                 DB::delete('delete from profesor_estan_grupo_foro where idForo=' . $request->idForo . ';');
-                RegistrosController::store("FORO PROFESOR",$request->header('token'),"DELETE","");
+                RegistrosController::store("FORO PROFESOR", $request->header('token'), "DELETE", "");
                 return response()->json(['status' => 'Success'], 200);
             }
             return response()->json(['status' => 'Bad Request'], 400);
@@ -186,7 +167,7 @@ class gruposTienenProfesorController extends Controller
         try {
             if ($datos) {
                 DB::delete('delete from foros where id=' . $request->idForo . ';');
-                RegistrosController::store("FORO",$request->header('token'),"DELETE","");
+                RegistrosController::store("FORO", $request->header('token'), "DELETE", "");
                 return response()->json(['status' => 'Success'], 200);
             }
             return response()->json(['status' => 'Bad Request'], 400);
@@ -203,7 +184,7 @@ class gruposTienenProfesorController extends Controller
             if ($datos) {
                 /* DB::delete('delete from grupos_tienen_profesor where idMateria="' . $datos->idMateria . '" AND idProfesor="' . $datos->idProfesor . '" AND idGrupo="' . $datos->idGrupo . '"   ;'); */
                 $datos->delete();
-                RegistrosController::store("PROFESOR GRUPO",$request->header('token'),"DELETE",$request->idGrupo." - ".$request->idProfesor);
+                RegistrosController::store("PROFESOR GRUPO", $request->header('token'), "DELETE", $request->idGrupo . " - " . $request->idProfesor);
                 return response()->json(['status' => 'Success'], 200);
             }
             return response()->json(['status' => 'Bad Request'], 400);
@@ -240,5 +221,40 @@ class gruposTienenProfesorController extends Controller
     public function traerArchivos($nombre_archivo)
     {
         return base64_encode(Storage::disk('ftp')->get($nombre_archivo));
+    }
+
+    /**
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function activarProfesorGrupo(Request $request): \Illuminate\Http\JsonResponse
+    {
+        DB::table('grupos_tienen_profesor')
+            ->where('idMateria', $request->idMateria)
+            ->where('idGrupo', $request->idGrupo)
+            ->update(['idProfesor' => $request->idProfesor]);
+        DB::table('grupos_tienen_profesor')
+            ->where('idMateria', $request->idMateria)
+            ->where('idGrupo', $request->idGrupo)
+            ->update(['deleted_at' => null]);
+        self::actualizarForoProfesor($request);
+        RegistrosController::store("PROFESOR GRUPO", $request->header('token'), "ACTIVATE", $request->idGrupo . " - " . $request->idProfesor);
+        return response()->json(['status' => 'Success'], 200);
+    }
+
+    /**
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function agregarProfesorGrupo(Request $request): \Illuminate\Http\JsonResponse
+    {
+        $agregarProfesorGrupo = new grupos_tienen_profesor;
+        $agregarProfesorGrupo->idMateria = $request->idMateria;
+        $agregarProfesorGrupo->idProfesor = $request->idProfesor;
+        $agregarProfesorGrupo->idGrupo = $request->idGrupo;
+        $agregarProfesorGrupo->save();
+        self::crearForo($request);
+        RegistrosController::store("PROFESOR GRUPO", $request->header('token'), "CREATE", $request->idGrupo . " - " . $request->idProfesor);
+        return response()->json(['status' => 'Success'], 200);
     }
 }

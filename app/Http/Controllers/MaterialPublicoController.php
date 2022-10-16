@@ -18,31 +18,13 @@ class MaterialPublicoController extends Controller
     public function store(Request $request)
     {
         $nombreEncabezado = "encabezadoPredeterminado.jpg";
-        if ($request->imagenEncabezado) {
-            $nombreEncabezado = random_int(0, 1000000) . "_" . $request->nombreEncabezado;
-            Storage::disk('ftp')->put($nombreEncabezado, fopen($request->imagenEncabezado, 'r+'));
-        }
+        $nombreEncabezado = $this->comprobacionEncabezado($request, $nombreEncabezado);
 
-        $materialPublico = new material_publico;
-        $materialPublico->idUsuario = $request->idUsuario;
-        $materialPublico->titulo = $request->titulo;
-        $materialPublico->mensaje = $request->mensaje;
-        $materialPublico->imgEncabezado = $nombreEncabezado;
-        $materialPublico->save();
+        $this->createMaterialPublico($request, $nombreEncabezado);
 
         $idDatos = DB::table('material_publicos')->orderBy('created_at', 'desc')->limit(1)->get('id');
 
-        if ($request->archivos) {
-
-            for ($i = 0; $i < count($request->nombresArchivo); $i++) {
-                $nombreArchivo = random_int(0, 1000000) . "_" . $request->nombresArchivo[$i];
-                Storage::disk('ftp')->put($nombreArchivo, fopen($request->archivos[$i], 'r+'));
-                $archivosForo = new archivos_material_publico;
-                $archivosForo->idMaterialPublico = $idDatos[0]->id;
-                $archivosForo->nombreArchivo = $nombreArchivo;
-                $archivosForo->save();
-            }
-        }
+        $this->subidaArchivo($request, $idDatos[0]);
 
         RegistrosController::store("PUBLICACION PUBLICA", $request->header('token'), "CREATE", $request->idUsuario);
         return response()->json(['status' => 'Success'], 200);
@@ -77,7 +59,7 @@ class MaterialPublicoController extends Controller
                 array_push($arrayArchivos, $p2->archivo);
             }
 
-            
+
             $datos = [
                 "id" => $p->id,
                 "imagenEncabezado" => $p->imgEncabezado,
@@ -119,6 +101,57 @@ class MaterialPublicoController extends Controller
             return response()->json(['status' => 'Success'], 200);
         } catch (\Throwable $th) {
             return response()->json(['status' => 'Bad Request'], 400);
+        }
+    }
+
+    /**
+     * @param Request $request
+     * @param string $nombreEncabezado
+     * @return void
+     */
+    public function createMaterialPublico(Request $request, string $nombreEncabezado): void
+    {
+        $materialPublico = new material_publico;
+        $materialPublico->idUsuario = $request->idUsuario;
+        $materialPublico->titulo = $request->titulo;
+        $materialPublico->mensaje = $request->mensaje;
+        $materialPublico->imgEncabezado = $nombreEncabezado;
+        $materialPublico->save();
+    }
+
+    /**
+     * @param Request $request
+     * @param string $nombreEncabezado
+     * @return string
+     * @throws \Exception
+     */
+    public function comprobacionEncabezado(Request $request, string $nombreEncabezado): string
+    {
+        if ($request->imagenEncabezado) {
+            $nombreEncabezado = random_int(0, 1000000) . "_" . $request->nombreEncabezado;
+            Storage::disk('ftp')->put($nombreEncabezado, fopen($request->imagenEncabezado, 'r+'));
+        }
+        return $nombreEncabezado;
+    }
+
+    /**
+     * @param Request $request
+     * @param $idDatos
+     * @return void
+     * @throws \Exception
+     */
+    public function subidaArchivo(Request $request, $idDatos): void
+    {
+        if ($request->archivos) {
+
+            for ($i = 0; $i < count($request->nombresArchivo); $i++) {
+                $nombreArchivo = random_int(0, 1000000) . "_" . $request->nombresArchivo[$i];
+                Storage::disk('ftp')->put($nombreArchivo, fopen($request->archivos[$i], 'r+'));
+                $archivosForo = new archivos_material_publico;
+                $archivosForo->idMaterialPublico = $idDatos->id;
+                $archivosForo->nombreArchivo = $nombreArchivo;
+                $archivosForo->save();
+            }
         }
     }
 }

@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
+
 use Illuminate\Support\Facades\DB;
 use App\Models\token;
 use App\Models\usuarios;
@@ -23,6 +24,12 @@ class loginController extends Controller
 
     public function connect(Request $request)
     {
+
+        $u = usuarios::where('id', $request->username)->first();
+
+        if ($u->ou == "Profesor" || $u->ou == "Alumno"){
+            return response()->json(['error' => 'Unauthenticated.'], 401);
+        }
 
         $connection = new Connection([
             'hosts' => ['192.168.50.139'],
@@ -52,8 +59,8 @@ class loginController extends Controller
     public function traerDatos($request)
     {
 
-            $u= DB::table('usuarios')
-            ->select('usuarios.id','usuarios.nombre','usuarios.email','usuarios.ou','bedelias.cargo','usuarios.genero','usuarios.imagen_perfil')
+        $u = DB::table('usuarios')
+            ->select('usuarios.id', 'usuarios.nombre', 'usuarios.email', 'usuarios.ou', 'bedelias.cargo', 'usuarios.genero', 'usuarios.imagen_perfil')
             ->join('bedelias', 'bedelias.id', '=', 'usuarios.id')
             ->where('usuarios.id', $request->username)
             ->whereNull('usuarios.deleted_at')
@@ -98,13 +105,13 @@ class loginController extends Controller
     {
         return base64_encode(Storage::disk('ftp')->get($request->nombre_archivo));
     }
-    public function traerImagenPerfil(Request $request )
-    { 
+    public function traerImagenPerfil(Request $request)
+    {
         $usuarioDB = usuarios::where('id', $request->id)->first();
 
-        
+
         $base64imagen = base64_encode(Storage::disk('ftp')->get($usuarioDB->imagen_perfil));
-    
+
         return response()->json($base64imagen);
     }
 }

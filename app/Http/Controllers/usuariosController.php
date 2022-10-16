@@ -27,29 +27,10 @@ class usuariosController extends Controller
         $cargo = json_decode(base64_decode($request->header('token')))->cargo;
 
         if ($cargo == "Adscripto" || $cargo == "Administrativo") {
-            return response()->json(
-                DB::table('usuarios')
-                    ->select('*')
-                    ->where('ou', '!=', "Bedelias")
-                    ->where('deleted_at', NULL)
-                    ->get()
-            );
+            return self::getAllButNotBedelias();
         } elseif ($cargo == "Director" || $cargo == "Subdirector") {
 
-            $second = DB::table('usuarios')
-                ->select('*')
-                ->leftJoin('bedelias', 'usuarios.id', '=', 'bedelias.id')
-                ->where('bedelias.cargo', '!=', "administrador")
-                ->where('usuarios.deleted_at', NULL)
-                ->get();
-
-            $final = DB::table('usuarios')
-                ->select('*')
-                ->where('ou', '!=', "Bedelias")
-                ->where('deleted_at', NULL)
-                ->get();
-
-            return response()->json($second->merge($final));
+            return self::getAllButNotSuperUser();
         }
 
         return response()->json(usuarios::all());
@@ -74,28 +55,28 @@ class usuariosController extends Controller
             return response()->json(['error' => 'Forbidden'], 403);
         } else {
             /* try { */
-                self::agregarUsuarioDB($request);
-                self::agregarUsuarioAD($request);
+            self::agregarUsuarioDB($request);
+            self::agregarUsuarioAD($request);
 
-                switch ($request->ou) {
-                    case "Bedelias":
-                        self::agregarUsuarioBedelias($request);
-                        break;
-                    case "Alumno":
-                        self::agregarUsuarioAlumno($request);
-                        break;
-                    case "Profesor":
-                        self::agregarUsuarioProfesor($request);
-                        break;
-                }
-                $details = [
-                    'usuario' => $request->samaccountname,
-                    'contrasenia' => $request->samaccountname
-                ];
+            switch ($request->ou) {
+                case "Bedelias":
+                    self::agregarUsuarioBedelias($request);
+                    break;
+                case "Alumno":
+                    self::agregarUsuarioAlumno($request);
+                    break;
+                case "Profesor":
+                    self::agregarUsuarioProfesor($request);
+                    break;
+            }
+            $details = [
+                'usuario' => $request->samaccountname,
+                'contrasenia' => $request->samaccountname
+            ];
 
-                 Mail::to($request->userPrincipalName)->send(new \App\Mail\MyTestMail($details));
-        
-                return response()->json(['status' => 'Success'], 200);
+            Mail::to($request->userPrincipalName)->send(new \App\Mail\MyTestMail($details));
+           
+            return response()->json(['status' => 'Success'], 200);
             /* } catch (\Throwable $th) {
                 return response()->json(['status' => 'Error'], 400);
                 return $th;
@@ -125,17 +106,10 @@ class usuariosController extends Controller
             ->first();
         if ($alumno) {
             if ($alumno->deleted_at) {
-                DB::table('alumnos')
-                    ->where('id', $request->samaccountname)
-                    ->update(['deleted_at' => null]);
-                RegistrosController::store("ALUMNO", $request->header('token'), "ACTIVATE", $request->samaccountname);
+                self::activarAlumno($request);
             }
         } else {
-            $alumno = new alumnos;
-            $alumno->Cedula_Alumno = $request->samaccountname;
-            $alumno->id = $request->samaccountname;
-            $alumno->save();
-            RegistrosController::store("ALUMNO", $request->header('token'), "CREATE", $request->samaccountname);
+            self::agregarAlumno($request);
         }
         if ($request->idGrupos) {
             foreach ($request->idGrupos as $idG) {
@@ -156,17 +130,10 @@ class usuariosController extends Controller
             ->first();
         if ($profesores) {
             if ($profesores->deleted_at) {
-                DB::table('profesores')
-                    ->where('id', $request->samaccountname)
-                    ->update(['deleted_at' => null]);
-                RegistrosController::store("PROFESOR", $request->header('token'), "ACTIVATE", $request->samaccountname);
+                self::activarProfesor($request);
             }
         } else {
-            $profesores = new profesores;
-            $profesores->Cedula_Profesor = $request->samaccountname;
-            $profesores->id = $request->samaccountname;
-            $profesores->save();
-            RegistrosController::store("PROFESOR", $request->header('token'), "CREATE", $request->samaccountname);
+            self::agregarProfesor($request);
         }
         if ($request->idMaterias) {
             foreach ($request->idMaterias as $m) {
@@ -183,18 +150,10 @@ class usuariosController extends Controller
             ->first();
         if ($bedelias) {
             if ($bedelias->deleted_at) {
-                DB::table('bedelias')
-                    ->where('id', $request->samaccountname)
-                    ->update(['deleted_at' => null, 'cargo' => $request->cargo]);
-                RegistrosController::store("BEDELIAS", $request->header('token'), "ACTIVATE", $request->samaccountname . " - " . $request->cargo);
+                self::activarBedelia($request);
             }
         } else {
-            $bedelias = new bedelias;
-            $bedelias->Cedula_Bedelia = $request->samaccountname;
-            $bedelias->id = $request->samaccountname;
-            $bedelias->cargo = $request->cargo;
-            $bedelias->save();
-            RegistrosController::store("BEDELIAS", $request->header('token'), "CREATE", $request->samaccountname . " - " . $request->cargo);
+            self::agregarBedelia($request);
         }
     }
 
@@ -272,19 +231,9 @@ class usuariosController extends Controller
         if ($userOBJ->ou == 'Bedelias')
             return DB::table('bedelias')->select('*')->where('id', $userOBJ->id)->first();
         if ($userOBJ->ou == 'Profesor')
-            return DB::table('profesor_dicta_materia')
-                ->select('materias.nombre', 'materias.id')
-                ->join('materias', 'profesor_dicta_materia.idMateria', '=', 'materias.id')
-                ->where('profesor_dicta_materia.idProfesor', $userOBJ->id)
-                ->where('profesor_dicta_materia.deleted_at', NULL)
-                ->get();
+            return self::getMoreInfoProfesor($userOBJ);
         if ($userOBJ->ou == 'Alumno')
-            return DB::table('alumnos_pertenecen_grupos')
-                ->select('grupos.idGrupo')
-                ->join('grupos', 'alumnos_pertenecen_grupos.idGrupo', '=', 'grupos.idGrupo')
-                ->where('alumnos_pertenecen_grupos.idAlumnos', $userOBJ->id)
-                ->where('alumnos_pertenecen_grupos.deleted_at', NULL)
-                ->get(); // Me lista grupos que estan eliminados Aaron help ??
+            return self::getMoreInfoAlumno($userOBJ);
     }
 
     public function cambiarFotoUsuario(Request $request)
@@ -424,5 +373,145 @@ class usuariosController extends Controller
             ->where('idProfesor', $existe->id)
             ->update(['deleted_at' => Carbon::now()->addMinutes(23)]);
         RegistrosController::store("GRUPO PROFESOR", $token, "DELETE", $existe->id);
+    }
+
+    /**
+     * @param $request
+     * @return void
+     */
+    public function activarAlumno($request): void
+    {
+        DB::table('alumnos')
+            ->where('id', $request->samaccountname)
+            ->update(['deleted_at' => null]);
+        RegistrosController::store("ALUMNO", $request->header('token'), "ACTIVATE", $request->samaccountname);
+    }
+
+    /**
+     * @param $request
+     * @return void
+     */
+    public function agregarAlumno($request): void
+    {
+        $alumno = new alumnos;
+        $alumno->Cedula_Alumno = $request->samaccountname;
+        $alumno->id = $request->samaccountname;
+        $alumno->save();
+        RegistrosController::store("ALUMNO", $request->header('token'), "CREATE", $request->samaccountname);
+    }
+
+    /**
+     * @param $request
+     * @return void
+     */
+    public function activarProfesor($request): void
+    {
+        DB::table('profesores')
+            ->where('id', $request->samaccountname)
+            ->update(['deleted_at' => null]);
+        RegistrosController::store("PROFESOR", $request->header('token'), "ACTIVATE", $request->samaccountname);
+    }
+
+    /**
+     * @param $request
+     * @return void
+     */
+    public function agregarProfesor($request): void
+    {
+        $profesores = new profesores;
+        $profesores->Cedula_Profesor = $request->samaccountname;
+        $profesores->id = $request->samaccountname;
+        $profesores->save();
+        RegistrosController::store("PROFESOR", $request->header('token'), "CREATE", $request->samaccountname);
+    }
+
+    /**
+     * @param $request
+     * @return void
+     */
+    public function activarBedelia($request): void
+    {
+        DB::table('bedelias')
+            ->where('id', $request->samaccountname)
+            ->update(['deleted_at' => null, 'cargo' => $request->cargo]);
+        RegistrosController::store("BEDELIAS", $request->header('token'), "ACTIVATE", $request->samaccountname . " - " . $request->cargo);
+    }
+
+    /**
+     * @param $request
+     * @return void
+     */
+    public function agregarBedelia($request): void
+    {
+            $bedelias = new bedelias;
+            $bedelias->Cedula_Bedelia = $request->samaccountname;
+            $bedelias->id = $request->samaccountname;
+            $bedelias->cargo = $request->cargo? $request->cargo : "Adscripto";
+            $bedelias->save();
+            RegistrosController::store("BEDELIAS", $request->header('token'), "CREATE", $request->samaccountname . " - " . $request->cargo);      
+
+    }
+
+    /**
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function getAllButNotBedelias(): \Illuminate\Http\JsonResponse
+    {
+        return response()->json(
+            DB::table('usuarios')
+                ->select('*')
+                ->where('ou', '!=', "Bedelias")
+                ->where('deleted_at', NULL)
+                ->get()
+        );
+    }
+
+    /**
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function getAllButNotSuperUser(): \Illuminate\Http\JsonResponse
+    {
+        $second = DB::table('usuarios')
+            ->select('*')
+            ->leftJoin('bedelias', 'usuarios.id', '=', 'bedelias.id')
+            ->where('bedelias.cargo', '!=', "administrador")
+            ->where('usuarios.deleted_at', NULL)
+            ->get();
+
+        $final = DB::table('usuarios')
+            ->select('*')
+            ->where('ou', '!=', "Bedelias")
+            ->where('deleted_at', NULL)
+            ->get();
+
+        return response()->json($second->merge($final));
+    }
+
+    /**
+     * @param $userOBJ
+     * @return \Illuminate\Support\Collection
+     */
+    public function getMoreInfoProfesor($userOBJ): \Illuminate\Support\Collection
+    {
+        return DB::table('profesor_dicta_materia')
+            ->select('materias.nombre', 'materias.id')
+            ->join('materias', 'profesor_dicta_materia.idMateria', '=', 'materias.id')
+            ->where('profesor_dicta_materia.idProfesor', $userOBJ->id)
+            ->where('profesor_dicta_materia.deleted_at', NULL)
+            ->get();
+    }
+
+    /**
+     * @param $userOBJ
+     * @return \Illuminate\Support\Collection
+     */
+    public function getMoreInfoAlumno($userOBJ): \Illuminate\Support\Collection
+    {
+        return DB::table('alumnos_pertenecen_grupos')
+            ->select('grupos.idGrupo')
+            ->join('grupos', 'alumnos_pertenecen_grupos.idGrupo', '=', 'grupos.idGrupo')
+            ->where('alumnos_pertenecen_grupos.idAlumnos', $userOBJ->id)
+            ->where('alumnos_pertenecen_grupos.deleted_at', NULL)
+            ->get();
     }
 }

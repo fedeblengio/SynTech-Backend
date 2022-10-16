@@ -10,11 +10,41 @@ use Carbon\Carbon;
 use App\Models\alumnos_pertenecen_grupos;
 use App\Http\Controllers\RegistrosController;
 
+
 class agregarUsuarioGrupoController extends Controller
 {
+    /**
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public static function agregarAlumnoGrupo(Request $request): \Illuminate\Http\JsonResponse
+    {
+        $agregarAlumnoGrupo = new alumnos_pertenecen_grupos;
+        $agregarAlumnoGrupo->idGrupo = $request->idGrupo;
+        $agregarAlumnoGrupo->idAlumnos = $request->idAlumno;
+        $agregarAlumnoGrupo->save();
+        RegistrosController::store("ALUMNO GRUPO", $request->header('token'), "CREATE", $request->idAlumno . " - " . $request->idGrupo);
+        return response()->json(['status' => 'Success'], 200);
+
+    }
+
+    /**
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public static function activarAlumnoGrupo(Request $request): \Illuminate\Http\JsonResponse
+    {
+        DB::table('alumnos_pertenecen_grupos')
+            ->where('idAlumnos', $request->idAlumno)
+            ->where('idGrupo', $request->idGrupo)
+            ->update(['deleted_at' => null]);
+        RegistrosController::store("ALUMNO GRUPO", $request->header('token'), "ACTIVATE", $request->idAlumno . " - " . $request->idGrupo);
+        return response()->json(['status' => 'Success'], 200);
+    }
+
     public function index(Request $request)
     {
-     
+
 
         $variable = $request->idGrupo;
         $resultado = DB::select(
@@ -22,7 +52,7 @@ class agregarUsuarioGrupoController extends Controller
             array('variable' => $variable)
         );
 
-       /*  $alumnoseliminados = DB::table('alumnos_pertenecen_grupos')
+        /*  $alumnoseliminados = DB::table('alumnos_pertenecen_grupos')
             ->select('usuarios.id', 'usuarios.nombre', 'usuarios.email')
             ->join('usuarios', 'usuarios.id', '=', 'alumnos_pertenecen_grupos.idAlumnos')
             ->where('alumnos_pertenecen_grupos.idGrupo', '=', $request->idGrupo)
@@ -39,7 +69,7 @@ class agregarUsuarioGrupoController extends Controller
 
         return response()->json($resultado);
     }
-    
+
     public static function store(Request $request)
     {
         $alumnoGrupo = DB::table('alumnos_pertenecen_grupos')
@@ -49,21 +79,10 @@ class agregarUsuarioGrupoController extends Controller
             ->first();
         if ($alumnoGrupo) {
             if ($alumnoGrupo->deleted_at) {
-                DB::table('alumnos_pertenecen_grupos')
-                    ->where('idAlumnos', $request->idAlumno)
-                    ->where('idGrupo', $request->idGrupo)
-                    ->update(['deleted_at' => null]);
-                    RegistrosController::store("ALUMNO GRUPO",$request->header('token'),"ACTIVATE",$request->idAlumno." - ".$request->idGrupo);
-                return response()->json(['status' => 'Success'], 200);
+                return self::activarAlumnoGrupo($request);
             }
-           
         } else {
-            $agregarAlumnoGrupo = new alumnos_pertenecen_grupos;
-            $agregarAlumnoGrupo->idGrupo = $request->idGrupo;
-            $agregarAlumnoGrupo->idAlumnos = $request->idAlumno;
-            $agregarAlumnoGrupo->save();
-            RegistrosController::store("ALUMNO GRUPO",$request->header('token'),"CREATE",$request->idAlumno." - ".$request->idGrupo);
-            return response()->json(['status' => 'Success'], 200);
+            return self::agregarAlumnoGrupo($request);
         }
     }
     public function destroy(request $request)
@@ -73,7 +92,7 @@ class agregarUsuarioGrupoController extends Controller
                 ->where('idAlumnos', $request->idAlumno)
                 ->where('idGrupo', $request->idGrupo)
                 ->update(['deleted_at' => Carbon::now()->addMinutes(23)]);
-                RegistrosController::store("ALUMNO GRUPO",$request->header('token'),"DELETE",$request->idAlumno." - ".$request->idGrupo);
+            RegistrosController::store("ALUMNO GRUPO", $request->header('token'), "DELETE", $request->idAlumno . " - " . $request->idGrupo);
             return response()->json(['status' => 'Success'], 200);
         } catch (\Throwable $th) {
             return response()->json(['status' => 'Bad Request'], 400);

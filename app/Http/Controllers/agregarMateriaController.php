@@ -30,21 +30,17 @@ class agregarMateriaController extends Controller
                     ->where('nombre', $request->nombreMateria)
                     ->update(['deleted_at' => null]);
 
-                    RegistrosController::store("MATERIA",$request->header('token'),"ACTIVATE",$request->nombreMateria);
+                RegistrosController::store("MATERIA", $request->header('token'), "ACTIVATE", $request->nombreMateria);
 
                 return response()->json(['status' => 'Success'], 200);
             }
             return response()->json(['status' => 'Materia Existe'], 416);
         } else {
-            $agregarMateria = new materia;
-            $agregarMateria->nombre = $request->nombreMateria;
-            $agregarMateria->save();
-            RegistrosController::store("MATERIA",$request->header('token'),"CREATE",$request->nombreMateria);
-            return response()->json(['status' => 'Success'], 200);
+            return $this->agregarMateria($request);
         }
     }
 
-/*     public function activarProfesorMateria($existeMateria)
+    /*     public function activarProfesorMateria($existeMateria)
     {
         DB::table('profesor_dicta_materia')
             ->where('idMateria', $existeMateria->idMateria)
@@ -69,7 +65,7 @@ class agregarMateriaController extends Controller
             $nombreViejo = $modificarMateria->nombre;
             $modificarMateria->nombre = $request->nuevoNombre;
             $modificarMateria->save();
-            RegistrosController::store("MATERIA",$request->header('token'),"UPDATE",$nombreViejo." - ".$request->nuevoNombre);
+            RegistrosController::store("MATERIA", $request->header('token'), "UPDATE", $nombreViejo . " - " . $request->nuevoNombre);
             return response()->json(['status' => 'Success'], 200);
         } catch (\Throwable $th) {
             return response()->json(['status' => 'Bad Request'], 400);
@@ -83,7 +79,7 @@ class agregarMateriaController extends Controller
             $eliminarMateria->delete();
             self::eliminarMateriaProfesor($request, $nombreMateria);
             self::eliminarMateriaGrupo($request, $nombreMateria);
-            RegistrosController::store("MATERIA",$request->header('token'),"DELETE",$nombreMateria);
+            RegistrosController::store("MATERIA", $request->header('token'), "DELETE", $nombreMateria);
             return response()->json(['status' => 'Success'], 200);
         } catch (\Throwable $th) {
             return response()->json(['status' => 'Bad Request'], 400);
@@ -94,13 +90,26 @@ class agregarMateriaController extends Controller
         DB::table('profesor_dicta_materia')
             ->where('idMateria', $request->idMateria)
             ->update(['deleted_at' => Carbon::now()->addMinutes(23)]);
-            RegistrosController::store("MATERIA PROFESOR",$request->header('token'),"DELETE", $materia);
+        RegistrosController::store("MATERIA PROFESOR", $request->header('token'), "DELETE", $materia);
     }
     public function eliminarMateriaGrupo($request, $materia)
     {
         DB::table('grupos_tienen_profesor')
             ->where('idMateria', $request->idMateria)
             ->update(['deleted_at' => Carbon::now()->addMinutes(23)]);
-            RegistrosController::store("MATERIA GRUPO",$request->header('token'),"DELETE", $materia);
+        RegistrosController::store("MATERIA GRUPO", $request->header('token'), "DELETE", $materia);
+    }
+
+    /**
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function agregarMateria(Request $request): \Illuminate\Http\JsonResponse
+    {
+        $agregarMateria = new materia;
+        $agregarMateria->nombre = $request->nombreMateria;
+        $agregarMateria->save();
+        RegistrosController::store("MATERIA", $request->header('token'), "CREATE", $request->nombreMateria);
+        return response()->json(['status' => 'Success'], 200);
     }
 }

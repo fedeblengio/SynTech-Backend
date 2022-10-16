@@ -13,6 +13,38 @@ use App\Models\usuarios;
 class profesorDictaMateriaController extends Controller
 {
 
+    /**
+     * @param $idMateria
+     * @param $idProfesor
+     * @param $token
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public static function activarProfesorMateria($idMateria, $idProfesor, $token): \Illuminate\Http\JsonResponse
+    {
+        DB::table('profesor_dicta_materia')
+            ->where('idMateria', $idMateria)
+            ->where('idProfesor', $idProfesor)
+            ->update(['deleted_at' => null]);
+        RegistrosController::store("PROFESOR MATERIA", $token, "ACTIVATE", $idProfesor);
+        return response()->json(['status' => 'Success'], 200);
+    }
+
+    /**
+     * @param $idMateria
+     * @param $idProfesor
+     * @param $token
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public static function agregarProfesorMateria($idMateria, $idProfesor, $token): \Illuminate\Http\JsonResponse
+    {
+        $agregarProfesorMateria = new profesor_dicta_materia;
+        $agregarProfesorMateria->idMateria = $idMateria;
+        $agregarProfesorMateria->idProfesor = $idProfesor;
+        $agregarProfesorMateria->save();
+        RegistrosController::store("PROFESOR MATERIA", $token, "CREATE", $idProfesor);
+        return response()->json(['status' => 'Success'], 200);
+    }
+
     public function index(Request $request)
     {
 
@@ -48,18 +80,18 @@ class profesorDictaMateriaController extends Controller
             ->where('profesor_dicta_materia.idMateria', $request->idMateria)
             ->get();
 
-            /* $a =  DB::table('usuarios') */
-            /* ->select('*') */
-            /* ->leftJoin('profesor_dicta_materia', 'profesor_dicta_materia.idProfesor', '=', 'usuarios.id')
+        /* $a =  DB::table('usuarios') */
+        /* ->select('*') */
+        /* ->leftJoin('profesor_dicta_materia', 'profesor_dicta_materia.idProfesor', '=', 'usuarios.id')
             ->where('profesor_dicta_materia.idMateria', $request->idMateria) */
-          /*   ->get();
+        /*   ->get();
  */
         return response()->json($a);
     }
 
     public  function agregarListaDeProfesoresMateria(Request $request)
     {
-       
+
         try {
             foreach ($request->profesores as $p) {
                 self::store($request->idMateria, $p, $request->header('token'));
@@ -80,22 +112,12 @@ class profesorDictaMateriaController extends Controller
             ->first();
         if ($perteneceMateria) {
             if ($perteneceMateria->deleted_at) {
-                DB::table('profesor_dicta_materia')
-                ->where('idMateria', $idMateria)
-                ->where('idProfesor', $idProfesor)
-                ->update(['deleted_at' => null]);
-                RegistrosController::store("PROFESOR MATERIA",$token,"ACTIVATE",$idProfesor);
-                return response()->json(['status' => 'Success'], 200);
+                return self::activarProfesorMateria($idMateria, $idProfesor, $token);
             }
             return response()->json(['status' => 'Materia Existe'], 416);
         } else {
 
-            $agregarProfesorMateria = new profesor_dicta_materia;
-            $agregarProfesorMateria->idMateria = $idMateria;
-            $agregarProfesorMateria->idProfesor = $idProfesor;
-            $agregarProfesorMateria->save();
-            RegistrosController::store("PROFESOR MATERIA",$token,"CREATE",$idProfesor);
-            return response()->json(['status' => 'Success'], 200);
+            return self::agregarProfesorMateria($idMateria, $idProfesor, $token);
         }
     }
 
@@ -120,7 +142,7 @@ class profesorDictaMateriaController extends Controller
             $perteneceMateria = profesor_dicta_materia::where('idMateria', $request->idMateria)->where('idProfesor', $request->idProfesor)->first();
             $perteneceMateria->delete();
             self::eliminarProfesorGrupo($request);
-            RegistrosController::store("PROFESOR MATERIA",$request->header('token'),"DELETE",$request->idMateria." - ".$request->idProfesor);
+            RegistrosController::store("PROFESOR MATERIA", $request->header('token'), "DELETE", $request->idMateria . " - " . $request->idProfesor);
             return response()->json(['status' => 'Success'], 200);
         } catch (\Throwable $th) {
             return response()->json(['status' => 'Bad Request'], 400);
@@ -133,6 +155,6 @@ class profesorDictaMateriaController extends Controller
             ->where('idMateria', $request->idMateria)
             ->where('idProfesor', $request->idProfesor)
             ->delete();
-            RegistrosController::store("MATERIA GRUPOS",$request->header('token'),"DELETE",$request->idMateria." - ".$request->idProfesor);
+        RegistrosController::store("MATERIA GRUPOS", $request->header('token'), "DELETE", $request->idMateria . " - " . $request->idProfesor);
     }
 }
