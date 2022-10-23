@@ -61,7 +61,7 @@ class gruposController extends Controller
         DB::table('grupos_tienen_profesor')
             ->where('idGrupo', $request->idGrupo)
             ->update(['deleted_at' => Carbon::now()->addMinutes(23)]);
-        RegistrosController::store("GRUPO PROFESOR", $request->header('token'), "UPDATE", $request->idGrupo);
+        RegistrosController::store("GRUPO PROFESOR", $request->header('token'), "DELETE", $request->idGrupo);
     }
 
     public function eliminarAlumnosGrupo($request)
@@ -69,7 +69,7 @@ class gruposController extends Controller
         DB::table('alumnos_pertenecen_grupos')
             ->where('idGrupo', $request->idGrupo)
             ->update(['deleted_at' => Carbon::now()->addMinutes(23)]);
-        RegistrosController::store("GRUPO ALUMNOS", $request->header('token'), "CREATE", $request->idGrupo);
+        RegistrosController::store("GRUPO ALUMNOS", $request->header('token'), "DELETE", $request->idGrupo);
     }
 
 
