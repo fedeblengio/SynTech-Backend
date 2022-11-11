@@ -71,7 +71,6 @@ class gruposTienenProfesorController extends Controller
 
     public function traerMateriasSinGrupo(Request $request)
     {
-
         $resultado=DB::table('materias')
         ->select('materias.id', 'materias.nombre', 'grupos_tienen_profesor.idGrupo')
         ->leftJoin('grupos_tienen_profesor', function($join) use ($request){

@@ -56,10 +56,10 @@ class agregarUsuarioGrupoController extends Controller
         ->whereNull('alumnos_pertenecen_grupos.deleted_at')
         ->whereNull('usuarios.deleted_at')
         ->get();
-
         
         return response()->json($resultado);
     }
+
 
     public static function store(Request $request)
     {
