@@ -72,12 +72,16 @@ class gruposTienenProfesorController extends Controller
     public function traerMateriasSinGrupo(Request $request)
     {
 
-
-        $resultado = DB::select(
-            DB::raw('SELECT A.id , A.nombre  FROM (SELECT * from materias WHERE deleted_at is NULL) as A LEFT JOIN (SELECT * FROM grupos_tienen_profesor WHERE idGrupo=:variable AND deleted_at IS NULL) as B ON A.id = B.idMateria WHERE B.idMateria IS NULL;'),
-            array('variable' => $request->idGrupo)
-        );
-
+        $resultado=DB::table('materias')
+        ->select('materias.id', 'materias.nombre', 'grupos_tienen_profesor.idGrupo')
+        ->leftJoin('grupos_tienen_profesor', function($join) use ($request){
+            $join->on('materias.id', '=', 'grupos_tienen_profesor.idMateria')
+            ->where('grupos_tienen_profesor.idGrupo' , '=', $request->idGrupo);
+        })
+        ->whereNull('grupos_tienen_profesor.idGrupo')
+        ->whereNull('grupos_tienen_profesor.deleted_at')
+        ->whereNull('materias.deleted_at')
+        ->get();
 
         $dataResponse = array();
 

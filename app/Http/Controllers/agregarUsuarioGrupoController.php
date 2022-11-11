@@ -43,30 +43,21 @@ class agregarUsuarioGrupoController extends Controller
     }
 
     public function index(Request $request)
-    {
+    { 
+        $resultado=DB::table('usuarios')
+        ->select('usuarios.id AS id', 'usuarios.nombre', 'usuarios.email', 'alumnos_pertenecen_grupos.idGrupo')  
+        ->join('alumnos', 'usuarios.id', '=', 'alumnos.id')
+        ->leftJoin('alumnos_pertenecen_grupos', function($join) use ($request){
+            $join->on('usuarios.id', '=', 'alumnos_pertenecen_grupos.idAlumnos')
+            ->where('alumnos_pertenecen_grupos.idGrupo' , '=', $request->idGrupo);
+        })
+        ->whereNull('alumnos_pertenecen_grupos.idGrupo')
+        
+        ->whereNull('alumnos_pertenecen_grupos.deleted_at')
+        ->whereNull('usuarios.deleted_at')
+        ->get();
 
-
-        $variable = $request->idGrupo;
-        $resultado = DB::select(
-            DB::raw('SELECT A.id , A.nombre, A.email  FROM (SELECT * from usuarios WHERE deleted_at is NULL) as A JOIN (SELECT * FROM alumnos) as B ON A.id = B.id LEFT JOIN (SELECT * FROM alumnos_pertenecen_grupos WHERE idGrupo=:variable AND deleted_at IS NULL) as C ON A.id = C.idAlumnos WHERE C.idGrupo IS NULL;'),
-            array('variable' => $variable)
-        );
-
-        /*  $alumnoseliminados = DB::table('alumnos_pertenecen_grupos')
-            ->select('usuarios.id', 'usuarios.nombre', 'usuarios.email')
-            ->join('usuarios', 'usuarios.id', '=', 'alumnos_pertenecen_grupos.idAlumnos')
-            ->where('alumnos_pertenecen_grupos.idGrupo', '=', $request->idGrupo)
-            ->where('alumnos_pertenecen_grupos.deleted_at')
-            ->get();
-
-
-            foreach ($alumnoseliminados as $a) {
-                array_push($resultado,$a);
-            } */
-
-
-
-
+        
         return response()->json($resultado);
     }
 
