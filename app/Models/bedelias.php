@@ -9,4 +9,10 @@ class bedelias extends Model
 {
     use HasFactory;
     use SoftDeletes;
+
+    protected $fillable = [
+        'id',
+        'cedula_bedelia',
+        'cargo'
+    ];
 }
