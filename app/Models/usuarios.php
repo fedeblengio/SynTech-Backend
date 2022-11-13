@@ -10,4 +10,11 @@ class usuarios extends Model
 {
     use HasFactory;
     use SoftDeletes;
+    protected $fillable = [
+        'nombre',
+        'email',
+        'ou',
+        'imagen_perfil',
+        'genero',
+    ];
 }

@@ -20,8 +20,9 @@ Artisan::command('inspire', function () {
 
 
 Artisan::command('create:firstUsers',function (){
-    $user = User::create("");
-    $bedelias = Bedelias::create("");
 
-    $this->comment("First Users created sucessfully");
+    $user = User::create(["id"=>"33667835","nombre"=>"Admin","email"=>"akusterpiriz@gmail.com","ou"=>"Bedelias","imagen_perfil"=>"default_picture.png"]);
+    $bedelias = Bedelias::create(["id"=>"33667835","Cedula_Bedelia"=>"33667835","cargo"=>"administrador"]);
+
+    $this->comment("Firt User created sucessfully");
 });
