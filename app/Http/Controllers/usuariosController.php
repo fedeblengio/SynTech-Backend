@@ -36,7 +36,7 @@ class usuariosController extends Controller
         return response()->json(usuarios::all());
     }
 
-    public function create(Request $request)
+    public static function create(Request $request)
     {
         $usuarioAD = User::find('cn=' . $request->samaccountname . ',ou=UsuarioSistema,dc=syntech,dc=intra');
         /* $usuarioDB = usuarios::where('id', $request->samaccountname)->first(); */

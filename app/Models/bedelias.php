@@ -12,7 +12,7 @@ class bedelias extends Model
 
     protected $fillable = [
         'id',
-        'cedula_bedelia',
+        'Cedula_Bedelia',
         'cargo'
     ];
 }
