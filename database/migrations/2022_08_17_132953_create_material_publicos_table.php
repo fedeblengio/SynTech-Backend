@@ -18,6 +18,7 @@ class CreateMaterialPublicosTable extends Migration
             $table->string('idUsuario',8);
             $table->string('titulo');
             $table->binary('mensaje');
+            $table->binary('imgEncabezado');  
             $table->timestamps();
         });
 
