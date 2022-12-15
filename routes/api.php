@@ -28,6 +28,10 @@ Route::get('/test', function (){
     $materia = User::all();
     return $materia;
 });
+
+Route::get('/tkn', function () {
+    return  "Token Valid";
+  })->middleware('verificar_token');
 // FTP TRAER ARCHIVOS
 Route::get('/traerArchivo','App\Http\Controllers\MaterialPublicoController@traerArchivo')->middleware('verificar_token');
 Route::get('/foto','App\Http\Controllers\loginController@traerImagenPerfil');
