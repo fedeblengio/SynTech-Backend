@@ -16,9 +16,9 @@ class CreateProfesorDictaMateriasTable extends Migration
         Schema::enableForeignKeyConstraints();
         Schema::create('profesor_dicta_materia', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('idMateria');
-            $table->integer('idProfesor');
-            $table->unique(['idMateria', 'idProfesor']);
+            $table->unsignedBigInteger('id_materia');
+            $table->unsignedBigInteger('id_profesor');
+            $table->unique(['id_materia', 'id_profesor']);
            
             
         
@@ -26,8 +26,8 @@ class CreateProfesorDictaMateriasTable extends Migration
             $table->softDeletes();
         });
         Schema::table('profesor_dicta_materia', function(Blueprint $table) {
-            $table->foreign('idProfesor')->references('id')->on('profesores');
-            $table->foreign('idMateria')->references('id')->on('materias');
+            $table->foreign('id_profesor')->references('id')->on('profesores');
+            $table->foreign('id_materia')->references('id')->on('materias');
         }); 
     }
 

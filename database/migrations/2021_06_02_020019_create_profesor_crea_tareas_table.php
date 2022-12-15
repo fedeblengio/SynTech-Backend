@@ -15,19 +15,19 @@ class CreateProfesorCreaTareasTable extends Migration
     {
         Schema::enableForeignKeyConstraints();
         Schema::create('profesor_crea_tareas', function (Blueprint $table) {
-            $table->unsignedBigInteger('idMateria');
-            $table->unsignedBigInteger('idTareas');
-            $table->string('idGrupo',10);
-            $table->primary(['idGrupo', 'idTareas']);
-            $table->integer('idProfesor');
+            $table->id();
+            $table->unsignedBigInteger('id_materia');
+            $table->unsignedBigInteger('id_tarea');
+            $table->unsignedBigInteger('id_grupo');
+            $table->unsignedBigInteger('id_profesor');
         
             $table->timestamps();
         });
         Schema::table('profesor_crea_tareas', function(Blueprint $table) {
-            $table->foreign('idGrupo')->references('idGrupo')->on('grupos');
-            $table->foreign('idTareas')->references('id')->on('tareas');
-            $table->foreign('idMateria')->references('id')->on('materias');
-            $table->foreign('idProfesor')->references('id')->on('profesores');
+            $table->foreign('id_grupo')->references('id')->on('grupos');
+            $table->foreign('id_tarea')->references('id')->on('tareas');
+            $table->foreign('id_materia')->references('id')->on('materias');
+            $table->foreign('id_profesor')->references('id')->on('profesores');
         }); 
         
     }

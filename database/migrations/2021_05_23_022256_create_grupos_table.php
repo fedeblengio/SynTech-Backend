@@ -15,10 +15,9 @@ class CreateGruposTable extends Migration
     {
         Schema::create('grupos', function (Blueprint $table) {
             $table->id();
-            $table->string('idGrupo',10);
-            $table->unique('idGrupo');
-            $table->string('nombreCompleto')->nullable();
-            $table->string('anioElectivo');
+            $table->string('id_grupo',10)->unique();
+            $table->string('nombre_completo')->nullable();
+            $table->string('anio_electivo');
             $table->timestamps();
             $table->softDeletes();
         });

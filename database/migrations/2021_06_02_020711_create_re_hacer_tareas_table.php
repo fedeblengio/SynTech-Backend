@@ -15,11 +15,12 @@ class CreateReHacerTareasTable extends Migration
     {
         Schema::enableForeignKeyConstraints();
         Schema::create('re_hacer_tareas', function (Blueprint $table) {
-            $table->unsignedBigInteger('idTareasNueva');
-            $table->unsignedBigInteger('idTareas');
+            $table->id();
+            $table->unsignedBigInteger('id_tarea_nueva');
+            $table->unsignedBigInteger('id_tarea');
             $table->string('calificacion')->nullable();
-            $table->primary(['idTareasNueva', 'idTareas']);
-            $table->integer('idAlumnos');
+            $table->unique(['id_tarea_nueva', 'id_tarea']);
+            $table->unsignedBigInteger('id_alumno');
             $table->string('mensaje')->nullable();
             $table->string('mensaje_profesor')->nullable();
             $table->timestamps();
@@ -28,9 +29,9 @@ class CreateReHacerTareasTable extends Migration
 
         });
         Schema::table('re_hacer_tareas', function(Blueprint $table) {
-            $table->foreign('idTareas')->references('id')->on('tareas');
-            $table->foreign('idTareasNueva')->references('id')->on('tareas');
-            $table->foreign('idAlumnos')->references('id')->on('alumnos');
+            $table->foreign('id_tarea')->references('id')->on('tareas');
+            $table->foreign('id_tarea_nueva')->references('id')->on('tareas');
+            $table->foreign('id_alumno')->references('id')->on('alumnos');
         }); 
     }
 

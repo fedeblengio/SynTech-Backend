@@ -15,20 +15,21 @@ class CreateProfesorEscribeForosTable extends Migration
     {
         Schema::enableForeignKeyConstraints();
         Schema::create('profesor_estan_grupo_foro', function (Blueprint $table) {
-            $table->unsignedBigInteger('idForo')->primary();
-            $table->unsignedBigInteger('idMateria');
-            $table->string('idGrupo',10);
-            $table->integer('idProfesor');
+            $table->id();
+            $table->unsignedBigInteger('id_foro')->unique();
+            $table->unsignedBigInteger('id_materia');
+            $table->unsignedBigInteger('id_grupo');
+            $table->unsignedBigInteger('id_profesor');
            
             
         
             $table->timestamps();
         });
         Schema::table('profesor_estan_grupo_foro', function(Blueprint $table) {
-            $table->foreign('idForo')->references('id')->on('foros');
-            $table->foreign('idGrupo')->references('idGrupo')->on('grupos');
-            $table->foreign('idMateria')->references('id')->on('materias');
-            $table->foreign('idProfesor')->references('id')->on('profesores');
+            $table->foreign('id_foro')->references('id')->on('foros');
+            $table->foreign('id_grupo')->references('id')->on('grupos');
+            $table->foreign('id_materia')->references('id')->on('materias');
+            $table->foreign('id_profesor')->references('id')->on('profesores');
         }); 
     }
 

@@ -14,17 +14,18 @@ class ListaAulaVirtual extends Migration
     public function up()
     {
         Schema::create('lista_aula_virtual', function (Blueprint $table) {
-            $table->unsignedBigInteger('idClase');
-            $table->integer('idAlumnos');
+            $table->id();
+            $table->unsignedBigInteger('id_clase');
+            $table->unsignedBigInteger('id_alumno');
             $table->boolean('asistencia');
-            $table->primary(['idAlumnos','idClase']);
+            $table->unique(['id_alumno','id_clase']);
             $table->timestamps();
             
         });
 
         Schema::table('lista_aula_virtual', function(Blueprint $table) {
-            $table->foreign('idClase')->references('id')->on('agenda_clase_virtual');
-            $table->foreign('idAlumnos')->references('id')->on('alumnos');
+            $table->foreign('id_clase')->references('id')->on('agenda_clase_virtual');
+            $table->foreign('id_alumno')->references('id')->on('alumnos');
         });
     }
 

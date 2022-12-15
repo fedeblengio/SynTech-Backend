@@ -14,16 +14,15 @@ class CreateBedeliasTable extends Migration
     public function up()
     {
         Schema::create('bedelias', function (Blueprint $table) {
-            $table->integer("id");
-            $table->string('Cedula_Bedelia',8);
-            $table->primary(['Cedula_Bedelia', 'id']);
+            $table->id();
+            $table->string('cedula_bedelia',8)->unique();
             $table->string("cargo")->nullable();
             $table->timestamps();
             $table->softDeletes();
         });
 
         Schema::table('bedelias', function(Blueprint $table) {
-            $table->foreign('Cedula_Bedelia')->references('id')->on('usuarios');
+            $table->foreign('cedula_bedelia')->references('cedula')->on('usuarios');
         }); 
     }
 

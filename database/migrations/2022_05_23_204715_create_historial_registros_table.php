@@ -15,14 +15,14 @@ class CreateHistorialRegistrosTable extends Migration
     {
         Schema::create('historial_registros', function (Blueprint $table) {
             $table->id();
-            $table->string('idUsuario', 8);
+            $table->string('cedula', 8);
             $table->string('app');
             $table->string('accion');
             $table->string('mensaje');
             $table->timestamps();
         });
         Schema::table('historial_registros', function (Blueprint $table) {
-            $table->foreign('idUsuario')->references('id')->on('usuarios');
+            $table->foreign('cedula')->references('cedula')->on('usuarios');
         });
     }
 

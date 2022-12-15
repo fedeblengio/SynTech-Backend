@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class ArchivosReHacerTareaAlumno extends Migration
+class ArchivosReHacerTarea extends Migration
 {
     /**
      * Run the migrations.
@@ -15,16 +15,16 @@ class ArchivosReHacerTareaAlumno extends Migration
     {
       Schema::create('archivos_re_hacer_tarea', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('idTareasNueva');
-            $table->unsignedBigInteger('idTareas');
-            $table->integer('idAlumnos');
-            $table->string('nombreArchivo')->nullable();
+            $table->unsignedBigInteger('id_tarea_nueva');
+            $table->unsignedBigInteger('id_tarea');
+            $table->unsignedBigInteger('id_alumno');
+            $table->string('nombre_archivo')->nullable();
             $table->timestamps();
         });
         Schema::table('archivos_re_hacer_tarea', function(Blueprint $table) {
-            $table->foreign('idTareas')->references('id')->on('tareas');
-            $table->foreign('idTareasNueva')->references('id')->on('tareas');
-            $table->foreign('idAlumnos')->references('id')->on('alumnos');
+            $table->foreign('id_tarea')->references('id')->on('tareas');
+            $table->foreign('id_tarea_nueva')->references('id')->on('tareas');
+            $table->foreign('id_alumno')->references('id')->on('alumnos');
         });  
     }
 

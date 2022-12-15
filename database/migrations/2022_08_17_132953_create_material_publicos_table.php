@@ -15,15 +15,15 @@ class CreateMaterialPublicosTable extends Migration
     {
         Schema::create('material_publicos', function (Blueprint $table) {
             $table->id();
-            $table->string('idUsuario',8);
+            $table->string('cedula',8);
             $table->string('titulo');
             $table->binary('mensaje');
-            $table->binary('imgEncabezado');  
+            $table->binary('img_encabezado');  
             $table->timestamps();
         });
 
         Schema::table('material_publicos', function(Blueprint $table) {
-            $table->foreign('idUsuario')->references('id')->on('usuarios');
+            $table->foreign('cedula')->references('cedula')->on('usuarios');
         }); 
     }
 

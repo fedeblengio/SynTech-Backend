@@ -15,15 +15,15 @@ class ArchivosForo extends Migration
     {
         Schema::create('archivos_foro', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('idForo');
-            $table->unsignedBigInteger('idDato');
-            $table->string('nombreArchivo')->nullable();
+            $table->unsignedBigInteger('id_foro');
+            $table->unsignedBigInteger('id_dato');
+            $table->string('nombre_archivo')->nullable();
             $table->timestamps();
 
         });
         Schema::table('archivos_foro', function(Blueprint $table) {
-            $table->foreign('idForo')->references('id')->on('foros');
-            $table->foreign('idDato')->references('id')->on('datosForo');
+            $table->foreign('id_foro')->references('id')->on('foros');
+            $table->foreign('id_dato')->references('id')->on('datosForo');
         }); 
     }
 

@@ -15,18 +15,18 @@ class CreateGruposTienenProfesorsTable extends Migration
     {
         Schema::create('grupos_tienen_profesor', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('idMateria');
-            $table->string('idGrupo', 10);
-            $table->integer('idProfesor');
-            $table->unique(['idGrupo', 'idProfesor', 'idMateria']);
+            $table->unsignedBigInteger('id_materia');
+            $table->unsignedBigInteger('id_grupo');
+            $table->unsignedBigInteger('id_profesor');
+            $table->unique(['id_grupo', 'id_profesor', 'id_materia']);
             $table->timestamps();
             $table->softDeletes();
         });
 
         Schema::table('grupos_tienen_profesor', function (Blueprint $table) {
-            $table->foreign('idGrupo')->references('idGrupo')->on('grupos');
-            $table->foreign('idMateria')->references('id')->on('materias');
-            $table->foreign('idProfesor')->references('id')->on('profesores');
+            $table->foreign('id_grupo')->references('id')->on('grupos');
+            $table->foreign('id_materia')->references('id')->on('materias');
+            $table->foreign('id_profesor')->references('id')->on('profesores');
         });
     }
 

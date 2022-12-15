@@ -15,12 +15,12 @@ class ArchivosTarea extends Migration
     {
         Schema::create('archivos_tarea', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('idTarea');
-            $table->string('nombreArchivo')->nullable();
+            $table->unsignedBigInteger('id_tarea');
+            $table->string('nombre_archivo')->nullable();
             $table->timestamps();
         });
         Schema::table('archivos_tarea', function(Blueprint $table) {
-            $table->foreign('idTarea')->references('id')->on('tareas');
+            $table->foreign('id_tarea')->references('id')->on('tareas');
         }); 
     }
 

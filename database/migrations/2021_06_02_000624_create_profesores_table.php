@@ -14,15 +14,13 @@ class CreateProfesoresTable extends Migration
     public function up()
     {
         Schema::create('profesores', function (Blueprint $table) {
-
-            $table->integer('id');
-            $table->string('Cedula_Profesor',8);
-            $table->primary(['id', 'Cedula_Profesor']);
+            $table->id();
+            $table->string('cedula_profesor',8)->unique();
             $table->timestamps();
             $table->softDeletes();
         });
         Schema::table('profesores', function(Blueprint $table) {
-            $table->foreign('Cedula_Profesor')->references('id')->on('usuarios');
+            $table->foreign('cedula_profesor')->references('cedula')->on('usuarios');
         }); 
     }
 

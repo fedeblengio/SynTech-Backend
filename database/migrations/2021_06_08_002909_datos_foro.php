@@ -14,21 +14,17 @@ class DatosForo extends Migration
     public function up()
     {
         Schema::create('datosForo', function (Blueprint $table) {
-            $table->unsignedBigInteger('idForo');
+            $table->unsignedBigInteger('id_foro');
             $table->id();
-            $table->string('idUsuario',8);
+            $table->string('cedula',8);
             $table->binary('mensaje');
-          /*   $table->binary('datos')->nullable(); */
-           
             $table->timestamps();
-
-
             
         });
 
         Schema::table('datosForo', function(Blueprint $table) {
-            $table->foreign('idForo')->references('id')->on('foros');
-            $table->foreign('idUsuario')->references('id')->on('usuarios');
+            $table->foreign('id_foro')->references('id')->on('foros');
+            $table->foreign('cedula')->references('cedula')->on('usuarios');
         }); 
     }
 
