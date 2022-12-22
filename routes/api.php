@@ -34,14 +34,16 @@ Route::get('/foto','App\Http\Controllers\loginController@traerImagenPerfil');
 Route::get('/historial','App\Http\Controllers\usuariosController@getFullHistory');
 
 //USUARIOS
-Route::get('/usuarios','App\Http\Controllers\usuariosController@index');
+
+Route::apiResource('usuario', 'App\Http\Controllers\usuariosController');
+/* Route::get('/usuarios','App\Http\Controllers\usuariosController@index');
 
 Route::get('/usuario','App\Http\Controllers\usuariosController@show')->middleware('verificar_token');
 
 Route::post('/usuario','App\Http\Controllers\usuariosController@create');
 Route::delete('/usuario','App\Http\Controllers\usuariosController@destroy')->middleware('verificar_token');
 Route::put('/usuario','App\Http\Controllers\usuariosController@update')->middleware('verificar_token');
-
+ */
 Route::post('/foto','App\Http\Controllers\usuariosController@cambiarFotoUsuario')->middleware('verificar_token');
 
 Route::put('/contrasenia','App\Http\Controllers\usuariosController@cambiarContrasenia')->middleware('verificar_token');

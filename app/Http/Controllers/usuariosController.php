@@ -36,26 +36,16 @@ class usuariosController extends Controller
         return response()->json(usuarios::all());
     }
 
-    public function create(Request $request)
+    public function store(Request $request)
     {
-        $usuarioAD = User::find('cn=' . $request->samaccountname . ',ou=UsuarioSistema,dc=syntech,dc=intra');
-        /* $usuarioDB = usuarios::where('id', $request->samaccountname)->first(); */
         $usuarioDB = DB::table('usuarios')
             ->select('*')
-            ->where('id', $request->samaccountname)
+            ->where('cedula', $request->samaccountname)
             ->first();
         if ($usuarioDB) {
-            if ($usuarioDB->deleted_at) {
-                self::activarUsuarioAD($usuarioAD);
-                self::activarUsuarioDB($request);
-
-                return response()->json(['status' => 'Success'], 200);
-            }
-
             return response()->json(['error' => 'Forbidden'], 403);
-        } else {
-            /* try { */
-            self::agregarUsuarioDB($request);
+        } 
+            $newUser = self::agregarUsuarioDB($request);
             self::agregarUsuarioAD($request);
 
             switch ($request->ou) {
@@ -76,42 +66,24 @@ class usuariosController extends Controller
 
             Mail::to($request->userPrincipalName)->send(new \App\Mail\MyTestMail($details));
            
-            return response()->json(['status' => 'Success'], 200);
-            /* } catch (\Throwable $th) {
-                return response()->json(['status' => 'Error'], 400);
-                return $th;
-            } */
-        }
-
-        if ($usuarioAD) {
-            return response()->json(['error' => 'Forbidden'], 403);
-            $this->exit();
-        }
+            return $newUser;
     }
 
     public function agregarUsuarioDB($request)
     {
         $usuarioDB = new usuarios;
-        $usuarioDB->id = $request->samaccountname;
-        $usuarioDB->nombre = $request->name . " " . $request->surname;
-        $usuarioDB->email = $request->userPrincipalName;
-        $usuarioDB->ou = $request->ou;
-        $usuarioDB->save();
+        $usuarioDB->create($request);
+        return $usuarioDB;
     }
     public function agregarUsuarioAlumno($request)
     {
-        $alumno = DB::table('alumnos')
-            ->select('*')
-            ->where('id', $request->samaccountname)
-            ->first();
-        if ($alumno) {
-            if ($alumno->deleted_at) {
-                self::activarAlumno($request);
-            }
-        } else {
-            self::agregarAlumno($request);
-        }
-        if ($request->idGrupos) {
+
+        $alumno = new alumnos;
+        $alumno->create($request);
+
+        RegistrosController::store("ALUMNO", $request->header('token'), "CREATE", $request->samaccountname);
+
+        /* if ($request->idGrupos) {
             foreach ($request->idGrupos as $idG) {
 
                 agregarUsuarioGrupoController::store(new Request([
@@ -119,43 +91,23 @@ class usuariosController extends Controller
                     "idGrupo" =>  $idG,
                 ]));
             }
-        }
+        } */
     }
 
     public function agregarUsuarioProfesor($request)
     {
-        $profesores = DB::table('profesores')
-            ->select('*')
-            ->where('id', $request->samaccountname)
-            ->first();
-        if ($profesores) {
-            if ($profesores->deleted_at) {
-                self::activarProfesor($request);
-            }
-        } else {
-            self::agregarProfesor($request);
-        }
-        if ($request->idMaterias) {
+        $profesor = new profesores;
+        $profesor->create($request);
+        RegistrosController::store("PROFESOR", $request->header('token'), "CREATE", $request->samaccountname);
+        
+        /* if ($request->idMaterias) {
             foreach ($request->idMaterias as $m) {
                 profesorDictaMateriaController::store($m, $request->samaccountname, $request->header('token'));
             }
-        }
+        } */
     }
 
-    public function agregarUsuarioBedelias($request)
-    {
-        $bedelias = DB::table('bedelias')
-            ->select('*')
-            ->where('id', $request->samaccountname)
-            ->first();
-        if ($bedelias) {
-            if ($bedelias->deleted_at) {
-                self::activarBedelia($request);
-            }
-        } else {
-            self::agregarBedelia($request);
-        }
-    }
+   
 
     public function agregarUsuarioAD(Request $request)
     {
@@ -176,38 +128,6 @@ class usuariosController extends Controller
         }
     }
 
-    public function activarUsuarioAD($usuarioAD)
-    {
-        $usuarioAD->userAccountControl = 66048;
-        $usuarioAD->save();
-        $usuarioAD->refresh();
-    }
-
-    public function activarUsuarioDB($request)
-    {
-        $usuarioDB = [
-            "nombre" => $request->name . " " . $request->surname,
-            "email" => $request->userPrincipalName,
-            "ou" => $request->ou,
-            "deleted_at" => null
-        ];
-        DB::table('usuarios')
-            ->where('id', $request->samaccountname)
-            ->update($usuarioDB);
-
-        switch ($request->ou) {
-            case "Bedelias":
-                self::agregarUsuarioBedelias($request);
-                break;
-            case "Alumno":
-                self::agregarUsuarioAlumno($request);
-                break;
-            case "Profesor":
-                self::agregarUsuarioProfesor($request);
-                break;
-        }
-    }
-
     public function getFullHistory()
     {
         return DB::table('historial_registros')
@@ -217,9 +137,9 @@ class usuariosController extends Controller
             ->get();
     }
 
-    public function show(request $request)
+    public function show($id)
     {
-        $userDB = usuarios::where('id', $request->username)->first();
+        $userDB = usuarios::find($id);
         $userDB->imagen_perfil = base64_encode(Storage::disk('ftp')->get($userDB->imagen_perfil));
 
         $infoUser = self::returnMoreInfoUser($userDB);
@@ -250,9 +170,8 @@ class usuariosController extends Controller
             $nombre = time() . "_" . $file->getClientOriginalName();
             Storage::disk('ftp')->put($nombre, fopen($request->archivo, 'r+'));
 
-            DB::table('usuarios')
-                ->where('id', $request->id)
-                ->update(['imagen_perfil' => $nombre]);
+                $usuarioDB["imagen_perfil"] = $nombre;
+                $usuarioDB->save();
 
             return response()->json(['status' => 'Success'], 200);
         }
@@ -283,16 +202,14 @@ class usuariosController extends Controller
         return response()->json(['status' => 'Success'], 200);
     }
 
-    public function update(Request $request)
+    public function update(Request $request, $id)
     {
+    
         try {
-            $usuario = usuarios::where('id', $request->idUsuario)->first();
-            if ($usuario) {
-                $usuario->nombre = $request->nombre;
-                $usuario->email = $request->email;
-                $usuario->genero = $request->genero;
+                $usuario = usuarios::find($id);
+                $usuario->fill($request);
                 $usuario->save();
-            }
+            
             RegistrosController::store("USUARIO", $request->header('token'), "UPDATE", $request->idUsuario);
             return response()->json(['status' => 'Success'], 200);
         } catch (\Throwable $th) {
@@ -302,21 +219,20 @@ class usuariosController extends Controller
 
 
 
-    public function destroy(request $request)
+    public function delete($id, Request $request)
     {
-        $existe = usuarios::where('id', $request->id)->first();
+        $usuarioDB = usuarios::find($id);
 
-        $user = User::find('cn=' . $request->id . ',ou=UsuarioSistema,dc=syntech,dc=intra');
+        $user = User::find('cn=' . $usuarioDB->cedula . ',ou=UsuarioSistema,dc=syntech,dc=intra');
         try {
-            if ($existe) {
-                $existe->delete();
+            if ($usuarioDB) {
+                $usuarioDB->delete();
                 $user->userAccountControl = 514;
                 $user->save();
                 $user->refresh();
 
-                self::eliminarPersona($existe, $request->header('token'));
-                /* DB::delete('delete from usuarios where username="' . $request->username . '" ;'); */
-                RegistrosController::store("USUARIO", $request->header('token'), "DELETE", $request->id);
+                self::eliminarPersona($usuarioDB, $request->header('token'));
+                RegistrosController::store("USUARIO", $request->header('token'), "DELETE", $usuarioDB->cedula);
                 return response()->json(['status' => 'Success'], 200);
             }
             return response()->json(['status' => 'Bad Request'], 400);
@@ -328,8 +244,6 @@ class usuariosController extends Controller
 
     public function eliminarPersona($existe, $token)
     {
-
-
         switch ($existe->ou) {
             case "Bedelias":
                 $bedelias = bedelias::where('id', $existe->id)->first();
@@ -379,75 +293,39 @@ class usuariosController extends Controller
      * @param $request
      * @return void
      */
-    public function activarAlumno($request): void
-    {
-        DB::table('alumnos')
-            ->where('id', $request->samaccountname)
-            ->update(['deleted_at' => null]);
-        RegistrosController::store("ALUMNO", $request->header('token'), "ACTIVATE", $request->samaccountname);
-    }
+    
+    /**
+     * @param $request
+     * @return void
+     */
+  
+    /**
+     * @param $request
+     * @return void
+     */
+    
 
     /**
      * @param $request
      * @return void
      */
-    public function agregarAlumno($request): void
-    {
-        $alumno = new alumnos;
-        $alumno->Cedula_Alumno = $request->samaccountname;
-        $alumno->id = $request->samaccountname;
-        $alumno->save();
-        RegistrosController::store("ALUMNO", $request->header('token'), "CREATE", $request->samaccountname);
-    }
+
 
     /**
      * @param $request
      * @return void
      */
-    public function activarProfesor($request): void
-    {
-        DB::table('profesores')
-            ->where('id', $request->samaccountname)
-            ->update(['deleted_at' => null]);
-        RegistrosController::store("PROFESOR", $request->header('token'), "ACTIVATE", $request->samaccountname);
-    }
+   
 
     /**
      * @param $request
      * @return void
      */
-    public function agregarProfesor($request): void
+    public function agregarUsuarioBedelias($request): void
     {
-        $profesores = new profesores;
-        $profesores->Cedula_Profesor = $request->samaccountname;
-        $profesores->id = $request->samaccountname;
-        $profesores->save();
-        RegistrosController::store("PROFESOR", $request->header('token'), "CREATE", $request->samaccountname);
-    }
 
-    /**
-     * @param $request
-     * @return void
-     */
-    public function activarBedelia($request): void
-    {
-        DB::table('bedelias')
-            ->where('id', $request->samaccountname)
-            ->update(['deleted_at' => null, 'cargo' => $request->cargo]);
-        RegistrosController::store("BEDELIAS", $request->header('token'), "ACTIVATE", $request->samaccountname . " - " . $request->cargo);
-    }
-
-    /**
-     * @param $request
-     * @return void
-     */
-    public function agregarBedelia($request): void
-    {
-            $bedelias = new bedelias;
-            $bedelias->Cedula_Bedelia = $request->samaccountname;
-            $bedelias->id = $request->samaccountname;
-            $bedelias->cargo = $request->cargo? $request->cargo : "Adscripto";
-            $bedelias->save();
+            $bedelia = new bedelias;
+            $bedelia->create($request);
             RegistrosController::store("BEDELIAS", $request->header('token'), "CREATE", $request->samaccountname . " - " . $request->cargo);      
 
     }

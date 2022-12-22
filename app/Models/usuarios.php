@@ -8,6 +8,14 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  
 class usuarios extends Model
 {
+    protected $fillable=[
+        "cedula",
+        "nombre",
+        "email",
+        "ou",
+        "genero",
+        "imagen_perfil"
+    ];
     use HasFactory;
     use SoftDeletes;
 }
