@@ -5,12 +5,12 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Carrera extends Model
+class carrera_tiene_materias extends Model
 {
     protected $fillable=[
-        'nombre',
-        'plan',
-        'categoria',
+        'carrera_id',
+        'materia_id',
+        'grado_id'
     ];
     use HasFactory;
 }
