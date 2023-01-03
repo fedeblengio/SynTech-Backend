@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreUserRequest;
 use Illuminate\Support\Facades\Storage;
 use App\Models\usuarios;
 use App\Models\alumnos;
@@ -35,21 +36,29 @@ class usuariosController extends Controller
 
     public function create(Request $request)
     {
+        $request->validate([
+            'samaccountname' => 'required|string|max:8|min:8|unique:usuarios,id',
+            'name' => 'required|string|max:80',
+            'surname' => 'required|string|max:80',
+            'userPrincipalName' => 'required|email',
+            'ou' => 'required|string',
+        ]);
         try {
             self::agregarUsuarioAD($request);
             $usuarioDB = self::agregarUsuarioDB($request);
 
             switch ($request->ou) {
                 case "Bedelias":
-                    self::agregarUsuarioBedelias($request);
+                    self::agregarBedelia($request);
                     break;
                 case "Alumno":
-                    self::agregarUsuarioAlumno($request);
+                    self::agregarAlumno($request);
                     break;
                 case "Profesor":
-                    self::agregarUsuarioProfesor($request);
+                    self::agregarProfesor($request);
                     break;
             }
+
             return response()->json($usuarioDB);
         } catch (\ValueError $e) {
             return response()->json(['status' => 'Error', 'message' => 'Bad request'], 400);
@@ -65,41 +74,10 @@ class usuariosController extends Controller
         $usuarioDB->email = $request->userPrincipalName;
         $usuarioDB->ou = $request->ou;
         $usuarioDB->save();
+
+        return $usuarioDB;
     }
 
-    public function agregarUsuarioAlumno($request)
-    {
-        $alumno = DB::table('alumnos')
-            ->select('*')
-            ->where('id', $request->samaccountname)
-            ->first();
-        if (empty($alumno)) {
-            self::agregarAlumno($request);
-        }
-    }
-
-    public function agregarUsuarioProfesor($request)
-    {
-        $profesores = DB::table('profesores')
-            ->select('*')
-            ->where('id', $request->samaccountname)
-            ->first();
-
-        if (empty($profesores)) {
-            self::agregarProfesor($request);
-        }
-    }
-
-    public function agregarUsuarioBedelias($request)
-    {
-        $bedelias = DB::table('bedelias')
-            ->select('*')
-            ->where('id', $request->samaccountname)
-            ->first();
-        if (empty($bedelias)) {
-            self::agregarBedelia($request);
-        }
-    }
 
     public function agregarUsuarioAD(Request $request)
     {
@@ -110,7 +88,13 @@ class usuariosController extends Controller
         $user->save();
         $user->refresh();
         $user->userAccountControl = 66048;
-        $user->save();
+
+        try {
+            $user->save();
+        } catch (\LdapRecord\LdapRecordException $e) {
+            return response()->json(['status' => 'Error', 'message' => 'Bad request'], 400);
+        }
+
     }
 
 
@@ -158,6 +142,7 @@ class usuariosController extends Controller
 
         return response()->json(['error' => 'Forbidden'], 403);
     }
+
     public function cambiarImagenDePerfil(Request $request): \Illuminate\Http\JsonResponse
     {
         $file = $request->archivo;
@@ -197,29 +182,30 @@ class usuariosController extends Controller
         return response()->json(['status' => 'Success'], 200);
     }
 
-    public function update(Request $request)
+    public function update(Request $request, $id)
     {
         try {
-            $usuario = usuarios::where('id', $request->idUsuario)->first();
+            $usuario = usuarios::where('id', $id)->first();
             if ($usuario) {
-                $usuario->nombre = $request->nombre;
+                $usuario->nombre = $request->nombre . " " . $request->apellido;
                 $usuario->email = $request->email;
                 $usuario->genero = $request->genero;
                 $usuario->save();
             }
             RegistrosController::store("USUARIO", $request->header('token'), "UPDATE", $request->idUsuario);
-            return response()->json(['status' => 'Success'], 200);
+            return response()->json([
+                'usuario' => $usuario,
+                'status' => 'Success'], 200);
         } catch (\Throwable $th) {
             return response()->json(['status' => 'Bad Request'], 400);
         }
     }
 
 
-    public function destroy(request $request)
+    public function destroy(Request $request,$id)
     {
-        $existe = usuarios::where('id', $request->id)->first();
-
-        $user = User::find('cn=' . $request->id . ',ou=UsuarioSistema,dc=syntech,dc=intra');
+        $existe = usuarios::where('id', $id)->first();
+        $user = User::find('cn=' .$id . ',ou=UsuarioSistema,dc=syntech,dc=intra');
         try {
             if ($existe) {
                 $existe->delete();
@@ -287,8 +273,6 @@ class usuariosController extends Controller
     }
 
 
-
-
     public function agregarAlumno($request): void
     {
         $alumno = new alumnos;
@@ -307,9 +291,6 @@ class usuariosController extends Controller
         $profesores->save();
         RegistrosController::store("PROFESOR", $request->header('token'), "CREATE", $request->samaccountname);
     }
-
-
-
 
 
     public function agregarBedelia($request): void
@@ -375,7 +356,6 @@ class usuariosController extends Controller
             ->where('alumnos_pertenecen_grupos.deleted_at', NULL)
             ->get();
     }
-
 
 
 }

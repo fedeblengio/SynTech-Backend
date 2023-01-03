@@ -22,6 +22,16 @@ use Illuminate\Support\Facades\Mail;
 |
 */
 
+Route::middleware(['verificar_token'])->group(function () {
+    //USUARIOS
+    Route::get('/usuario','App\Http\Controllers\usuariosController@index');
+    Route::get('/usuario/{id}','App\Http\Controllers\usuariosController@show');
+    Route::post('/usuario','App\Http\Controllers\usuariosController@create');
+    Route::delete('/usuario/{id}','App\Http\Controllers\usuariosController@destroy');
+    Route::put('/usuario/{id}','App\Http\Controllers\usuariosController@update');
+
+});
+
 Route::post('/login','App\Http\Controllers\loginController@connect');
 
 Route::get('/test', function (){
@@ -33,12 +43,6 @@ Route::get('/traerArchivo','App\Http\Controllers\MaterialPublicoController@traer
 Route::get('/foto','App\Http\Controllers\loginController@traerImagenPerfil');
 Route::get('/historial','App\Http\Controllers\usuariosController@getFullHistory');
 
-//USUARIOS
-Route::get('/usuario','App\Http\Controllers\usuariosController@index')->middleware('verificar_token');
-Route::get('/usuario/{id}','App\Http\Controllers\usuariosController@show')->middleware('verificar_token');
-Route::post('/usuario','App\Http\Controllers\usuariosController@create');
-Route::delete('/usuario/{id}','App\Http\Controllers\usuariosController@destroy')->middleware('verificar_token');
-Route::put('/usuario/{id}','App\Http\Controllers\usuariosController@update')->middleware('verificar_token');
 
 Route::post('/foto','App\Http\Controllers\usuariosController@cambiarFotoUsuario')->middleware('verificar_token');
 
