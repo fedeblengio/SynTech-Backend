@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\StoreUserRequest;
 use Illuminate\Support\Facades\Storage;
 use App\Models\usuarios;
 use App\Models\alumnos;
@@ -184,6 +183,12 @@ class usuariosController extends Controller
 
     public function update(Request $request, $id)
     {
+        $request->validate([
+            'nombre' => 'required|string|max:80',
+            'apellido' => 'required|string|max:80',
+            'email' => 'required|email',
+            'genero' => 'required|string',
+        ]);
         try {
             $usuario = usuarios::where('id', $id)->first();
             if ($usuario) {
