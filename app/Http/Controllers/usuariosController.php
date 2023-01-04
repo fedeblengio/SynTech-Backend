@@ -25,69 +25,45 @@ class usuariosController extends Controller
     public function index(Request $request)
     {
         $cargo = json_decode(base64_decode($request->header('token')))->cargo;
-
         if ($cargo == "Adscripto" || $cargo == "Administrativo") {
             return self::getAllButNotBedelias();
         } elseif ($cargo == "Director" || $cargo == "Subdirector") {
-
             return self::getAllButNotSuperUser();
         }
-
         return response()->json(usuarios::all());
     }
 
     public function create(Request $request)
     {
-        $usuarioAD = User::find('cn=' . $request->samaccountname . ',ou=UsuarioSistema,dc=syntech,dc=intra');
-        /* $usuarioDB = usuarios::where('id', $request->samaccountname)->first(); */
-        $usuarioDB = DB::table('usuarios')
-            ->select('*')
-            ->where('id', $request->samaccountname)
-            ->first();
-        if ($usuarioDB) {
-            if ($usuarioDB->deleted_at) {
-                self::activarUsuarioAD($usuarioAD);
-                self::activarUsuarioDB($request);
-
-                return response()->json(['status' => 'Success'], 200);
-            }
-
-            return response()->json(['error' => 'Forbidden'], 403);
-        } else {
-            /* try { */
-            self::agregarUsuarioDB($request);
+        $request->validate([
+            'samaccountname' => 'required|string|max:8|min:8|unique:usuarios,id',
+            'name' => 'required|string|max:80',
+            'surname' => 'required|string|max:80',
+            'userPrincipalName' => 'required|email',
+            'ou' => 'required|string',
+        ]);
+        try {
             self::agregarUsuarioAD($request);
+            $usuarioDB = self::agregarUsuarioDB($request);
 
             switch ($request->ou) {
                 case "Bedelias":
-                    self::agregarUsuarioBedelias($request);
+                    self::agregarBedelia($request);
                     break;
                 case "Alumno":
-                    self::agregarUsuarioAlumno($request);
+                    self::agregarAlumno($request);
                     break;
                 case "Profesor":
-                    self::agregarUsuarioProfesor($request);
+                    self::agregarProfesor($request);
                     break;
             }
-            $details = [
-                'usuario' => $request->samaccountname,
-                'contrasenia' => $request->samaccountname
-            ];
 
-            Mail::to($request->userPrincipalName)->send(new \App\Mail\MyTestMail($details));
-           
-            return response()->json(['status' => 'Success'], 200);
-            /* } catch (\Throwable $th) {
-                return response()->json(['status' => 'Error'], 400);
-                return $th;
-            } */
-        }
-
-        if ($usuarioAD) {
-            return response()->json(['error' => 'Forbidden'], 403);
-            $this->exit();
+            return response()->json($usuarioDB);
+        } catch (\ValueError $e) {
+            return response()->json(['status' => 'Error', 'message' => 'Bad request'], 400);
         }
     }
+
 
     public function agregarUsuarioDB($request)
     {
@@ -97,74 +73,17 @@ class usuariosController extends Controller
         $usuarioDB->email = $request->userPrincipalName;
         $usuarioDB->ou = $request->ou;
         $usuarioDB->save();
-    }
-    public function agregarUsuarioAlumno($request)
-    {
-        $alumno = DB::table('alumnos')
-            ->select('*')
-            ->where('id', $request->samaccountname)
-            ->first();
-        if ($alumno) {
-            if ($alumno->deleted_at) {
-                self::activarAlumno($request);
-            }
-        } else {
-            self::agregarAlumno($request);
-        }
-        if ($request->idGrupos) {
-            foreach ($request->idGrupos as $idG) {
 
-                agregarUsuarioGrupoController::store(new Request([
-                    "idAlumno" => $request->samaccountname,
-                    "idGrupo" =>  $idG,
-                ]));
-            }
-        }
+        return $usuarioDB;
     }
 
-    public function agregarUsuarioProfesor($request)
-    {
-        $profesores = DB::table('profesores')
-            ->select('*')
-            ->where('id', $request->samaccountname)
-            ->first();
-        if ($profesores) {
-            if ($profesores->deleted_at) {
-                self::activarProfesor($request);
-            }
-        } else {
-            self::agregarProfesor($request);
-        }
-        if ($request->idMaterias) {
-            foreach ($request->idMaterias as $m) {
-                profesorDictaMateriaController::store($m, $request->samaccountname, $request->header('token'));
-            }
-        }
-    }
-
-    public function agregarUsuarioBedelias($request)
-    {
-        $bedelias = DB::table('bedelias')
-            ->select('*')
-            ->where('id', $request->samaccountname)
-            ->first();
-        if ($bedelias) {
-            if ($bedelias->deleted_at) {
-                self::activarBedelia($request);
-            }
-        } else {
-            self::agregarBedelia($request);
-        }
-    }
 
     public function agregarUsuarioAD(Request $request)
     {
-
         $user = (new User)->inside('ou=UsuarioSistema,dc=syntech,dc=intra');
         $user->cn = $request->samaccountname;
-        $user->unicodePwd =  $request->samaccountname;
+        $user->unicodePwd = $request->samaccountname;
         $user->samaccountname = $request->samaccountname;
-
         $user->save();
         $user->refresh();
         $user->userAccountControl = 66048;
@@ -172,41 +91,11 @@ class usuariosController extends Controller
         try {
             $user->save();
         } catch (\LdapRecord\LdapRecordException $e) {
-            return "Fallo al crear usuario " . $e;
+            return response()->json(['status' => 'Error', 'message' => 'Bad request'], 400);
         }
+
     }
 
-    public function activarUsuarioAD($usuarioAD)
-    {
-        $usuarioAD->userAccountControl = 66048;
-        $usuarioAD->save();
-        $usuarioAD->refresh();
-    }
-
-    public function activarUsuarioDB($request)
-    {
-        $usuarioDB = [
-            "nombre" => $request->name . " " . $request->surname,
-            "email" => $request->userPrincipalName,
-            "ou" => $request->ou,
-            "deleted_at" => null
-        ];
-        DB::table('usuarios')
-            ->where('id', $request->samaccountname)
-            ->update($usuarioDB);
-
-        switch ($request->ou) {
-            case "Bedelias":
-                self::agregarUsuarioBedelias($request);
-                break;
-            case "Alumno":
-                self::agregarUsuarioAlumno($request);
-                break;
-            case "Profesor":
-                self::agregarUsuarioProfesor($request);
-                break;
-        }
-    }
 
     public function getFullHistory()
     {
@@ -217,11 +106,10 @@ class usuariosController extends Controller
             ->get();
     }
 
-    public function show(request $request)
+    public function show($id)
     {
-        $userDB = usuarios::where('id', $request->username)->first();
+        $userDB = usuarios::where('id', $id)->first();
         $userDB->imagen_perfil = base64_encode(Storage::disk('ftp')->get($userDB->imagen_perfil));
-
         $infoUser = self::returnMoreInfoUser($userDB);
         return response()->json(['user' => $userDB, 'info' => $infoUser]);
     }
@@ -243,29 +131,39 @@ class usuariosController extends Controller
             ->where('id', $request->id)
             ->first();
 
-
         if ($request->hasFile("archivo")) {
-            $file = $request->archivo;
-
-            $nombre = time() . "_" . $file->getClientOriginalName();
-            Storage::disk('ftp')->put($nombre, fopen($request->archivo, 'r+'));
-
-            DB::table('usuarios')
-                ->where('id', $request->id)
-                ->update(['imagen_perfil' => $nombre]);
-
-            return response()->json(['status' => 'Success'], 200);
+            return $this->cambiarImagenDePerfil($request);
         }
 
         if ($usuarioDB->imagen_perfil != "default_picture.png") {
-            Storage::disk('ftp')->delete($usuarioDB->imagen_perfil);
-
-            DB::table('usuarios')
-                ->where('id', $request->id)
-                ->update(['imagen_perfil' => "default_picture.png"]);
-
-            return response()->json(['status' => 'Success'], 200);
+            return $this->establecerImagenPorDefecto($usuarioDB, $request);
         }
+
+        return response()->json(['error' => 'Forbidden'], 403);
+    }
+
+    public function cambiarImagenDePerfil(Request $request): \Illuminate\Http\JsonResponse
+    {
+        $file = $request->archivo;
+        $nombre = time() . "_" . $file->getClientOriginalName();
+        Storage::disk('ftp')->put($nombre, fopen($request->archivo, 'r+'));
+
+        DB::table('usuarios')
+            ->where('id', $request->id)
+            ->update(['imagen_perfil' => $nombre]);
+
+        return response()->json(['status' => 'Success'], 200);
+    }
+
+
+    public function establecerImagenPorDefecto($usuarioDB, Request $request): \Illuminate\Http\JsonResponse
+    {
+        Storage::disk('ftp')->delete($usuarioDB->imagen_perfil);
+
+        DB::table('usuarios')
+            ->where('id', $request->id)
+            ->update(['imagen_perfil' => "default_picture.png"]);
+
         return response()->json(['status' => 'Success'], 200);
     }
 
@@ -283,30 +181,36 @@ class usuariosController extends Controller
         return response()->json(['status' => 'Success'], 200);
     }
 
-    public function update(Request $request)
+    public function update(Request $request, $id)
     {
+        $request->validate([
+            'nombre' => 'required|string|max:80',
+            'apellido' => 'required|string|max:80',
+            'email' => 'required|email',
+            'genero' => 'required|string',
+        ]);
         try {
-            $usuario = usuarios::where('id', $request->idUsuario)->first();
+            $usuario = usuarios::where('id', $id)->first();
             if ($usuario) {
-                $usuario->nombre = $request->nombre;
+                $usuario->nombre = $request->nombre . " " . $request->apellido;
                 $usuario->email = $request->email;
                 $usuario->genero = $request->genero;
                 $usuario->save();
             }
             RegistrosController::store("USUARIO", $request->header('token'), "UPDATE", $request->idUsuario);
-            return response()->json(['status' => 'Success'], 200);
+            return response()->json([
+                'usuario' => $usuario,
+                'status' => 'Success'], 200);
         } catch (\Throwable $th) {
             return response()->json(['status' => 'Bad Request'], 400);
         }
     }
 
 
-
-    public function destroy(request $request)
+    public function destroy(Request $request,$id)
     {
-        $existe = usuarios::where('id', $request->id)->first();
-
-        $user = User::find('cn=' . $request->id . ',ou=UsuarioSistema,dc=syntech,dc=intra');
+        $existe = usuarios::where('id', $id)->first();
+        $user = User::find('cn=' .$id . ',ou=UsuarioSistema,dc=syntech,dc=intra');
         try {
             if ($existe) {
                 $existe->delete();
@@ -315,11 +219,9 @@ class usuariosController extends Controller
                 $user->refresh();
 
                 self::eliminarPersona($existe, $request->header('token'));
-                /* DB::delete('delete from usuarios where username="' . $request->username . '" ;'); */
                 RegistrosController::store("USUARIO", $request->header('token'), "DELETE", $request->id);
                 return response()->json(['status' => 'Success'], 200);
             }
-            return response()->json(['status' => 'Bad Request'], 400);
         } catch (\Throwable $th) {
             return response()->json(['status' => 'Bad Request'], 400);
         }
@@ -328,7 +230,6 @@ class usuariosController extends Controller
 
     public function eliminarPersona($existe, $token)
     {
-
 
         switch ($existe->ou) {
             case "Bedelias":
@@ -367,6 +268,7 @@ class usuariosController extends Controller
             ->update(['deleted_at' => Carbon::now()->addMinutes(23)]);
         RegistrosController::store("MATERIA PROFESOR", $token, "DELETE", $existe->id);
     }
+
     public function eliminarMateriaGrupo($existe, $token)
     {
         DB::table('grupos_tienen_profesor')
@@ -375,22 +277,7 @@ class usuariosController extends Controller
         RegistrosController::store("GRUPO PROFESOR", $token, "DELETE", $existe->id);
     }
 
-    /**
-     * @param $request
-     * @return void
-     */
-    public function activarAlumno($request): void
-    {
-        DB::table('alumnos')
-            ->where('id', $request->samaccountname)
-            ->update(['deleted_at' => null]);
-        RegistrosController::store("ALUMNO", $request->header('token'), "ACTIVATE", $request->samaccountname);
-    }
 
-    /**
-     * @param $request
-     * @return void
-     */
     public function agregarAlumno($request): void
     {
         $alumno = new alumnos;
@@ -400,22 +287,7 @@ class usuariosController extends Controller
         RegistrosController::store("ALUMNO", $request->header('token'), "CREATE", $request->samaccountname);
     }
 
-    /**
-     * @param $request
-     * @return void
-     */
-    public function activarProfesor($request): void
-    {
-        DB::table('profesores')
-            ->where('id', $request->samaccountname)
-            ->update(['deleted_at' => null]);
-        RegistrosController::store("PROFESOR", $request->header('token'), "ACTIVATE", $request->samaccountname);
-    }
 
-    /**
-     * @param $request
-     * @return void
-     */
     public function agregarProfesor($request): void
     {
         $profesores = new profesores;
@@ -425,37 +297,20 @@ class usuariosController extends Controller
         RegistrosController::store("PROFESOR", $request->header('token'), "CREATE", $request->samaccountname);
     }
 
-    /**
-     * @param $request
-     * @return void
-     */
-    public function activarBedelia($request): void
-    {
-        DB::table('bedelias')
-            ->where('id', $request->samaccountname)
-            ->update(['deleted_at' => null, 'cargo' => $request->cargo]);
-        RegistrosController::store("BEDELIAS", $request->header('token'), "ACTIVATE", $request->samaccountname . " - " . $request->cargo);
-    }
 
-    /**
-     * @param $request
-     * @return void
-     */
     public function agregarBedelia($request): void
     {
-            $bedelias = new bedelias;
-            $bedelias->Cedula_Bedelia = $request->samaccountname;
-            $bedelias->id = $request->samaccountname;
-            $bedelias->cargo = $request->cargo? $request->cargo : "Adscripto";
-            $bedelias->save();
-            RegistrosController::store("BEDELIAS", $request->header('token'), "CREATE", $request->samaccountname . " - " . $request->cargo);      
+        $bedelias = new bedelias;
+        $bedelias->Cedula_Bedelia = $request->samaccountname;
+        $bedelias->id = $request->samaccountname;
+        $bedelias->cargo = $request->cargo ? $request->cargo : "Adscripto";
+        $bedelias->save();
+
+        RegistrosController::store("BEDELIAS", $request->header('token'), "CREATE", $request->samaccountname . " - " . $request->cargo);
 
     }
 
-    /**
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function getAllButNotBedelias(): \Illuminate\Http\JsonResponse
+    public function getAllButNotBedelias()
     {
         return response()->json(
             DB::table('usuarios')
@@ -466,9 +321,7 @@ class usuariosController extends Controller
         );
     }
 
-    /**
-     * @return \Illuminate\Http\JsonResponse
-     */
+
     public function getAllButNotSuperUser(): \Illuminate\Http\JsonResponse
     {
         $second = DB::table('usuarios')
@@ -487,10 +340,7 @@ class usuariosController extends Controller
         return response()->json($second->merge($final));
     }
 
-    /**
-     * @param $userOBJ
-     * @return \Illuminate\Support\Collection
-     */
+
     public function getMoreInfoProfesor($userOBJ): \Illuminate\Support\Collection
     {
         return DB::table('profesor_dicta_materia')
@@ -501,10 +351,7 @@ class usuariosController extends Controller
             ->get();
     }
 
-    /**
-     * @param $userOBJ
-     * @return \Illuminate\Support\Collection
-     */
+
     public function getMoreInfoAlumno($userOBJ): \Illuminate\Support\Collection
     {
         return DB::table('alumnos_pertenecen_grupos')
@@ -514,4 +361,6 @@ class usuariosController extends Controller
             ->where('alumnos_pertenecen_grupos.deleted_at', NULL)
             ->get();
     }
+
+
 }

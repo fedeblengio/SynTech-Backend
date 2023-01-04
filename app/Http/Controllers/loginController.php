@@ -16,12 +16,6 @@ use Illuminate\Support\Facades\Storage;
 class loginController extends Controller
 {
 
-    public function index()
-    {
-        $allUsers =  User::all();
-        return response()->json($allUsers);
-    }
-
     public function connect(Request $request)
     {
 
@@ -32,15 +26,16 @@ class loginController extends Controller
         }
 
         $connection = new Connection([
-            'hosts' => ['192.168.50.139'],
+            'hosts' => [env('LDAP_HOST')],
         ]);
 
-        $datos = self::traerDatos($request);
+
 
         $connection->connect();
 
 
         if ($connection->auth()->attempt($request->username . '@syntech.intra', $request->password, $stayBound = true)) {
+            $datos = self::traerDatos($request);
             $registros = new registros;
             $registros->idUsuario = $request->username;
             $registros->app = "BACKOFFICE";
