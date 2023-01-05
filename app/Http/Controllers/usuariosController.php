@@ -33,7 +33,7 @@ class usuariosController extends Controller
         return response()->json(usuarios::all());
     }
 
-    public function create(Request $request)
+    public function store(Request $request)
     {
         $request->validate([
             'samaccountname' => 'required|string|max:8|min:8|unique:usuarios,id',
@@ -45,7 +45,7 @@ class usuariosController extends Controller
         try {
             self::agregarUsuarioAD($request);
             $usuarioDB = self::agregarUsuarioDB($request);
-
+            $usuarioDB['id'] = $request->samaccountname;
             switch ($request->ou) {
                 case "Bedelias":
                     self::agregarBedelia($request);
