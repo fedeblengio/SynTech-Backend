@@ -13,6 +13,5 @@ use App\Http\Controllers\primerosUsuariosController;
 |
 */
 
-Route::get('/generar-primeros-usuarios',[primerosUsuariosController::class, 'crearPrimerUsuario']);
 
 

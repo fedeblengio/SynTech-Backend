@@ -26,7 +26,7 @@ Route::middleware(['verificar_token'])->group(function () {
     //USUARIOS
     Route::get('/usuario','App\Http\Controllers\usuariosController@index');
     Route::get('/usuario/{id}','App\Http\Controllers\usuariosController@show');
-    Route::post('/usuario','App\Http\Controllers\usuariosController@create');
+    Route::post('/usuario','App\Http\Controllers\usuariosController@store');
     Route::delete('/usuario/{id}','App\Http\Controllers\usuariosController@destroy');
     Route::put('/usuario/{id}','App\Http\Controllers\usuariosController@update');
 
