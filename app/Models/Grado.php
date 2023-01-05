@@ -12,4 +12,7 @@ class Grado extends Model
         'carrera_id',
     ];
     use HasFactory;
+    public function carrera(){
+        return $this->belongsTo(Carrera::class);
+    }
 }

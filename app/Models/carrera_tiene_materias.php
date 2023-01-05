@@ -10,7 +10,8 @@ class carrera_tiene_materias extends Model
     protected $fillable=[
         'carrera_id',
         'materia_id',
-        'grado_id'
+        'grado_id',
+        'cantidad_horas'
     ];
     use HasFactory;
 }

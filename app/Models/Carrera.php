@@ -12,5 +12,10 @@ class Carrera extends Model
         'plan',
         'categoria',
     ];
+
     use HasFactory;
+    public function grado(){
+        return $this->hasMany(Grado::class);
+    }
+    
 }
