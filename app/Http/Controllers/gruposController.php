@@ -13,112 +13,104 @@ class gruposController extends Controller
 {
     public function index()
     {
+
         return response()->json(grupos::all());
     }
 
-    public function create(Request $request)
+    public function store(Request $request)
     {
-        $gruposDB = DB::table('grupos')
-            ->select('*')
-            ->where('idGrupo', $request->idGrupo)
-            ->first();
 
-        if ($gruposDB) {
-            if ($gruposDB->deleted_at) {
-                return $this->activarGrupo($request);
-            }
-            return response()->json(['error' => 'Forbidden'], 416);
-        } else {
-            return $this->agregarGrupo($request);
-        }
-    }
-
-    public function show(request $request)
-    {
-        return response()->json(grupos::where('idGrupo', $request->idGrupo)->first());
-    }
-
-    public function destroy(request $request)
-    {
+        $request->validate([
+            'nombreCompleto' => 'required|string',
+            'idGrupo' => 'required|string',
+            'anioElectivo' => 'required|max:4',
+            'grado_id' => 'required|integer',
+            'carrera_id' => 'required|integer',
+        ]);
         $grupo = grupos::where('idGrupo', $request->idGrupo)->first();
-
-        try {
-            if ($grupo) {
-                self::eliminarProfesoresGrupo($request);
-                self::eliminarAlumnosGrupo($request);
-                RegistrosController::store("GRUPO", $request->header('token'), "DELETE", $request->idGrupo);
-                $grupo->delete();
-                return response()->json(['status' => 'Success'], 200);
-            }
-            return response()->json(['status' => 'Bad Request'], 400);
-        } catch (\Throwable $th) {
-            return response()->json(['status' => 'Bad Request'], 400);
+        if (empty($grupo)) {
+            return $this->crearGrupo($request);
         }
+        return response()->json(['error' => 'Grupo Existente'], 401);
+
     }
 
-    public function eliminarProfesoresGrupo($request)
+    public function agregarCarreraGrupo($request, $grupo)
+    {
+        return "Falta codigo de araron";
+    }
+
+    public function show($id)
+    {
+        return response()->json(grupos::where('idGrupo', $id)->first());
+    }
+
+    public function destroy(Request $request, $id)
+    {
+
+        $grupo = grupos::where('idGrupo', $id)->first();
+        if ($grupo) {
+            self::eliminarProfesoresGrupo($request, $id);
+            self::eliminarAlumnosGrupo($request, $id);
+            RegistrosController::store("GRUPO", $request->header('token'), "DELETE", $request->idGrupo);
+            $grupo->delete();
+            return response()->json(['status' => 'Success'], 200);
+        }
+        return response()->json(['status' => 'Bad Request'], 400);
+    }
+
+    public function eliminarProfesoresGrupo($request, $id)
     {
         DB::table('grupos_tienen_profesor')
-            ->where('idGrupo', $request->idGrupo)
-            ->update(['deleted_at' => Carbon::now()->addMinutes(23)]);
+            ->where('idGrupo', $id)
+            ->update(['deleted_at' => Carbon::now()]);
         RegistrosController::store("GRUPO PROFESOR", $request->header('token'), "DELETE", $request->idGrupo);
     }
 
-    public function eliminarAlumnosGrupo($request)
+    public function eliminarAlumnosGrupo($request, $id)
     {
         DB::table('alumnos_pertenecen_grupos')
-            ->where('idGrupo', $request->idGrupo)
-            ->update(['deleted_at' => Carbon::now()->addMinutes(23)]);
+            ->where('idGrupo', $id)
+            ->update(['deleted_at' => Carbon::now()]);
         RegistrosController::store("GRUPO ALUMNOS", $request->header('token'), "DELETE", $request->idGrupo);
     }
 
 
-    public function update(request $request)
+    public function update(request $request, $id)
     {
-        $existe = grupos::where('idGrupo', $request->idGrupo)->first();
-        try {
-            if ($existe) {
-                if ($request->nuevoGrupo) {
-                    DB::update('UPDATE grupos SET idGrupo="' . $request->nuevoGrupo . '" ,  nombreCompleto="' . $request->nuevoNombreCompleto . '" WHERE idGrupo="' . $request->idGrupo . '";');
-                    RegistrosController::store("GRUPO", $request->header('token'), "UPDATE", $request->idGrupo . " - " . $request->nuevoGrupo);
-                    return response()->json(['status' => 'Success'], 200);
-                } else {
-                    DB::update('UPDATE grupos SET idGrupo="' . $request->idGrupo . '" ,  nombreCompleto="' . $request->nuevoNombreCompleto . '" WHERE idGrupo="' . $request->idGrupo . '";');
-                    RegistrosController::store("GRUPO", $request->header('token'), "UPDATE", $request->idGrupo . " - " . $request->nuevoNombreCompleto);
-                    return response()->json(['status' => 'Success'], 200);
-                }
+        $grupo = grupos::where('idGrupo', $id)->first();
+            if ($grupo) {
+                $grupo->fill($request->all());
+                $grupo->save();
+                RegistrosController::store("GRUPO", $request->header('token'), "UPDATE", self::modifiedValue($grupo));
+                return response()->json($grupo, 200);
             }
             return response()->json(['status' => 'Bad Request'], 400);
-        } catch (\Throwable $th) {
-            return response()->json(['status' => 'Bad Request'], 400);
+    }
+
+    public function modifiedValue($grupo)
+    {
+        if ($grupo->isDirty('idGrupo') && !$grupo->isDirty('nombreCompleto')) {
+            return $grupo->idGrupo . "-" . $grupo->getOriginal('idGrupo');
+        }
+        if ($grupo->isDirty('nombreCompleto') && !$grupo->isDirty('idGrupo')) {
+            return $grupo->nombreCompleto . "-" . $grupo->getOriginal('nombreCompleto');
+        }
+        if ($grupo->isDirty('idGrupo') && $grupo->isDirty('nombreCompleto')) {
+            return "Grupo Completo modificado";
         }
     }
 
-    /**
-     * @param Request $request
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function activarGrupo(Request $request): \Illuminate\Http\JsonResponse
+
+    public function crearGrupo(Request $request)
     {
-        DB::table('grupos')
-            ->where('idGrupo', $request->idGrupo)
-            ->update(['deleted_at' => null]);
-        RegistrosController::store("GRUPO", $request->header('token'), "ACTIVATE", $request->idGrupo);
-        return response()->json(['status' => 'Success'], 200);
+        $grupo = new grupos();
+        $grupo->fill($request->all());
+        $grupo->save();
+        self::agregarCarreraGrupo($request, $grupo);
+        RegistrosController::store("GRUPO", $request->header('token'), "CREATE", $request->idGrupo);
+        return response()->json($grupo);
     }
 
-    /**
-     * @param Request $request
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function agregarGrupo(Request $request): \Illuminate\Http\JsonResponse
-    {
-        $gruposDB = new grupos;
-        $gruposDB->idGrupo = $request->idGrupo;
-        $gruposDB->nombreCompleto = $request->nombreCompleto;
-        $gruposDB->anioElectivo = Carbon::now()->format('Y');
-        $gruposDB->save();
-        RegistrosController::store("GRUPO", $request->header('token'), "CREATE", $request->idGrupo);
-        return response()->json(['status' => 'Success'], 200);
-    }
+
 }
