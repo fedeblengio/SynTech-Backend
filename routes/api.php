@@ -39,6 +39,12 @@ Route::middleware(['verificar_token'])->group(function () {
     Route::put('/materia/{id}','App\Http\Controllers\agregarMateriaController@update');
     Route::delete('/materia/{id}','App\Http\Controllers\agregarMateriaController@destroy');
 
+    // GRUPOS
+    Route::get('/grupo','App\Http\Controllers\gruposController@index');
+    Route::get('/grupo/{id}', 'App\Http\Controllers\gruposController@show');
+    Route::post('/grupo','App\Http\Controllers\gruposController@store');
+    Route::delete('/grupo/{id}','App\Http\Controllers\gruposController@destroy');
+    Route::put('/grupo/{id}','App\Http\Controllers\gruposController@update');
 
 });
 
@@ -59,13 +65,8 @@ Route::post('/foto','App\Http\Controllers\usuariosController@cambiarFotoUsuario'
 Route::put('/contrasenia','App\Http\Controllers\usuariosController@cambiarContrasenia')->middleware('verificar_token');
 
 
-//GRUPOS
-Route::get('/grupos','App\Http\Controllers\gruposController@index')->middleware('verificar_token');
-Route::get('/grupo','App\Http\Controllers\gruposController@show')->middleware('verificar_token');
 
-Route::post('/grupo','App\Http\Controllers\gruposController@create')->middleware('verificar_token');
-Route::delete('/grupo','App\Http\Controllers\gruposController@destroy')->middleware('verificar_token');
-Route::put('/grupo','App\Http\Controllers\gruposController@update')->middleware('verificar_token');
+
 
 Route::get('/materiaSinGrupo','App\Http\Controllers\gruposTienenProfesorController@traerMateriasSinGrupo')->middleware('verificar_token');
 
