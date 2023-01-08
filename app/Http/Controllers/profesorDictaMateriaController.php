@@ -13,12 +13,7 @@ use App\Models\usuarios;
 class profesorDictaMateriaController extends Controller
 {
 
-    /**
-     * @param $idMateria
-     * @param $idProfesor
-     * @param $token
-     * @return \Illuminate\Http\JsonResponse
-     */
+
     public static function activarProfesorMateria($idMateria, $idProfesor, $token): \Illuminate\Http\JsonResponse
     {
         DB::table('profesor_dicta_materia')
@@ -29,12 +24,7 @@ class profesorDictaMateriaController extends Controller
         return response()->json(['status' => 'Success'], 200);
     }
 
-    /**
-     * @param $idMateria
-     * @param $idProfesor
-     * @param $token
-     * @return \Illuminate\Http\JsonResponse
-     */
+
     public static function agregarProfesorMateria($idMateria, $idProfesor, $token): \Illuminate\Http\JsonResponse
     {
         $agregarProfesorMateria = new profesor_dicta_materia;

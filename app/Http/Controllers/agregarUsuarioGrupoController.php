@@ -13,10 +13,7 @@ use App\Http\Controllers\RegistrosController;
 
 class agregarUsuarioGrupoController extends Controller
 {
-    /**
-     * @param Request $request
-     * @return \Illuminate\Http\JsonResponse
-     */
+
     public static function agregarAlumnoGrupo(Request $request): \Illuminate\Http\JsonResponse
     {
         $agregarAlumnoGrupo = new alumnos_pertenecen_grupos;
@@ -28,10 +25,6 @@ class agregarUsuarioGrupoController extends Controller
 
     }
 
-    /**
-     * @param Request $request
-     * @return \Illuminate\Http\JsonResponse
-     */
     public static function activarAlumnoGrupo(Request $request): \Illuminate\Http\JsonResponse
     {
         DB::table('alumnos_pertenecen_grupos')
@@ -43,20 +36,20 @@ class agregarUsuarioGrupoController extends Controller
     }
 
     public function index(Request $request)
-    { 
+    {
         $resultado=DB::table('usuarios')
-        ->select('usuarios.id AS id', 'usuarios.nombre', 'usuarios.email', 'alumnos_pertenecen_grupos.idGrupo')  
+        ->select('usuarios.id AS id', 'usuarios.nombre', 'usuarios.email', 'alumnos_pertenecen_grupos.idGrupo')
         ->join('alumnos', 'usuarios.id', '=', 'alumnos.id')
         ->leftJoin('alumnos_pertenecen_grupos', function($join) use ($request){
             $join->on('usuarios.id', '=', 'alumnos_pertenecen_grupos.idAlumnos')
             ->where('alumnos_pertenecen_grupos.idGrupo' , '=', $request->idGrupo);
         })
         ->whereNull('alumnos_pertenecen_grupos.idGrupo')
-        
+
         ->whereNull('alumnos_pertenecen_grupos.deleted_at')
         ->whereNull('usuarios.deleted_at')
         ->get();
-        
+
         return response()->json($resultado);
     }
 
