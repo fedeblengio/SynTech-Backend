@@ -20,7 +20,7 @@ class CarreraController extends Controller
 
     public function show($id)
     {
-        return response()->json(Carrera::find($id)->load('grado'));
+        return response()->json(Carrera::find($id)->load('grado')->load('grado.materias'));
     }
 
     public function create(Request $request)

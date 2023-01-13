@@ -123,3 +123,6 @@ Route::post('/carrera', 'App\Http\Controllers\CarreraController@create');
 Route::put('/carrera/{id}', 'App\Http\Controllers\CarreraController@update');
 Route::delete('/carrera/{id}', 'App\Http\Controllers\CarreraController@destroy');
 
+//MATERIASGRADO
+Route::put('/grado/{id}', 'App\Http\Controllers\GradoController@update');
+
