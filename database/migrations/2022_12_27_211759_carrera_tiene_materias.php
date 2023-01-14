@@ -18,6 +18,7 @@ class CarreraTieneMaterias extends Migration
             $table->unsignedBigInteger('carrera_id');
             $table->unsignedBigInteger('grado_id');
             $table->unsignedBigInteger('materia_id');
+            $table->string('cantidad_horas');
             $table->foreign('carrera_id')->references('id')->on('carreras');
             $table->foreign('materia_id')->references('id')->on('materias');
             $table->foreign('grado_id')->references('id')->on('grados');
