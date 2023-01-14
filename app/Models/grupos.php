@@ -9,5 +9,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class grupos extends Model
 {
     use HasFactory;
-    use SoftDeletes; 
+    use SoftDeletes;
+
+    protected $table = 'grupos';
+    protected $fillable = ['idGrupo', 'nombreCompleto','anioElectivo'];
 }

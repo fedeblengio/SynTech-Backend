@@ -22,6 +22,32 @@ use Illuminate\Support\Facades\Mail;
 |
 */
 
+Route::middleware(['verificar_token'])->group(function () {
+    //USUARIOS
+    Route::get('/usuario','App\Http\Controllers\usuariosController@index');
+    Route::get('/usuario/{id}','App\Http\Controllers\usuariosController@show');
+    Route::post('/usuario','App\Http\Controllers\usuariosController@store');
+    Route::delete('/usuario/{id}','App\Http\Controllers\usuariosController@destroy');
+    Route::put('/usuario/{id}','App\Http\Controllers\usuariosController@update');
+
+
+    //MATERIAS
+
+    Route::get('/materia','App\Http\Controllers\agregarMateriaController@index');
+    Route::get('/materia/{id}','App\Http\Controllers\agregarMateriaController@show');
+    Route::post('/materia','App\Http\Controllers\agregarMateriaController@store');
+    Route::put('/materia/{id}','App\Http\Controllers\agregarMateriaController@update');
+    Route::delete('/materia/{id}','App\Http\Controllers\agregarMateriaController@destroy');
+
+    // GRUPOS
+    Route::get('/grupo','App\Http\Controllers\gruposController@index');
+    Route::get('/grupo/{id}', 'App\Http\Controllers\gruposController@show');
+    Route::post('/grupo','App\Http\Controllers\gruposController@store');
+    Route::delete('/grupo/{id}','App\Http\Controllers\gruposController@destroy');
+    Route::put('/grupo/{id}','App\Http\Controllers\gruposController@update');
+
+});
+
 Route::post('/login','App\Http\Controllers\loginController@connect');
 
 Route::get('/test', function (){
@@ -33,50 +59,26 @@ Route::get('/traerArchivo','App\Http\Controllers\MaterialPublicoController@traer
 Route::get('/foto','App\Http\Controllers\loginController@traerImagenPerfil');
 Route::get('/historial','App\Http\Controllers\usuariosController@getFullHistory');
 
-//USUARIOS
-Route::get('/usuarios','App\Http\Controllers\usuariosController@index');
-
-Route::get('/usuario','App\Http\Controllers\usuariosController@show')->middleware('verificar_token');
-
-Route::post('/usuario','App\Http\Controllers\usuariosController@create');
-Route::delete('/usuario','App\Http\Controllers\usuariosController@destroy')->middleware('verificar_token');
-Route::put('/usuario','App\Http\Controllers\usuariosController@update')->middleware('verificar_token');
 
 Route::post('/foto','App\Http\Controllers\usuariosController@cambiarFotoUsuario')->middleware('verificar_token');
 
 Route::put('/contrasenia','App\Http\Controllers\usuariosController@cambiarContrasenia')->middleware('verificar_token');
 
-Route::post('/usuariosintoken','App\Http\Controllers\usuariosController@create');
 
-//GRUPOS
-Route::get('/grupos','App\Http\Controllers\gruposController@index')->middleware('verificar_token');
-Route::get('/grupo','App\Http\Controllers\gruposController@show')->middleware('verificar_token');
 
-Route::post('/grupo','App\Http\Controllers\gruposController@create')->middleware('verificar_token');
-Route::delete('/grupo','App\Http\Controllers\gruposController@destroy')->middleware('verificar_token');
-Route::put('/grupo','App\Http\Controllers\gruposController@update')->middleware('verificar_token');
+
 
 Route::get('/materiaSinGrupo','App\Http\Controllers\gruposTienenProfesorController@traerMateriasSinGrupo')->middleware('verificar_token');
 
 
 
-//ALUMNOS 
+//ALUMNOS
 Route::get('/alumnos','App\Http\Controllers\agregarUsuarioGrupoController@index')->middleware('verificar_token');
 
 Route::post('/alumno','App\Http\Controllers\agregarUsuarioGrupoController@store')->middleware('verificar_token');
 
 Route::delete('/alumno','App\Http\Controllers\agregarUsuarioGrupoController@destroy')->middleware('verificar_token');
 
-//MATERIAS 
-
-Route::get('/materias','App\Http\Controllers\agregarMateriaController@index')->middleware('verificar_token');
-Route::get('/materia','App\Http\Controllers\agregarMateriaController@show')->middleware('verificar_token');
-
-Route::post('/materia','App\Http\Controllers\agregarMateriaController@store')->middleware('verificar_token');
-
-Route::put('/materia','App\Http\Controllers\agregarMateriaController@update')->middleware('verificar_token');
-
-Route::delete('/materia','App\Http\Controllers\agregarMateriaController@destroy')->middleware('verificar_token');
 
 Route::get('/materia-profesores','App\Http\Controllers\profesorDictaMateriaController@todosProfesorSegunMateria');
 Route::get('/profesorMateria','App\Http\Controllers\gruposTienenProfesorController@mostrarProfesorMateria')->middleware('verificar_token');
@@ -92,7 +94,7 @@ Route::delete('/profesor','App\Http\Controllers\profesorDictaMateriaController@d
 Route::get('/profesores','App\Http\Controllers\profesorDictaMateriaController@listarProfesores')->middleware('verificar_token');
 
 
-// CURSOS 
+// CURSOS
 
 Route::post('/curso','App\Http\Controllers\gruposTienenProfesorController@store')->middleware('verificar_token');
 

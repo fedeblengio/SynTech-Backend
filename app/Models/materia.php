@@ -15,7 +15,7 @@ class materia extends Model
     protected $fillable=[
         'nombre',
     ];
-    
+
     public function grado(){
         return $this->belongsToMany(Grado::class, 'carrera_tiene_materias', 'materia_id', 'grado_id')->withTimestamps();
     }

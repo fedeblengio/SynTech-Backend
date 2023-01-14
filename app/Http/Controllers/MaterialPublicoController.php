@@ -104,11 +104,7 @@ class MaterialPublicoController extends Controller
         }
     }
 
-    /**
-     * @param Request $request
-     * @param string $nombreEncabezado
-     * @return void
-     */
+
     public function createMaterialPublico(Request $request, string $nombreEncabezado): void
     {
         $materialPublico = new material_publico;
@@ -119,12 +115,7 @@ class MaterialPublicoController extends Controller
         $materialPublico->save();
     }
 
-    /**
-     * @param Request $request
-     * @param string $nombreEncabezado
-     * @return string
-     * @throws \Exception
-     */
+
     public function comprobacionEncabezado(Request $request, string $nombreEncabezado): string
     {
         if ($request->imagenEncabezado) {
@@ -134,12 +125,7 @@ class MaterialPublicoController extends Controller
         return $nombreEncabezado;
     }
 
-    /**
-     * @param Request $request
-     * @param $idDatos
-     * @return void
-     * @throws \Exception
-     */
+
     public function subidaArchivo(Request $request, $idDatos): void
     {
         if ($request->archivos) {

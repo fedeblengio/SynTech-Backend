@@ -226,10 +226,7 @@ class gruposTienenProfesorController extends Controller
         return base64_encode(Storage::disk('ftp')->get($nombre_archivo));
     }
 
-    /**
-     * @param Request $request
-     * @return \Illuminate\Http\JsonResponse
-     */
+
     public function activarProfesorGrupo(Request $request): \Illuminate\Http\JsonResponse
     {
         DB::table('grupos_tienen_profesor')
@@ -245,10 +242,7 @@ class gruposTienenProfesorController extends Controller
         return response()->json(['status' => 'Success'], 200);
     }
 
-    /**
-     * @param Request $request
-     * @return \Illuminate\Http\JsonResponse
-     */
+
     public function agregarProfesorGrupo(Request $request): \Illuminate\Http\JsonResponse
     {
         $agregarProfesorGrupo = new grupos_tienen_profesor;

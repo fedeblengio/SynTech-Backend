@@ -10,31 +10,35 @@ class verificarTokenValido
 {
     public function handle(Request $request, Closure $next)
     {
-        try {
-            
         $t = token::where('token', $request->header('token'))->first();
-        $fecha_actual = Carbon::now();
-        $fecha_vencimiento = Carbon::parse($t->fecha_vencimiento);
-        
-
-        if($t){ 
-
-            if($fecha_vencimiento->gt($fecha_actual)){
-             return $next($request);
-            
-             }else{
-                $t->delete();   
-                return response()->json(['error' => 'Forbidden.'], 230);
-             }
-
+        if($t){
+            $fechaActual = Carbon::now();
+            $fechaVencimiento = Carbon::parse($t->fecha_vencimiento);
+            return $this->comprobarTokenEsValido($fechaVencimiento, $fechaActual, $t, $next, $request);
         }else{
-            return response()->json(['error' => 'Invalid Token'], 230);
+            return response()->json(['error' => 'Invalid Token','status'=> 401], 401);
         }
-        
-        } catch (\Throwable $th) {
-            return response()->json(['status' => 'Error'], 406);
+
+    }
+
+
+    public function comprobarTokenEsValido(Carbon $fechaVencimiento, Carbon $fechaActual, $t, Closure $next, Request $request)
+    {
+        if ($fechaVencimiento->gt($fechaActual)) {
+            $this->actualizarFechaVencimiento($t,$fechaActual,$fechaVencimiento);
+            return $next($request);
+        } else {
+            $t->delete();
+            return response()->json(['error' => 'Forbidden.'], 401);
         }
-     
-        
+    }
+
+    public function actualizarFechaVencimiento($t,$fechaActual,$fechaVencimiento)
+    {
+        if($fechaActual->diffInMinutes($fechaVencimiento) < 10){
+            $t->fecha_vencimiento = Carbon::now()->addMinutes(30);
+            $t->save();
+        }
+
     }
 }
