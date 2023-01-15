@@ -13,4 +13,9 @@ class grupos extends Model
 
     protected $table = 'grupos';
     protected $fillable = ['idGrupo', 'nombreCompleto','anioElectivo'];
+
+    public function grado()
+    {
+        return $this->belongsTo(Grado::class, 'id_grado');
+    }
 }
