@@ -11,7 +11,6 @@ class GradoController extends Controller
         $request->validate([
             'grado'=> 'required|string',
             'materias'=> 'array',
-            'grupos'=> 'array',
         ]);
         $grado=Grado::findOrFail($id);
         $grado->update($request->all());
