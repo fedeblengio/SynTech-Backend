@@ -24,7 +24,7 @@ class gruposController extends Controller
             'nombreCompleto' => 'required|string',
             'idGrupo' => 'required|string',
             'anioElectivo' => 'required|max:4',
-            'grado_id' => 'required|integer',
+            'id_grado' => 'required|integer',
         ]);
         $grupo = grupos::where('idGrupo', $request->idGrupo)->first();
         if (empty($grupo)) {
@@ -100,7 +100,10 @@ class gruposController extends Controller
     public function crearGrupo(Request $request)
     {
         $grupo = new grupos();
-        $grupo->fill($request->all());
+        $grupo->idGrupo = $request->idGrupo;
+        $grupo->nombreCompleto = $request->nombreCompleto;
+        $grupo->anioElectivo = $request->anioElectivo;
+        $grupo->id_grado = $request->id_grado;
         $grupo->save();
         RegistrosController::store("GRUPO", $request->header('token'), "CREATE", $request->idGrupo);
         return response()->json($grupo);
