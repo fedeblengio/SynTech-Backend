@@ -12,7 +12,7 @@ class grupos extends Model
     use SoftDeletes;
 
     protected $table = 'grupos';
-    protected $fillable = ['idGrupo', 'nombreCompleto','anioElectivo'];
+    protected $fillable = ['idGrupo', 'nombreCompleto','anioElectivo','id_grado'];
 
     public function grado()
     {

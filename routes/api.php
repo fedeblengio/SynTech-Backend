@@ -127,4 +127,5 @@ Route::delete('/carrera/{id}', 'App\Http\Controllers\CarreraController@destroy')
 
 //GRADO
 Route::put('/grado/{id}', 'App\Http\Controllers\GradoController@update');
+Route::get('/grado/{id}', 'App\Http\Controllers\GradoController@show');
 

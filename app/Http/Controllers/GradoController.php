@@ -18,9 +18,7 @@ class GradoController extends Controller
         if($request->materias){
             $grado->materias()->sync($request->materias);
         }
-        if($request->grupos){
-            $this->agregarGruposGrado($request->grupos, $grado);
-        }
+
 
         RegistrosController::store("GRADO", $request->header('token'), "UPDATE", $grado->carrera->nombre . " Grado: " . $grado->grado);
 
@@ -28,12 +26,8 @@ class GradoController extends Controller
 
     }
 
-    public function agregarGruposGrado($grupos,$grado){
-        foreach ($grupos as $grupo) {
-            if($grado->grupos()->where('idGrupo', $grupo->idGrupo)->first()){
-                continue;
-            }
-            $grado->grupos()->create($grupo);
-        }
+    public function show($id){
+        return response()->json(Grado::findOrFail($id)->load('materias','grupos'));
     }
+
 }

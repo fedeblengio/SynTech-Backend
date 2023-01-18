@@ -25,7 +25,6 @@ class gruposController extends Controller
             'idGrupo' => 'required|string',
             'anioElectivo' => 'required|max:4',
             'grado_id' => 'required|integer',
-            'carrera_id' => 'required|integer',
         ]);
         $grupo = grupos::where('idGrupo', $request->idGrupo)->first();
         if (empty($grupo)) {
@@ -35,10 +34,6 @@ class gruposController extends Controller
 
     }
 
-    public function agregarCarreraGrupo($request, $grupo)
-    {
-        return "Falta codigo de araron";
-    }
 
     public function show($id)
     {
@@ -107,7 +102,6 @@ class gruposController extends Controller
         $grupo = new grupos();
         $grupo->fill($request->all());
         $grupo->save();
-        self::agregarCarreraGrupo($request, $grupo);
         RegistrosController::store("GRUPO", $request->header('token'), "CREATE", $request->idGrupo);
         return response()->json($grupo);
     }
