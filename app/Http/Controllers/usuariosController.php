@@ -16,6 +16,7 @@ use App\Http\Controllers\agregarUsuarioGrupoController;
 use App\Http\Controllers\RegistrosController;
 use App\Http\Controllers\profesorDictaMateriaController;
 use Illuminate\Support\Facades\Mail;
+use LdapRecord\Models\ActiveDirectory\Group;
 use App\Mail\TestMail;
 
 
@@ -24,10 +25,12 @@ class usuariosController extends Controller
 
     public function index(Request $request)
     {
-        $cargo = json_decode(base64_decode($request->header('token')))->cargo;
-        if ($cargo == "Adscripto" || $cargo == "Administrativo") {
+        $id = json_decode(base64_decode($request->header('token')))->id;
+        $user = User::find('cn='.$id.',ou=UsuarioSistema,dc=syntech,dc=intra');
+        $groups = $user->groups()->get();
+        if ($groups->contains('Administrativo') || $groups->contains('Adscripto')) {
             return self::getAllButNotBedelias();
-        } elseif ($cargo == "Director" || $cargo == "Subdirector") {
+        } elseif ($groups->contains('Director') || $groups->contains('Subdirector')) {
             return self::getAllButNotSuperUser();
         }
         return response()->json(usuarios::all());
@@ -305,8 +308,21 @@ class usuariosController extends Controller
         $bedelias->id = $request->samaccountname;
         $bedelias->cargo = $request->cargo ? $request->cargo : "Adscripto";
         $bedelias->save();
+      
+
+        self::agregarBedeliaGrupoAD($bedelias);
 
         RegistrosController::store("BEDELIAS", $request->header('token'), "CREATE", $request->samaccountname . " - " . $request->cargo);
+
+    }
+
+    public function agregarBedeliaGrupoAD($bedelias){
+
+        $group = Group::find('cn='.$bedelias->cargo.',ou=Grupos,dc=syntech,dc=intra');
+
+        $user = User::find('cn='.$bedelias->Cedula_Bedelia.',ou=UsuarioSistema,dc=syntech,dc=intra');
+        
+        $group->members()->attach($user);
 
     }
 
