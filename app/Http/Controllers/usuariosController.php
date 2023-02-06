@@ -109,6 +109,9 @@ class usuariosController extends Controller
     public function show($id)
     {
         $userDB = usuarios::where('id', $id)->first();
+        if(empty($userDB)){
+           return;
+        }
         if(isset($userDB->imagen_perfil)){
              $userDB->imagen_perfil = base64_encode(Storage::disk('ftp')->get($userDB->imagen_perfil));
         }
