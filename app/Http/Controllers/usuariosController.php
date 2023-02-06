@@ -185,14 +185,13 @@ class usuariosController extends Controller
     {
         $request->validate([
             'nombre' => 'required|string|max:80',
-            'apellido' => 'required|string|max:80',
             'email' => 'required|email',
             'genero' => 'required|string',
         ]);
         try {
             $usuario = usuarios::where('id', $id)->first();
             if ($usuario) {
-                $usuario->nombre = $request->nombre . " " . $request->apellido;
+                $usuario->nombre = $request->nombre;
                 $usuario->email = $request->email;
                 $usuario->genero = $request->genero;
                 $usuario->save();
