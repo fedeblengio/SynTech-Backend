@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\Models\bedelias;
 use App\Models\usuarios;
 use Illuminate\Console\Command;
+use LdapRecord\Models\ActiveDirectory\Group;
 use LdapRecord\Models\ActiveDirectory\User;
 
 class CrearPrimerosUsuarios extends Command
@@ -61,6 +62,14 @@ class CrearPrimerosUsuarios extends Command
             'Cedula_Bedelia'=>$cedula,
             'cargo'=>'administrador'
          ]);
+
+         try{
+            $group = Group::find('cn=Supervisor,ou=Grupos,dc=syntech,dc=intra');
+            $group->members()->attach($user);
+         }catch(\Exception $e){
+            dump($e);
+         }
+        
 
         dump('Fin');
 

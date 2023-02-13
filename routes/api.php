@@ -46,6 +46,16 @@ Route::middleware(['verificar_token'])->group(function () {
     Route::delete('/grupo/{id}','App\Http\Controllers\gruposController@destroy');
     Route::put('/grupo/{id}','App\Http\Controllers\gruposController@update');
 
+    //CARRERAS
+    Route::get('/carrera', 'App\Http\Controllers\CarreraController@index');
+    Route::get('/carrera/{id}', 'App\Http\Controllers\CarreraController@show');
+    Route::post('/carrera', 'App\Http\Controllers\CarreraController@create');
+    Route::put('/carrera/{id}', 'App\Http\Controllers\CarreraController@update');
+    Route::delete('/carrera/{id}', 'App\Http\Controllers\CarreraController@destroy');
+
+    //MATERIASGRADO
+    Route::put('/grado/{id}', 'App\Http\Controllers\GradoController@update');
+
 });
 
 Route::post('/login','App\Http\Controllers\loginController@connect');
@@ -118,13 +128,5 @@ Route::post('/noticia','App\Http\Controllers\MaterialPublicoController@store')->
 Route::get('/noticia','App\Http\Controllers\MaterialPublicoController@index')->middleware('verificar_token');
 Route::delete('/noticia','App\Http\Controllers\MaterialPublicoController@destroy')->middleware('verificar_token');
 
-//CARRERAS
-Route::get('/carrera', 'App\Http\Controllers\CarreraController@index');
-Route::get('/carrera/{id}', 'App\Http\Controllers\CarreraController@show');
-Route::post('/carrera', 'App\Http\Controllers\CarreraController@create');
-Route::put('/carrera/{id}', 'App\Http\Controllers\CarreraController@update');
-Route::delete('/carrera/{id}', 'App\Http\Controllers\CarreraController@destroy');
 
-//MATERIASGRADO
-Route::put('/grado/{id}', 'App\Http\Controllers\GradoController@update');
 

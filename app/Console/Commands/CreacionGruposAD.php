@@ -39,7 +39,7 @@ class CreacionGruposAD extends Command
     public function handle()
     {   
     dump('Creando Grupos AD');
-    $grupos = ['Adminsitrativo', 'Director', 'Adscripto', 'Subdirector', 'Profesor', 'Alumno', 'Bedelias'];
+    $grupos = ['Adminsitrativo', 'Director', 'Adscripto', 'Subdirector', 'Profesor', 'Alumno', 'Bedelias', 'Supervisor'];
     foreach ($grupos as $grupo) {
         if(Group::find('cn='.$grupo.',ou=Grupos,dc=syntech,dc=intra'))
         { 

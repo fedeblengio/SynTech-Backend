@@ -12,11 +12,13 @@ trait verificarUsuarioPerteneceGrupoAD
      * @return string
      */
 
-     public function verificarPerteneceGrupoAD($user,$grupo){
+     public function verificarPerteneceGrupoAD($user,$grupos){
         $groupsAD = $user->groups()->get();
+        foreach($grupos as $grupo){
             if($groupsAD->contains($grupo)){
                 return true;
             }
+          }
         return false;
     }
 
