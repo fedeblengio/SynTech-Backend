@@ -21,6 +21,7 @@ class CreateUsuariosTable extends Migration
             $table->string('nombre');
             $table->string('email')->nullable();
             $table->string('ou');
+            $table->string('genero')->nullable();
             $table->string('imagen_perfil')->default('default_picture.png');
             $table->timestamps();
             $table->softDeletes();

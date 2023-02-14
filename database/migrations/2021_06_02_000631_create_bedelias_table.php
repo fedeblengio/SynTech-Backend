@@ -14,8 +14,8 @@ class CreateBedeliasTable extends Migration
     public function up()
     {
         Schema::create('bedelias', function (Blueprint $table) {
-            $table->integer("id");
-            $table->string('Cedula_Bedelia',8);
+            $table->string("id");
+            $table->string('Cedula_Bedelia');
             $table->primary(['Cedula_Bedelia', 'id']);
             $table->string("cargo")->nullable();
             $table->timestamps();
