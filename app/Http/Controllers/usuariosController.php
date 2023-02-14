@@ -11,23 +11,37 @@ use App\Models\alumnos_pertenecen_grupos;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
+use App\Traits\verificarUsuarioPerteneceGrupoAD;
 use LdapRecord\Models\ActiveDirectory\User;
 use App\Http\Controllers\agregarUsuarioGrupoController;
 use App\Http\Controllers\RegistrosController;
 use App\Http\Controllers\profesorDictaMateriaController;
 use Illuminate\Support\Facades\Mail;
+use LdapRecord\Models\ActiveDirectory\Group;
 use App\Mail\TestMail;
 
 
 class usuariosController extends Controller
 {
 
+    use verificarUsuarioPerteneceGrupoAD;
+
     public function index(Request $request)
     {
-        $cargo = json_decode(base64_decode($request->header('token')))->cargo;
-        if ($cargo == "Adscripto" || $cargo == "Administrativo") {
+        $id = json_decode(base64_decode($request->header('token')))->id;
+        $user = User::find('cn='.$id.',ou=UsuarioSistema,dc=syntech,dc=intra');
+        $notBedelias = [
+            'Administrativo',
+            'Adscripto',
+        ];
+        $notSuperUser = [
+            'Director',
+            'Subdirector',
+        ];
+        if ($this->verificarPerteneceGrupoAD($user,$notBedelias)) {
             return self::getAllButNotBedelias();
-        } elseif ($cargo == "Director" || $cargo == "Subdirector") {
+        }    
+        if ($this->verificarPerteneceGrupoAD($user,$notSuperUser)) {
             return self::getAllButNotSuperUser();
         }
         return response()->json(usuarios::all());
@@ -289,6 +303,9 @@ class usuariosController extends Controller
         $alumno->Cedula_Alumno = $request->samaccountname;
         $alumno->id = $request->samaccountname;
         $alumno->save();
+
+        self::agregarUsuarioGrupoAD($alumno->Cedula_Alumno, "Alumno");
+
         RegistrosController::store("ALUMNO", $request->header('token'), "CREATE", $request->samaccountname);
     }
 
@@ -299,6 +316,9 @@ class usuariosController extends Controller
         $profesores->Cedula_Profesor = $request->samaccountname;
         $profesores->id = $request->samaccountname;
         $profesores->save();
+
+        self::agregarUsuarioGrupoAD($profesores->Cedula_Profesor, "Profesor");
+
         RegistrosController::store("PROFESOR", $request->header('token'), "CREATE", $request->samaccountname);
     }
 
@@ -310,10 +330,25 @@ class usuariosController extends Controller
         $bedelias->id = $request->samaccountname;
         $bedelias->cargo = $request->cargo ? $request->cargo : "Adscripto";
         $bedelias->save();
+      
+
+        self::agregarUsuarioGrupoAD($bedelias->Cedula_Bedelia, $bedelias->cargo);
 
         RegistrosController::store("BEDELIAS", $request->header('token'), "CREATE", $request->samaccountname . " - " . $request->cargo);
 
     }
+
+    public function agregarUsuarioGrupoAD($idUsuario, $grupo){
+
+        $group = Group::find('cn='.$grupo.',ou=Grupos,dc=syntech,dc=intra');
+
+        $user = User::find('cn='.$idUsuario.',ou=UsuarioSistema,dc=syntech,dc=intra');
+        
+        $group->members()->attach($user);
+
+    }
+
+    
 
     public function getAllButNotBedelias()
     {
