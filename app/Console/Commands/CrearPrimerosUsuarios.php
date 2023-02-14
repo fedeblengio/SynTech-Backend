@@ -42,7 +42,11 @@ class CrearPrimerosUsuarios extends Command
     public function handle()
     {
         dump('Creando usuario');
-        $cedula = "00000000";
+        $cedula = "11111111";
+        if(usuarios::find($cedula)){
+            $cedula = $this->ask('Ya existe un usuario con esa cedula, ingrese otra');
+        }
+
         $user = (new User)->inside('ou=UsuarioSistema,dc=syntech,dc=intra');
         $user->cn =$cedula;
         $user->unicodePwd = $cedula;
@@ -69,9 +73,10 @@ class CrearPrimerosUsuarios extends Command
          }catch(\Exception $e){
             dump($e);
          }
-        
 
-        dump('Fin');
-
+        dump('Usuario creado');
+        dump('U : '.$cedula);
+        dump('P : '.$cedula);
+        dump('-------FIN--------');
     }
 }

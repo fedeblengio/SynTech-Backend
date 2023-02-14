@@ -53,8 +53,10 @@ Route::middleware(['verificar_token'])->group(function () {
     Route::put('/carrera/{id}', 'App\Http\Controllers\CarreraController@update');
     Route::delete('/carrera/{id}', 'App\Http\Controllers\CarreraController@destroy');
 
-    //MATERIASGRADO
+    //GRADO
     Route::put('/grado/{id}', 'App\Http\Controllers\GradoController@update');
+    Route::get('/grado/{id}', 'App\Http\Controllers\GradoController@show');
+
 
 });
 

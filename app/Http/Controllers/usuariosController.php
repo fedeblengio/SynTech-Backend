@@ -123,7 +123,12 @@ class usuariosController extends Controller
     public function show($id)
     {
         $userDB = usuarios::where('id', $id)->first();
-        $userDB->imagen_perfil = base64_encode(Storage::disk('ftp')->get($userDB->imagen_perfil));
+        if(empty($userDB)){
+           return;
+        }
+        if(isset($userDB->imagen_perfil)){
+             $userDB->imagen_perfil = base64_encode(Storage::disk('ftp')->get($userDB->imagen_perfil));
+        }
         $infoUser = self::returnMoreInfoUser($userDB);
         return response()->json(['user' => $userDB, 'info' => $infoUser]);
     }
@@ -206,7 +211,7 @@ class usuariosController extends Controller
         try {
             $usuario = usuarios::where('id', $id)->first();
             if ($usuario) {
-                $usuario->nombre = $request->nombre . " " . $request->apellido;
+                $usuario->nombre = $request->nombre." ".$request->apellido;
                 $usuario->email = $request->email;
                 $usuario->genero = $request->genero;
                 $usuario->save();
