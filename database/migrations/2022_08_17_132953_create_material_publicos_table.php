@@ -15,7 +15,7 @@ class CreateMaterialPublicosTable extends Migration
     {
         Schema::create('material_publicos', function (Blueprint $table) {
             $table->id();
-            $table->string('idUsuario',8);
+            $table->string('idUsuario');
             $table->string('titulo');
             $table->binary('mensaje');
             $table->binary('imgEncabezado');

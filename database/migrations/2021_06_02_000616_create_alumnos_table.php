@@ -18,7 +18,6 @@ class CreateAlumnosTable extends Migration
         Schema::create('alumnos', function (Blueprint $table) {
            
             $table->string('id');
-            //$table->foreign('Cedula')->references('username')->on('usuarios')->onDelete('cascade');
             $table->string('Cedula_Alumno');
             $table->primary(['id', 'Cedula_Alumno']);
             $table->timestamps();
