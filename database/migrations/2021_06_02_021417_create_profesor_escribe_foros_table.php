@@ -18,7 +18,7 @@ class CreateProfesorEscribeForosTable extends Migration
             $table->unsignedBigInteger('idForo')->primary();
             $table->unsignedBigInteger('idMateria');
             $table->string('idGrupo',10);
-            $table->integer('idProfesor');
+            $table->string('idProfesor');
            
             
         

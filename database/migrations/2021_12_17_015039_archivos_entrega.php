@@ -16,7 +16,7 @@ class ArchivosEntrega extends Migration
         Schema::create('archivos_entrega', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('idTareas');
-            $table->integer('idAlumnos');
+            $table->string('idAlumnos');
             $table->string('nombreArchivo')->nullable();
             $table->timestamps();
         });

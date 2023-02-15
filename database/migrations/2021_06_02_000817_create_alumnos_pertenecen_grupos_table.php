@@ -19,7 +19,7 @@ class CreateAlumnosPertenecenGruposTable extends Migration
            
            $table->id();
             $table->string('idGrupo',10);
-            $table->integer('idAlumnos');
+            $table->string('idAlumnos');
            
             $table->unique(['idAlumnos', 'idGrupo']);
            
