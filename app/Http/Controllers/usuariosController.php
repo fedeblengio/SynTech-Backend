@@ -26,9 +26,9 @@ class usuariosController extends Controller
 
     use verificarUsuarioPerteneceGrupoAD;
 
-    public function index(Request $request)
+     public function index(Request $request)
     {
-        $id = json_decode(base64_decode($request->header('token')))->id;
+        $id = json_decode(base64_decode($request->header('token')))->username;
         $user = User::find('cn='.$id.',ou=UsuarioSistema,dc=syntech,dc=intra');
         $notBedelias = [
             'Administrativo',
@@ -38,13 +38,17 @@ class usuariosController extends Controller
             'Director',
             'Subdirector',
         ];
+        $adminRol = ['Supervisor'];
         if ($this->verificarPerteneceGrupoAD($user,$notBedelias)) {
             return self::getAllButNotBedelias();
         }    
         if ($this->verificarPerteneceGrupoAD($user,$notSuperUser)) {
             return self::getAllButNotSuperUser();
         }
-        return response()->json(usuarios::all());
+        if($this->verificarPerteneceGrupoAD($user,$adminRol)){
+            return response()->json(usuarios::all());
+        }
+        return response()->json(['Error'=>"Unauthorized",403]);
     }
 
     public function store(Request $request)
