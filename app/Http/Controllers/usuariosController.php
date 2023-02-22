@@ -28,6 +28,7 @@ class usuariosController extends Controller
 
      public function index(Request $request)
     {
+      
         $id = json_decode(base64_decode($request->header('token')))->username;
         $user = User::find('cn='.$id.',ou=UsuarioSistema,dc=syntech,dc=intra');
         $notBedelias = [
@@ -210,7 +211,7 @@ class usuariosController extends Controller
             'nombre' => 'required|string|max:80',
             'apellido' => 'required|string|max:80',
             'email' => 'required|email',
-            'genero' => 'required|string',
+            'genero' => 'string',
         ]);
         try {
             $usuario = usuarios::where('id', $id)->first();
@@ -366,7 +367,7 @@ class usuariosController extends Controller
     }
 
 
-    public function getAllButNotSuperUser(): \Illuminate\Http\JsonResponse
+    public function getAllButNotSuperUser()
     {
         $second = DB::table('usuarios')
             ->select('*')

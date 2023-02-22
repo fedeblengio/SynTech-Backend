@@ -9,4 +9,8 @@ class profesores extends Model
 {
     use HasFactory;
     use SoftDeletes;
+
+    public function materia(){
+        return $this->belongsToMany(materia::class, 'profesor_dicta_materia', 'idProfesor', 'idMateria')->withTimestamps();
+    }
 }

@@ -9,4 +9,11 @@ class alumnos extends Model
 {
     use HasFactory;
     use SoftDeletes;
+
+    public function grupos()
+    {
+        return $this->belongsToMany(grupos::class, 'alumnos_pertenecen_grupos', 'idAlumnos', 'idGrupo')->withTimestamps();
+        
+    }
+
 }

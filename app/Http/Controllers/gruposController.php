@@ -8,6 +8,7 @@ use App\Models\grupos;
 use App\Models\alumnos_pertenecen_grupos;
 use Carbon\Carbon;
 use App\Http\Controllers\RegistrosController;
+use App\Models\grupos_tienen_profesor;
 
 class gruposController extends Controller
 {
@@ -40,6 +41,30 @@ class gruposController extends Controller
         return response()->json(grupos::where('idGrupo', $id)->first());
     }
 
+    public function eliminarProfesorGrupo($id, $idProfesor, Request $request)
+    {
+        $profesorGrupo = grupos_tienen_profesor::where('idGrupo', $id)->where('idProfesor', $idProfesor)->first();
+        if ($profesorGrupo) {
+            $profesorGrupo->delete();
+            return response()->json(['status' => 'Success'], 200);
+            RegistrosController::store("GRUPO", $request->header('token'), "DELETE", $idProfesor . " - " . $id);
+            
+        }
+        return response()->json(['status' => 'Bad Request'], 400);
+    }
+
+    public function eliminarAlumnoGrupo($id, $idAlumno, Request $request)
+    {
+      $alumnoGrupo = alumnos_pertenecen_grupos::where('idGrupo', $id)->where('idAlumnos', $idAlumno)->first();
+        if ($alumnoGrupo) {
+            $alumnoGrupo->delete();
+            return response()->json(['status' => 'Success'], 200);
+            RegistrosController::store("GRUPO", $request->header('token'), "DELETE", $idAlumno . " - " . $id);
+        }
+        return response()->json(['status' => 'Bad Request'], 400);
+    }
+
+
     public function destroy(Request $request, $id)
     {
 
@@ -56,17 +81,19 @@ class gruposController extends Controller
 
     public function eliminarProfesoresGrupo($request, $id)
     {
-        DB::table('grupos_tienen_profesor')
-            ->where('idGrupo', $id)
-            ->update(['deleted_at' => Carbon::now()]);
+        $gruposProfesor = grupos_tienen_profesor::where('idGrupo', $id)->get();
+        $gruposProfesor->each(function ($gruposProfesor) {
+            $gruposProfesor->delete();
+        });
         RegistrosController::store("GRUPO PROFESOR", $request->header('token'), "DELETE", $request->idGrupo);
     }
 
     public function eliminarAlumnosGrupo($request, $id)
     {
-        DB::table('alumnos_pertenecen_grupos')
-            ->where('idGrupo', $id)
-            ->update(['deleted_at' => Carbon::now()]);
+        $alumnoGrupo = alumnos_pertenecen_grupos::where('idGrupo', $id)->get();
+        $alumnoGrupo->each(function ($alumnoGrupo) {
+            $alumnoGrupo->delete();
+        });
         RegistrosController::store("GRUPO ALUMNOS", $request->header('token'), "DELETE", $request->idGrupo);
     }
 
