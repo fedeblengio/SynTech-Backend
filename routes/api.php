@@ -75,9 +75,9 @@ use Illuminate\Support\Facades\Mail;
     Route::get('/alumno/{id}/grupos','App\Http\Controllers\AlumnoController@gruposNoPertenecenAlumno');
 
     //BEDELIAS
-    Route::get('/bedelia','App\Http\Controllers\bedeliaController@index');
-    Route::get('/bedelia/{id}','App\Http\Controllers\bedeliaController@show');
-    Route::put('/bedelia','App\Http\Controllers\bedeliaController@update');
+    Route::get('/bedelia','App\Http\Controllers\BedeliaController@index');
+    Route::get('/bedelia/{id}','App\Http\Controllers\BedeliaController@show');
+    Route::put('/bedelia','App\Http\Controllers\BedeliaController@update');
 
 /* }); */
 
