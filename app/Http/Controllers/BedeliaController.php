@@ -11,7 +11,7 @@ class BedeliaController extends Controller
 {
     public function index(Request $request)
     {
-        return usuarios::all()->where('ou', 'Bedelias');
+        return usuarios::where('ou', 'Bedelias')->get();
     }
 
     public function show($id){

@@ -11,7 +11,7 @@ class ProfesorController extends Controller
 {
     public function index(Request $request)
     {
-       return usuarios::all()->where('ou', 'Profesor');
+       return usuarios::where('ou', 'Profesor')->get();
     }
 
     public function update(Request $request, $id)

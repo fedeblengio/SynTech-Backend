@@ -13,7 +13,7 @@ class AlumnoController extends Controller
 
     public function index(Request $request)
     {   
-        return usuarios::all()->where('ou', 'Alumno');
+        return usuarios::where('ou', 'Alumno')->get();
     }
 
     public function show($id){
