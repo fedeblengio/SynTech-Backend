@@ -16,4 +16,9 @@ class alumnos extends Model
         
     }
 
+    public function asignarGrupo($grupos)
+    {
+        $this->grupos()->sync($grupos);
+    }
+
 }

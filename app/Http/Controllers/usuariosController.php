@@ -309,6 +309,8 @@ class usuariosController extends Controller
         $alumno->id = $request->samaccountname;
         $alumno->save();
 
+        $alumno->asignarGrupos($request->grupos);
+
         self::agregarUsuarioGrupoAD($alumno->Cedula_Alumno, "Alumno");
 
         RegistrosController::store("ALUMNO", $request->header('token'), "CREATE", $request->samaccountname);
@@ -321,6 +323,8 @@ class usuariosController extends Controller
         $profesores->Cedula_Profesor = $request->samaccountname;
         $profesores->id = $request->samaccountname;
         $profesores->save();
+
+        $profesores->asignarMaterias($request->materias);
 
         self::agregarUsuarioGrupoAD($profesores->Cedula_Profesor, "Profesor");
 

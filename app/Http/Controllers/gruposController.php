@@ -46,8 +46,9 @@ class gruposController extends Controller
         $profesorGrupo = grupos_tienen_profesor::where('idGrupo', $id)->where('idProfesor', $idProfesor)->first();
         if ($profesorGrupo) {
             $profesorGrupo->delete();
-            return response()->json(['status' => 'Success'], 200);
             RegistrosController::store("GRUPO", $request->header('token'), "DELETE", $idProfesor . " - " . $id);
+            return response()->json(['status' => 'Success'], 200);
+           
             
         }
         return response()->json(['status' => 'Bad Request'], 400);
@@ -58,8 +59,8 @@ class gruposController extends Controller
       $alumnoGrupo = alumnos_pertenecen_grupos::where('idGrupo', $id)->where('idAlumnos', $idAlumno)->first();
         if ($alumnoGrupo) {
             $alumnoGrupo->delete();
-            return response()->json(['status' => 'Success'], 200);
             RegistrosController::store("GRUPO", $request->header('token'), "DELETE", $idAlumno . " - " . $id);
+            return response()->json(['status' => 'Success'], 200);     
         }
         return response()->json(['status' => 'Bad Request'], 400);
     }

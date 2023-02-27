@@ -68,6 +68,16 @@ use Illuminate\Support\Facades\Mail;
 /*     Route::post('/profesor','App\Http\Controllers\profesorDictaMateriaController@agregarListaDeProfesoresMateria');
     Route::delete('/profesor','App\Http\Controllers\profesorDictaMateriaController@destroy'); */
 
+    //AlUMNOS
+    Route::get('/alumno','App\Http\Controllers\AlumnoController@index');
+    Route::get('/alumno/{id}','App\Http\Controllers\AlumnoController@show');
+    Route::put('/alumno/{id}','App\Http\Controllers\AlumnoController@update');
+    Route::get('/alumno/{id}/grupos','App\Http\Controllers\AlumnoController@gruposNoPertenecenAlumno');
+
+    //BEDELIAS
+    Route::get('/bedelia','App\Http\Controllers\bedeliaController@index');
+    Route::get('/bedelia/{id}','App\Http\Controllers\bedeliaController@show');
+    Route::put('/bedelia','App\Http\Controllers\bedeliaController@update');
 
 /* }); */
 
@@ -87,12 +97,7 @@ Route::post('/foto','App\Http\Controllers\usuariosController@cambiarFotoUsuario'
 
 Route::put('/contrasenia','App\Http\Controllers\usuariosController@cambiarContrasenia')->middleware('verificar_token');
 
-
-
-
-
 Route::get('/materiaSinGrupo','App\Http\Controllers\gruposTienenProfesorController@traerMateriasSinGrupo')->middleware('verificar_token');
-
 
 
 //ALUMNOS
@@ -101,12 +106,6 @@ Route::get('/materiaSinGrupo','App\Http\Controllers\gruposTienenProfesorControll
 Route::post('/alumno','App\Http\Controllers\agregarUsuarioGrupoController@store')->middleware('verificar_token');
 
 Route::delete('/alumno','App\Http\Controllers\agregarUsuarioGrupoController@destroy')->middleware('verificar_token'); */
-
-Route::get('/alumno','App\Http\Controllers\AlumnoController@index');
-Route::get('/alumno/{id}','App\Http\Controllers\AlumnoController@show');
-Route::put('/alumno/{id}','App\Http\Controllers\AlumnoController@update');
-Route::get('/alumno/{id}/grupos','App\Http\Controllers\AlumnoController@gruposNoPertenecenAlumno');
-
 
 
 Route::get('/profesorMateria','App\Http\Controllers\gruposTienenProfesorController@mostrarProfesorMateria')->middleware('verificar_token');

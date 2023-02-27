@@ -13,4 +13,8 @@ class profesores extends Model
     public function materia(){
         return $this->belongsToMany(materia::class, 'profesor_dicta_materia', 'idProfesor', 'idMateria')->withTimestamps();
     }
+
+    public function asignarMateria($materias){
+        $this->materia()->sync($materias);
+    }   
 }
