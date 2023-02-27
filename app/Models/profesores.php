@@ -11,7 +11,7 @@ class profesores extends Model
     use SoftDeletes;
 
     public function materia(){
-        return $this->belongsToMany(materia::class, 'profesor_dicta_materia', 'Cedula_Profesor', 'idMateria')->withTimestamps();
+        return $this->belongsToMany(materia::class, 'profesor_dicta_materia', 'idProfesor', 'idMateria')->withTimestamps();
     }
 
     public function asignarMaterias($materias){

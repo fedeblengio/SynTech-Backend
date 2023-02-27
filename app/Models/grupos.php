@@ -21,6 +21,6 @@ class grupos extends Model
 
     public function alumnos()
     {
-        return $this->belongsToMany(alumnos::class, 'alumnos_pertenecen_grupos', 'idGrupo', 'Cedula_Alumno')->withTimestamps();
+        return $this->belongsToMany(alumnos::class, 'alumnos_pertenecen_grupos', 'idGrupo', 'idAlumnos')->withTimestamps();
     }
 }
