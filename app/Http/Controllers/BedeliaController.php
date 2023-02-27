@@ -5,12 +5,13 @@ namespace App\Http\Controllers;
 use App\Models\bedelias;
 use Illuminate\Http\Request;
 use App\Http\Controllers\usuariosController;
+use App\Models\usuarios;
 
 class BedeliaController extends Controller
 {
     public function index(Request $request)
     {
-        return bedelias::all();
+        return usuarios::all()->where('ou', 'Bedelias');
     }
 
     public function show($id){

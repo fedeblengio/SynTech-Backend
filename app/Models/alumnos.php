@@ -21,4 +21,9 @@ class alumnos extends Model
         $this->grupos()->sync($grupos);
     }
 
+    public function usuario()
+    {
+        return $this->belongsTo(usuarios::class, 'usuarios', 'Cedula_Alumno', 'id');
+    }
+
 }

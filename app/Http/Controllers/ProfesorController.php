@@ -5,12 +5,13 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\profesores;
 use App\Http\Controllers\usuariosController;
+use App\Models\usuarios;
 
 class ProfesorController extends Controller
 {
     public function index(Request $request)
     {
-       return profesores::all();
+       return usuarios::all()->where('ou', 'Profesor');
     }
 
     public function update(Request $request, $id)

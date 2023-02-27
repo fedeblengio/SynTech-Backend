@@ -17,4 +17,8 @@ class profesores extends Model
     public function asignarMateria($materias){
         $this->materia()->sync($materias);
     }   
+
+    public function usuario(){
+        return $this->belongsTo(usuarios::class, 'usuarios', 'Cedula_Profesor', 'id');
+    }
 }

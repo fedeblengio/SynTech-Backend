@@ -6,13 +6,14 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\usuariosController;
 use App\Models\alumnos;
 use App\Models\grupos;
+use App\Models\usuarios;
 
 class AlumnoController extends Controller
 {
 
     public function index(Request $request)
     {   
-        return alumnos::all();
+        return usuarios::all()->where('ou', 'Alumno');
     }
 
     public function show($id){
