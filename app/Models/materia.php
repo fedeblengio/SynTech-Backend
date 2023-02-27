@@ -21,6 +21,6 @@ class materia extends Model
     }
 
     public function profesores(){
-        return $this->belongsToMany(profesores::class, 'profesor_dicta_materia', 'idMateria', 'idProfesor')->withTimestamps();
+        return $this->belongsToMany(profesores::class, 'profesor_dicta_materia', 'idMateria', 'Cedula_Profesor')->withTimestamps();
     }
 }
