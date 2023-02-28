@@ -18,4 +18,9 @@ class grupos extends Model
     {
         return $this->belongsTo(Grado::class, 'id_grado');
     }
+
+    public function alumnos()
+    {
+        return $this->belongsToMany(alumnos::class, 'alumnos_pertenecen_grupos', 'idGrupo', 'idAlumnos')->withTimestamps();
+    }
 }

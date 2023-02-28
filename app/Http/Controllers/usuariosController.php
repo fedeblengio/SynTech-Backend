@@ -28,6 +28,7 @@ class usuariosController extends Controller
 
      public function index(Request $request)
     {
+      
         $id = json_decode(base64_decode($request->header('token')))->username;
         $user = User::find('cn='.$id.',ou=UsuarioSistema,dc=syntech,dc=intra');
         $notBedelias = [
@@ -210,7 +211,7 @@ class usuariosController extends Controller
             'nombre' => 'required|string|max:80',
             'apellido' => 'required|string|max:80',
             'email' => 'required|email',
-            'genero' => 'required|string',
+            'genero' => 'string',
         ]);
         try {
             $usuario = usuarios::where('id', $id)->first();
@@ -308,6 +309,8 @@ class usuariosController extends Controller
         $alumno->id = $request->samaccountname;
         $alumno->save();
 
+        $alumno->asignarGrupos($request->grupos);
+
         self::agregarUsuarioGrupoAD($alumno->Cedula_Alumno, "Alumno");
 
         RegistrosController::store("ALUMNO", $request->header('token'), "CREATE", $request->samaccountname);
@@ -320,6 +323,8 @@ class usuariosController extends Controller
         $profesores->Cedula_Profesor = $request->samaccountname;
         $profesores->id = $request->samaccountname;
         $profesores->save();
+
+        $profesores->asignarMaterias($request->materias);
 
         self::agregarUsuarioGrupoAD($profesores->Cedula_Profesor, "Profesor");
 
@@ -366,7 +371,7 @@ class usuariosController extends Controller
     }
 
 
-    public function getAllButNotSuperUser(): \Illuminate\Http\JsonResponse
+    public function getAllButNotSuperUser()
     {
         $second = DB::table('usuarios')
             ->select('*')

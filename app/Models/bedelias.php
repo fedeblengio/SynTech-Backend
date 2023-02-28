@@ -9,4 +9,13 @@ class bedelias extends Model
 {
     use HasFactory;
     use SoftDeletes;
+
+    protected $fillable=[
+        'Cedula_Bedelia',
+        'cargo',
+    ];
+
+    public function usuario(){
+        return $this->belongsTo(usuarios::class, 'usuarios', 'Cedula_Bedelia', 'id');
+    }
 }
