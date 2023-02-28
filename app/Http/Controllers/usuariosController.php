@@ -305,11 +305,13 @@ class usuariosController extends Controller
     public function agregarAlumno($request): void
     {
         $alumno = new alumnos;
+        $alumno->id = $request->samaccountname;
         $alumno->Cedula_Alumno = $request->samaccountname;
         $alumno->id = $request->samaccountname;
         $alumno->save();
 
-        $alumno->asignarGrupos($request->grupos);
+      
+        $alumno->asignarGrupos($request->grupos,$alumno->Cedula_Alumno);
 
         self::agregarUsuarioGrupoAD($alumno->Cedula_Alumno, "Alumno");
 
@@ -323,8 +325,8 @@ class usuariosController extends Controller
         $profesores->Cedula_Profesor = $request->samaccountname;
         $profesores->id = $request->samaccountname;
         $profesores->save();
-
-        $profesores->asignarMaterias($request->materias);
+   
+        $profesores->asignarMaterias($request->materias,$profesores->Cedula_Profesor);
 
         self::agregarUsuarioGrupoAD($profesores->Cedula_Profesor, "Profesor");
 

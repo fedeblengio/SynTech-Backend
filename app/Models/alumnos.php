@@ -16,9 +16,10 @@ class alumnos extends Model
         
     }
 
-    public function asignarGrupo($grupos)
+    public function asignarGrupos($grupos,$idAlumno)
     {
-        $this->grupos()->sync($grupos);
+        $alumno = alumnos::find($idAlumno);
+        $alumno->grupos()->sync($grupos);
     }
 
     public function usuario()
