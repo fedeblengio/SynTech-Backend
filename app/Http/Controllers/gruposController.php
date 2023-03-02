@@ -35,10 +35,9 @@ class gruposController extends Controller
 
     }
 
-
     public function show($id)
     {
-        return response()->json(grupos::where('idGrupo', $id)->first());
+        return response()->json(grupos::findOrFail($id)->load('grado.materias', 'alumnos', 'profesores'));
     }
 
     public function eliminarProfesorGrupo($id, $idProfesor, Request $request)

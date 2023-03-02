@@ -13,7 +13,7 @@ class DropTablleGruposPertenecenCarrera extends Migration
      */
     public function up()
     {
-        //
+        Schema::dropIfExists('grupos_pertenecen_carrera');
     }
 
     /**
