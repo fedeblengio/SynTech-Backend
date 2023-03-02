@@ -87,7 +87,6 @@ class agregarMateriaController extends Controller
         $materia->save();
         RegistrosController::store("MATERIA", $request->header('token'), "CREATE", $request->nombre);
         return $materia;
-        
     }
 
 
