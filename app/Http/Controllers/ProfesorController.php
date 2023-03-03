@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\profesores;
 use App\Http\Controllers\usuariosController;
 use App\Models\usuarios;
+use App\Services\Files;
 
 class ProfesorController extends Controller
 {
@@ -24,6 +25,9 @@ class ProfesorController extends Controller
 
     public function show($id)
     {
-        return profesores::find($id)->load('materia');
+        $profesor = profesores::find($id)->load('materia','usuario');
+        $filesService = new Files();
+        $profesor->usuario['imagen_perfil'] = $filesService->getImage($profesor->usuario['imagen_perfil']);
+        return $profesor;
     }
 }
