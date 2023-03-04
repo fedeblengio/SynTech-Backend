@@ -148,46 +148,48 @@ class usuariosController extends Controller
             return self::getMoreInfoAlumno($userOBJ);
     }
 
-    public function cambiarFotoUsuario(Request $request)
+    public function traerImagen($id)
     {
-        $usuarioDB = DB::table('usuarios')
-            ->select('*')
-            ->where('id', $request->id)
-            ->first();
+        $usuario = usuarios::find($id);
+        $base64imagen = base64_encode(Storage::disk('ftp')->get($usuario->imagen_perfil));
+        return response()->json($base64imagen);
+    }
 
-        if ($request->hasFile("archivo")) {
-            return $this->cambiarImagenDePerfil($request);
+    public function cambiarImagen(Request $request, $id)
+    {
+        $usuario = usuarios::find($id);
+        if ($request->hasFile('archivo')) {
+            return $this->cambiarImagenDePerfil($request,$usuario);
+        }
+        if ($usuario->imagen_perfil != "default_picture.png") {
+            return $this->establecerImagenPorDefecto($request,$usuario);
         }
 
-        if ($usuarioDB->imagen_perfil != "default_picture.png") {
-            return $this->establecerImagenPorDefecto($usuarioDB, $request);
+        if ($usuario->imagen_perfil == "default_picture.png") {
+            return response()->json(['status' => 'Success'], 200);
         }
 
         return response()->json(['error' => 'Forbidden'], 403);
     }
 
-    public function cambiarImagenDePerfil(Request $request): \Illuminate\Http\JsonResponse
+    public function cambiarImagenDePerfil(Request $request,$usuario)
     {
         $file = $request->archivo;
         $nombre = time() . "_" . $file->getClientOriginalName();
         Storage::disk('ftp')->put($nombre, fopen($request->archivo, 'r+'));
 
-        DB::table('usuarios')
-            ->where('id', $request->id)
-            ->update(['imagen_perfil' => $nombre]);
-
+        $usuario->imagen_perfil = $nombre;
+        $usuario->save();
+      
         return response()->json(['status' => 'Success'], 200);
     }
 
 
-    public function establecerImagenPorDefecto($usuarioDB, Request $request): \Illuminate\Http\JsonResponse
+    public function establecerImagenPorDefecto(Request $request ,$usuario)
     {
-        Storage::disk('ftp')->delete($usuarioDB->imagen_perfil);
-
-        DB::table('usuarios')
-            ->where('id', $request->id)
-            ->update(['imagen_perfil' => "default_picture.png"]);
-
+        Storage::disk('ftp')->delete($usuario->imagen_perfil);
+        $usuario->imagen_perfil = "default_picture.png";
+        $usuario->save();
         return response()->json(['status' => 'Success'], 200);
     }
 
