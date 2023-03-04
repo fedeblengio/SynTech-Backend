@@ -19,7 +19,7 @@ class CreateProfesorCreaTareasTable extends Migration
             $table->unsignedBigInteger('idTareas');
             $table->string('idGrupo',10);
             $table->primary(['idGrupo', 'idTareas']);
-            $table->integer('idProfesor');
+            $table->string('idProfesor');
         
             $table->timestamps();
         });

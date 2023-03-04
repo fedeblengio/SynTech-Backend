@@ -17,7 +17,7 @@ class ArchivosReHacerTareaAlumno extends Migration
             $table->id();
             $table->unsignedBigInteger('idTareasNueva');
             $table->unsignedBigInteger('idTareas');
-            $table->integer('idAlumnos');
+            $table->string('idAlumnos');
             $table->string('nombreArchivo')->nullable();
             $table->timestamps();
         });

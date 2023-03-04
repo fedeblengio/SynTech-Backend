@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class AlterTableUsuarios extends Migration
+class DropTablleGruposPertenecenCarrera extends Migration
 {
     /**
      * Run the migrations.
@@ -13,9 +13,7 @@ class AlterTableUsuarios extends Migration
      */
     public function up()
     {
-        Schema::table('usuarios', function (Blueprint $table) {
-            $table->string('genero')->nullable();
-        });
+        //
     }
 
     /**
@@ -25,6 +23,6 @@ class AlterTableUsuarios extends Migration
      */
     public function down()
     {
-      
+        Schema::dropIfExists('grupos_pertenecen_carrera');
     }
 }

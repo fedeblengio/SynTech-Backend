@@ -31,7 +31,7 @@ class agregarMateriaController extends Controller
 
     public function show($id)
     {
-        return response()->json(materia::find($id));
+        return response()->json(materia::find($id)->load('profesores'));
     }
 
     public function update(Request $request,$id)

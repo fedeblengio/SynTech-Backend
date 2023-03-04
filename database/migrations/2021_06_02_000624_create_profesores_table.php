@@ -15,8 +15,8 @@ class CreateProfesoresTable extends Migration
     {
         Schema::create('profesores', function (Blueprint $table) {
 
-            $table->integer('id');
-            $table->string('Cedula_Profesor',8);
+            $table->string('id');
+            $table->string('Cedula_Profesor');
             $table->primary(['id', 'Cedula_Profesor']);
             $table->timestamps();
             $table->softDeletes();

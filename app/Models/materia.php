@@ -19,4 +19,8 @@ class materia extends Model
     public function grado(){
         return $this->belongsToMany(Grado::class, 'carrera_tiene_materias', 'materia_id', 'grado_id')->withTimestamps();
     }
+
+    public function profesores(){
+        return $this->belongsToMany(profesores::class, 'profesor_dicta_materia', 'idMateria', 'idProfesor')->withTimestamps();
+    }
 }

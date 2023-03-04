@@ -11,26 +11,45 @@ use App\Models\alumnos_pertenecen_grupos;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
+use App\Traits\verificarUsuarioPerteneceGrupoAD;
 use LdapRecord\Models\ActiveDirectory\User;
 use App\Http\Controllers\agregarUsuarioGrupoController;
 use App\Http\Controllers\RegistrosController;
 use App\Http\Controllers\profesorDictaMateriaController;
 use Illuminate\Support\Facades\Mail;
+use LdapRecord\Models\ActiveDirectory\Group;
 use App\Mail\TestMail;
 
 
 class usuariosController extends Controller
 {
 
-    public function index(Request $request)
+    use verificarUsuarioPerteneceGrupoAD;
+
+     public function index(Request $request)
     {
-        $cargo = json_decode(base64_decode($request->header('token')))->cargo;
-        if ($cargo == "Adscripto" || $cargo == "Administrativo") {
+      
+        $id = json_decode(base64_decode($request->header('token')))->username;
+        $user = User::find('cn='.$id.',ou=UsuarioSistema,dc=syntech,dc=intra');
+        $notBedelias = [
+            'Administrativo',
+            'Adscripto',
+        ];
+        $notSuperUser = [
+            'Director',
+            'Subdirector',
+        ];
+        $adminRol = ['Supervisor'];
+        if ($this->verificarPerteneceGrupoAD($user,$notBedelias)) {
             return self::getAllButNotBedelias();
-        } elseif ($cargo == "Director" || $cargo == "Subdirector") {
+        }    
+        if ($this->verificarPerteneceGrupoAD($user,$notSuperUser)) {
             return self::getAllButNotSuperUser();
         }
-        return response()->json(usuarios::all());
+        if($this->verificarPerteneceGrupoAD($user,$adminRol)){
+            return response()->json(usuarios::all());
+        }
+        return response()->json(['Error'=>"Unauthorized",403]);
     }
 
     public function store(Request $request)
@@ -129,46 +148,48 @@ class usuariosController extends Controller
             return self::getMoreInfoAlumno($userOBJ);
     }
 
-    public function cambiarFotoUsuario(Request $request)
+    public function traerImagen($id)
     {
-        $usuarioDB = DB::table('usuarios')
-            ->select('*')
-            ->where('id', $request->id)
-            ->first();
+        $usuario = usuarios::find($id);
+        $base64imagen = base64_encode(Storage::disk('ftp')->get($usuario->imagen_perfil));
+        return response()->json($base64imagen);
+    }
 
-        if ($request->hasFile("archivo")) {
-            return $this->cambiarImagenDePerfil($request);
+    public function cambiarImagen(Request $request, $id)
+    {
+        $usuario = usuarios::find($id);
+        if ($request->hasFile('archivo')) {
+            return $this->cambiarImagenDePerfil($request,$usuario);
+        }
+        if ($usuario->imagen_perfil != "default_picture.png") {
+            return $this->establecerImagenPorDefecto($request,$usuario);
         }
 
-        if ($usuarioDB->imagen_perfil != "default_picture.png") {
-            return $this->establecerImagenPorDefecto($usuarioDB, $request);
+        if ($usuario->imagen_perfil == "default_picture.png") {
+            return response()->json(['status' => 'Success'], 200);
         }
 
         return response()->json(['error' => 'Forbidden'], 403);
     }
 
-    public function cambiarImagenDePerfil(Request $request): \Illuminate\Http\JsonResponse
+    public function cambiarImagenDePerfil(Request $request,$usuario)
     {
         $file = $request->archivo;
         $nombre = time() . "_" . $file->getClientOriginalName();
         Storage::disk('ftp')->put($nombre, fopen($request->archivo, 'r+'));
 
-        DB::table('usuarios')
-            ->where('id', $request->id)
-            ->update(['imagen_perfil' => $nombre]);
-
+        $usuario->imagen_perfil = $nombre;
+        $usuario->save();
+      
         return response()->json(['status' => 'Success'], 200);
     }
 
 
-    public function establecerImagenPorDefecto($usuarioDB, Request $request): \Illuminate\Http\JsonResponse
+    public function establecerImagenPorDefecto(Request $request ,$usuario)
     {
-        Storage::disk('ftp')->delete($usuarioDB->imagen_perfil);
-
-        DB::table('usuarios')
-            ->where('id', $request->id)
-            ->update(['imagen_perfil' => "default_picture.png"]);
-
+        Storage::disk('ftp')->delete($usuario->imagen_perfil);
+        $usuario->imagen_perfil = "default_picture.png";
+        $usuario->save();
         return response()->json(['status' => 'Success'], 200);
     }
 
@@ -192,7 +213,7 @@ class usuariosController extends Controller
             'nombre' => 'required|string|max:80',
             'apellido' => 'required|string|max:80',
             'email' => 'required|email',
-            'genero' => 'required|string',
+            'genero' => 'string',
         ]);
         try {
             $usuario = usuarios::where('id', $id)->first();
@@ -286,9 +307,16 @@ class usuariosController extends Controller
     public function agregarAlumno($request): void
     {
         $alumno = new alumnos;
+        $alumno->id = $request->samaccountname;
         $alumno->Cedula_Alumno = $request->samaccountname;
         $alumno->id = $request->samaccountname;
         $alumno->save();
+
+      
+        $alumno->asignarGrupos($request->grupos,$alumno->Cedula_Alumno);
+
+        self::agregarUsuarioGrupoAD($alumno->Cedula_Alumno, "Alumno");
+
         RegistrosController::store("ALUMNO", $request->header('token'), "CREATE", $request->samaccountname);
     }
 
@@ -299,6 +327,11 @@ class usuariosController extends Controller
         $profesores->Cedula_Profesor = $request->samaccountname;
         $profesores->id = $request->samaccountname;
         $profesores->save();
+   
+        $profesores->asignarMaterias($request->materias,$profesores->Cedula_Profesor);
+
+        self::agregarUsuarioGrupoAD($profesores->Cedula_Profesor, "Profesor");
+
         RegistrosController::store("PROFESOR", $request->header('token'), "CREATE", $request->samaccountname);
     }
 
@@ -310,10 +343,25 @@ class usuariosController extends Controller
         $bedelias->id = $request->samaccountname;
         $bedelias->cargo = $request->cargo ? $request->cargo : "Adscripto";
         $bedelias->save();
+      
+
+        self::agregarUsuarioGrupoAD($bedelias->Cedula_Bedelia, $bedelias->cargo);
 
         RegistrosController::store("BEDELIAS", $request->header('token'), "CREATE", $request->samaccountname . " - " . $request->cargo);
 
     }
+
+    public function agregarUsuarioGrupoAD($idUsuario, $grupo){
+
+        $group = Group::find('cn='.$grupo.',ou=Grupos,dc=syntech,dc=intra');
+
+        $user = User::find('cn='.$idUsuario.',ou=UsuarioSistema,dc=syntech,dc=intra');
+        
+        $group->members()->attach($user);
+
+    }
+
+    
 
     public function getAllButNotBedelias()
     {
@@ -327,7 +375,7 @@ class usuariosController extends Controller
     }
 
 
-    public function getAllButNotSuperUser(): \Illuminate\Http\JsonResponse
+    public function getAllButNotSuperUser()
     {
         $second = DB::table('usuarios')
             ->select('*')

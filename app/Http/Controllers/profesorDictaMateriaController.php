@@ -12,8 +12,6 @@ use App\Models\usuarios;
 
 class profesorDictaMateriaController extends Controller
 {
-
-
     public static function activarProfesorMateria($idMateria, $idProfesor, $token): \Illuminate\Http\JsonResponse
     {
         DB::table('profesor_dicta_materia')
@@ -35,49 +33,24 @@ class profesorDictaMateriaController extends Controller
         return response()->json(['status' => 'Success'], 200);
     }
 
+    
+  /* 
     public function index(Request $request)
     {
-
-        $variable = $request->idProfesor;
-        $resultado = DB::select(
-            DB::raw('SELECT id , nombre  FROM (SELECT * from materias) as A LEFT JOIN (SELECT * FROM profesor_dicta_materia WHERE idProfesor=:variable) as B ON A.id = B.idMateria WHERE B.idMateria IS NULL;'),
-            array('variable' => $variable)
-        );
-        return response()->json($resultado);
-    }
-    public function todosProfesorSegunMateria(Request $request)
-    {
-        return   DB::table('profesor_dicta_materia')
-            ->select('profesor_dicta_materia.idProfesor', 'usuarios.nombre', 'usuarios.email', 'materias.id as idMateria', 'materias.nombre as materia')
-            ->join('usuarios', 'profesor_dicta_materia.idProfesor', '=', 'usuarios.id')
-            ->join('materias', 'materias.id', '=', 'profesor_dicta_materia.idMateria')
-            ->where('materias.id', $request->idMateria)
+        $resultado = DB::table('profesores')
+            ->select('profesores.id', 'usuarios.nombre')
+            ->join('usuarios', 'profesores.Cedula_Profesor', '=', 'usuarios.id')
+            ->leftJoin('profesor_dicta_materia', function ($join) use ($request) {
+                $join->on('profesores.id', '=', 'profesor_dicta_materia.idProfesor')
+                    ->where('profesor_dicta_materia.idMateria', '=', $request->idMateria);
+            })
+            ->whereNull('profesor_dicta_materia.idProfesor')
             ->whereNull('profesor_dicta_materia.deleted_at')
+            ->whereNull('usuarios.deleted_at') 
             ->get();
-    }
-    public function listarProfesores(Request $request)
-    {
-        $variable = $request->idMateria;
-        $resultado = DB::select(
-            DB::raw('SELECT A.id , A.nombre  FROM (SELECT profesores.id , usuarios.nombre from profesores JOIN usuarios ON profesores.Cedula_Profesor = usuarios.id WHERE usuarios.deleted_at IS NULL) as A LEFT JOIN (SELECT * FROM profesor_dicta_materia WHERE idMateria=:variable AND deleted_at IS NULL) as B ON A.id = B.idProfesor WHERE B.idProfesor IS NULL ;'),
-            array('variable' => $variable)
-        );
-        return response()->json($resultado);
-
-        $a =  DB::table('usuarios')
-            ->select('usuarios.id', 'usuarios.nombre')
-            ->leftJoin('profesor_dicta_materia', 'profesor_dicta_materia.idProfesor', '=', 'usuarios.id')
-            ->where('profesor_dicta_materia.idMateria', $request->idMateria)
-            ->get();
-
-        /* $a =  DB::table('usuarios') */
-        /* ->select('*') */
-        /* ->leftJoin('profesor_dicta_materia', 'profesor_dicta_materia.idProfesor', '=', 'usuarios.id')
-            ->where('profesor_dicta_materia.idMateria', $request->idMateria) */
-        /*   ->get();
- */
-        return response()->json($a);
-    }
+          
+          return response()->json($resultado);
+    } */
 
     public  function agregarListaDeProfesoresMateria(Request $request)
     {
@@ -111,24 +84,20 @@ class profesorDictaMateriaController extends Controller
         }
     }
 
-
-
-
-    public function show(Request $request)
+    public function materiasNoPertenecenProfesor($id)
     {
-        return response()->json(profesor_dicta_materia::all()->where('idProfesor', $request->idProfesor));
+
+    $profesor = profesores::find($id);
+    $resultado = materia::whereDoesntHave('profesores', function($query) use ($profesor) 
+    {$query->where('idProfesor', $profesor->id);})
+    ->get();
+
+    return response()->json($resultado); 
     }
-
-
-    public function update(Request $request, $id)
-    {
-    }
-
 
     public function destroy(Request $request)
     {
         try {
-            /* DB::delete('delete from profesor_dicta_materia where idMateria="' . $request->idMateria . '" AND idProfesor="' . $request->idProfesor . '" ;'); */
             $perteneceMateria = profesor_dicta_materia::where('idMateria', $request->idMateria)->where('idProfesor', $request->idProfesor)->first();
             $perteneceMateria->delete();
             self::eliminarProfesorGrupo($request);
