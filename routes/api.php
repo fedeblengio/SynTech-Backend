@@ -79,7 +79,7 @@ use Illuminate\Support\Facades\Mail;
     //BEDELIAS
     Route::get('/bedelia','App\Http\Controllers\BedeliaController@index');
     Route::get('/bedelia/{id}','App\Http\Controllers\BedeliaController@show');
-    Route::put('/bedelia','App\Http\Controllers\BedeliaController@update');
+    Route::put('/bedelia/{id}','App\Http\Controllers\BedeliaController@update');
 
 
    
