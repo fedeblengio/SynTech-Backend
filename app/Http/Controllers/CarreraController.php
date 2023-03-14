@@ -39,7 +39,7 @@ class CarreraController extends Controller
         }
 
         RegistrosController::store("CARRERA", $request->header('token'), "CREATE", $request->nombre);
-        return response()->json($carrera, 201);
+        return response()->json($carrera->load('grado'), 201);
     }
 
     public function update(Request $request, $id)
