@@ -136,7 +136,7 @@ class gruposController extends Controller
         $grupo->idGrupo = $request->idGrupo;
         $grupo->nombreCompleto = $request->nombreCompleto;
         $grupo->anioElectivo = $request->anioElectivo;
-        $grupo->id_grado = $request->id_grado;
+        $grupo->grado_id = $request->grado_id;
         $grupo->save();
         RegistrosController::store("GRUPO", $request->header('token'), "CREATE", $request->idGrupo);
         return response()->json($grupo);
