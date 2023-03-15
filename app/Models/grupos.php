@@ -12,11 +12,11 @@ class grupos extends Model
     use SoftDeletes;
 
     protected $table = 'grupos';
-    protected $fillable = ['idGrupo', 'nombreCompleto','anioElectivo','id_grado'];
+    protected $fillable = ['idGrupo', 'nombreCompleto','anioElectivo','grado_id'];
 
     public function grado()
     {
-        return $this->belongsTo(Grado::class, 'id_grado');
+        return $this->belongsTo(Grado::class, 'grado_id');
     }
 
     public function alumnos()
@@ -26,6 +26,8 @@ class grupos extends Model
 
     public function profesores()
     {
-        return $this->belongsToMany(profesores::class, 'grupos_tienen_profesor', 'idGrupo', 'idProfesor')->withTimestamps();
+        return $this->belongsToMany(profesores::class, 'grupos_tienen_profesor', 'idGrupo', 'idProfesor')->withTimestamps()->withPivot('idMateria');
     }
+
+    
 }
