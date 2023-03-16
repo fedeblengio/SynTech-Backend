@@ -16,6 +16,8 @@ class bedelias extends Model
     ];
 
     public function usuario(){
-        return $this->belongsTo(usuarios::class, 'usuarios', 'Cedula_Bedelia', 'id');
+        return $this->belongsTo(usuarios::class,'id', 'id');
     }
+
+
 }

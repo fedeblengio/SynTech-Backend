@@ -30,6 +30,8 @@ use Illuminate\Support\Facades\Mail;
     Route::delete('/usuario/{id}','App\Http\Controllers\usuariosController@destroy');
     Route::put('/usuario/{id}','App\Http\Controllers\usuariosController@update');
 
+    Route::get('/usuario/{id}/imagen-perfil','App\Http\Controllers\usuariosController@traerImagen');
+    Route::post('/usuario/{id}/imagen-perfil','App\Http\Controllers\usuariosController@cambiarImagen'); // IF METHOD TYPE PUT ->hasFile() doesn't works correctly
 
     //MATERIAS
 
@@ -77,7 +79,10 @@ use Illuminate\Support\Facades\Mail;
     //BEDELIAS
     Route::get('/bedelia','App\Http\Controllers\BedeliaController@index');
     Route::get('/bedelia/{id}','App\Http\Controllers\BedeliaController@show');
-    Route::put('/bedelia','App\Http\Controllers\BedeliaController@update');
+    Route::put('/bedelia/{id}','App\Http\Controllers\BedeliaController@update');
+
+
+   
 
 /* }); */
 
@@ -89,11 +94,9 @@ Route::get('/test', function (){
 });
 // FTP TRAER ARCHIVOS
 Route::get('/traerArchivo','App\Http\Controllers\MaterialPublicoController@traerArchivo')->middleware('verificar_token');
-Route::get('/foto','App\Http\Controllers\loginController@traerImagenPerfil');
+
 Route::get('/historial','App\Http\Controllers\usuariosController@getFullHistory');
 
-
-Route::post('/foto','App\Http\Controllers\usuariosController@cambiarFotoUsuario')->middleware('verificar_token');
 
 Route::put('/contrasenia','App\Http\Controllers\usuariosController@cambiarContrasenia')->middleware('verificar_token');
 

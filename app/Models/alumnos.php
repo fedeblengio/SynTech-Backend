@@ -18,13 +18,16 @@ class alumnos extends Model
 
     public function asignarGrupos($grupos,$idAlumno)
     {
-        $alumno = alumnos::find($idAlumno);
-        $alumno->grupos()->sync($grupos);
+        $agregarGrupo = new alumnos_pertenecen_grupos();
+        foreach($grupos as $grupo){
+            $agregarGrupo->idAlumnos= $idAlumno;
+            $agregarGrupo->idGrupo = $grupo;
+            $agregarGrupo->save();
+        }
     }
 
-    public function usuario()
-    {
-        return $this->belongsTo(usuarios::class, 'usuarios', 'Cedula_Alumno', 'id');
+    public function usuario(){
+        return $this->belongsTo(usuarios::class,'id', 'id');
     }
 
 }

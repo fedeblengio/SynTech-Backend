@@ -7,6 +7,7 @@ use App\Http\Controllers\usuariosController;
 use App\Models\alumnos;
 use App\Models\grupos;
 use App\Models\usuarios;
+use App\Services\Files;
 
 class AlumnoController extends Controller
 {
@@ -17,7 +18,12 @@ class AlumnoController extends Controller
     }
 
     public function show($id){
-        return alumnos::find($id)->load('grupos');
+
+        $alumno = alumnos::find($id)->load('grupos','usuario');
+        $filesService = new Files();
+        $alumno->usuario['imagen_perfil'] = $filesService->getImage($alumno->usuario['imagen_perfil']);
+        return $alumno;
+       
     }
 
     public function update(Request $request, $id)

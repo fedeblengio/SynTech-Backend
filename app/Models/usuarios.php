@@ -10,4 +10,8 @@ class usuarios extends Model
 {
     use HasFactory;
     use SoftDeletes;
+
+    public function bedelias(){
+        return $this->belongsTo(bedelias::class,'id', 'id');
+    }
 }

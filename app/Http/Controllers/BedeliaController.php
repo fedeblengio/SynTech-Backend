@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\usuariosController;
 use App\Models\usuarios;
 use Illuminate\Support\Facades\DB;
+use App\Services\Files;
 
 class BedeliaController extends Controller
 {
@@ -19,9 +20,11 @@ class BedeliaController extends Controller
         ->get();
         return response()->json($resultado);
     }
-
     public function show($id){
-        return bedelias::find($id);
+        $bedelia = bedelias::find($id)->load('usuario');
+        $filesService = new Files();
+        $bedelia->usuario['imagen_perfil'] = $filesService->getImage($bedelia->usuario['imagen_perfil']);
+        return $bedelia;
     }
 
     public function update(Request $request, $id)
