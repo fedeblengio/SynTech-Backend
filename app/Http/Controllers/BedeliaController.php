@@ -6,13 +6,19 @@ use App\Models\bedelias;
 use Illuminate\Http\Request;
 use App\Http\Controllers\usuariosController;
 use App\Models\usuarios;
+use Illuminate\Support\Facades\DB;
 use App\Services\Files;
 
 class BedeliaController extends Controller
 {
     public function index(Request $request)
     {
-        return usuarios::where('ou', 'Bedelias')->orderBy('created_at','desc')->get();
+        $resultado=DB::table('usuarios')
+        ->select('usuarios.id', 'usuarios.nombre', 'usuarios.email', 'usuarios.ou', 'usuarios.genero', 'bedelias.cargo')
+        ->join('bedelias', 'usuarios.id', '=', 'bedelias.id')
+        ->whereNull('usuarios.deleted_at')
+        ->get();
+        return response()->json($resultado);
     }
     public function show($id){
         $bedelia = bedelias::find($id)->load('usuario');

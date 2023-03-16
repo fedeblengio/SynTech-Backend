@@ -35,10 +35,9 @@ class gruposController extends Controller
 
     }
 
-
     public function show($id)
     {
-        return response()->json(grupos::where('idGrupo', $id)->first());
+        return response()->json(grupos::findOrFail($id)->load('grado.materias', 'profesores', 'alumnos'));
     }
 
     public function eliminarProfesorGrupo($id, $idProfesor, Request $request)
@@ -101,12 +100,18 @@ class gruposController extends Controller
 
     public function update(request $request, $id)
     {
+        $request->validate([
+            'profesores' => 'array',
+            'alumnos' => 'array',
+            ]);
         $grupo = grupos::where('idGrupo', $id)->first();
             if ($grupo) {
                 $grupo->fill($request->all());
                 $grupo->save();
+                $grupo->alumnos()->sync($request->alumnos);
+                $grupo->profesores()->sync($request->profesores);
                 RegistrosController::store("GRUPO", $request->header('token'), "UPDATE", self::modifiedValue($grupo));
-                return response()->json($grupo, 200);
+                return response()->json($grupo->load('alumnos', 'profesores'), 200);
             }
             return response()->json(['status' => 'Bad Request'], 400);
     }
@@ -131,7 +136,7 @@ class gruposController extends Controller
         $grupo->idGrupo = $request->idGrupo;
         $grupo->nombreCompleto = $request->nombreCompleto;
         $grupo->anioElectivo = $request->anioElectivo;
-        $grupo->id_grado = $request->id_grado;
+        $grupo->grado_id = $request->grado_id;
         $grupo->save();
         RegistrosController::store("GRUPO", $request->header('token'), "CREATE", $request->idGrupo);
         return response()->json($grupo);

@@ -12,3 +12,4 @@ Homestead.yaml
 npm-debug.log
 yarn-error.log
 .idea
+bootstrap/cache/routes-v7.php
