@@ -22,10 +22,9 @@ class gruposController extends Controller
     {
 
         $request->validate([
-            'nombreCompleto' => 'required|string',
             'idGrupo' => 'required|string',
             'anioElectivo' => 'required|max:4',
-            'id_grado' => 'required|integer',
+            'grado_id' => 'required|integer',
         ]);
         $grupo = grupos::where('idGrupo', $request->idGrupo)->first();
         if (empty($grupo)) {
@@ -134,7 +133,6 @@ class gruposController extends Controller
     {
         $grupo = new grupos();
         $grupo->idGrupo = $request->idGrupo;
-        $grupo->nombreCompleto = $request->nombreCompleto;
         $grupo->anioElectivo = $request->anioElectivo;
         $grupo->grado_id = $request->grado_id;
         $grupo->save();
