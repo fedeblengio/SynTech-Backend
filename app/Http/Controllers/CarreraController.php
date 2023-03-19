@@ -74,9 +74,9 @@ class CarreraController extends Controller
         
     }
 
-    public function destroyGrado($id,$idGrado){
+    public function destroyGrado($id,$idGrado, Request $request){
             $carrera = Carrera::findOrFail($id);
-            $grado = Grado::findOrFail($request->idGrado);
+            $grado = Grado::findOrFail($idGrado);
             $grado->delete();
                
             RegistrosController::store("CARRERA GRADO", $request->header('token'), "DELETE", $carrera->nombre." ".$grado->grado);
