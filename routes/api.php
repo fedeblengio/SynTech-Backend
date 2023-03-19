@@ -44,6 +44,7 @@ use Illuminate\Support\Facades\Mail;
     // GRUPOS
     Route::get('/grupo','App\Http\Controllers\gruposController@index');
     Route::get('/grupo/{id}', 'App\Http\Controllers\gruposController@show');
+    Route::get('/grupo/{id}/alumnos','App\Http\Controllers\gruposController@AlumnosNoPertenecenGrupo');
     Route::post('/grupo','App\Http\Controllers\gruposController@store');
     Route::delete('/grupo/{id}','App\Http\Controllers\gruposController@destroy');
     Route::delete('/grupo/{id}/alumno/{idAlumno}','App\Http\Controllers\gruposController@eliminarAlumnoGrupo');

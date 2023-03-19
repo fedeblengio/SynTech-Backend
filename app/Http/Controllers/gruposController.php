@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use App\Models\grupos;
 use App\Models\alumnos_pertenecen_grupos;
+use App\Models\alumnos;
 use Carbon\Carbon;
 use App\Http\Controllers\RegistrosController;
 use App\Models\grupos_tienen_profesor;
@@ -26,7 +27,7 @@ class gruposController extends Controller
             'anioElectivo' => 'required|max:4',
             'grado_id' => 'required|integer',
         ]);
-        $grupo = grupos::where('idGrupo', $request->idGrupo)->where('grado_id', $request->grado_id)->first();
+        $grupo = grupos::where('idGrupo', $request->idGrupo)->first();
         if (empty($grupo)) {
             return $this->crearGrupo($request);
         }
@@ -94,6 +95,15 @@ class gruposController extends Controller
             $alumnoGrupo->delete();
         });
         RegistrosController::store("GRUPO ALUMNOS", $request->header('token'), "DELETE", $request->idGrupo);
+    }
+
+    public function AlumnosNoPertenecenGrupo($id){
+        $grupo = grupos::find($id);
+        $resultado = alumnos::whereDoesntHave('grupos', function($query) use ($grupo){
+            $query->where('idAlumnos', $grupo->id);
+        })->get();
+
+        return response()->json($resultado);
     }
 
 
