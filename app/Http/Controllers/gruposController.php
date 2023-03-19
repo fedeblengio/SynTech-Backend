@@ -7,9 +7,12 @@ use Illuminate\Http\Request;
 use App\Models\grupos;
 use App\Models\alumnos_pertenecen_grupos;
 use App\Models\alumnos;
+use App\Models\materia;
+use App\Models\profesores;
 use Carbon\Carbon;
 use App\Http\Controllers\RegistrosController;
 use App\Models\grupos_tienen_profesor;
+use App\Models\profesor_dicta_materia;
 
 class gruposController extends Controller
 {
@@ -98,11 +101,19 @@ class gruposController extends Controller
     }
 
     public function AlumnosNoPertenecenGrupo($id){
-        $resultado = alumnos::whereDoesntHave('grupos', function($query) use ($id){
-            $query->where('idGrupo', $id);
+        $resultado = alumnos::whereNotIn('id', function($query) use ($id){
+            $query->select('idAlumnos')->from('alumnos_pertenecen_grupos')->where('idGrupo', $id);
         })->get();
 
         return response()->json($resultado);
+    }
+
+    public function ProfesoresNoPertenecenGrupo($id){
+        $materias = grupos::find($id)->grado->materias->pluck('id');
+
+        $final = profesor_dicta_materia::whereNotIn('idMateria', $materias)->pluck('idProfesor');
+    
+        return response()->json(profesores::whereIn('id', $final)->get());
     }
 
 
