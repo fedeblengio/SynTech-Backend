@@ -98,7 +98,7 @@ class gruposController extends Controller
     }
 
     public function AlumnosNoPertenecenGrupo($id){
-        $grupo = grupos::find($id);
+        $grupo = grupos::where('idGrupo', $id)->first();
         $resultado = alumnos::whereDoesntHave('grupos', function($query) use ($grupo){
             $query->where('idGrupo', $grupo->id);
         })->get();
