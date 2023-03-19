@@ -26,7 +26,7 @@ class gruposController extends Controller
             'anioElectivo' => 'required|max:4',
             'grado_id' => 'required|integer',
         ]);
-        $grupo = grupos::where('idGrupo', $request->idGrupo)->first();
+        $grupo = grupos::where('idGrupo', $request->idGrupo)->where('grado_id', $request->grado_id)->first();
         if (empty($grupo)) {
             return $this->crearGrupo($request);
         }
