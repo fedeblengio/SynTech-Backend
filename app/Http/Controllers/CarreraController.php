@@ -45,7 +45,7 @@ class CarreraController extends Controller
     public function update(Request $request, $id)
     {
         $request->validate([
-            'nombre' => 'string|unique:carreras,nombre',
+            'nombre' => 'string|required',
             'plan' => 'string|max:4',
             'categoria' => 'string|max:30',
             'grados' => 'array',
@@ -65,13 +65,6 @@ class CarreraController extends Controller
 
     public function destroy(Request $request, $id)
     {
-        if($request->idGrado)
-        {
-                $grado = Grado::findOrFail($request->idGrado);
-                $grado->delete();
-                return response()->json(['status' => 'success']);
-        }
-
             $carrera = Carrera::findOrFail($id);
             $carrera->grado()->delete();
             $carrera->delete();
@@ -79,6 +72,15 @@ class CarreraController extends Controller
      
         RegistrosController::store("CARRERA", $request->header('token'), "DELETE", $carrera->nombre);
         
+    }
+
+    public function destroyGrado($id,$idGrado){
+            $carrera = Carrera::findOrFail($id);
+            $grado = Grado::findOrFail($request->idGrado);
+            $grado->delete();
+               
+            RegistrosController::store("CARRERA GRADO", $request->header('token'), "DELETE", $carrera->nombre." ".$grado->grado);
+            return response()->json(['status' => 'success']);
     }
 
     public function agregarCarreraGrados($grados, $carrera)

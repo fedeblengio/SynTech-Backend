@@ -56,7 +56,7 @@ use Illuminate\Support\Facades\Mail;
     Route::post('/carrera', 'App\Http\Controllers\CarreraController@create');
     Route::put('/carrera/{id}', 'App\Http\Controllers\CarreraController@update');
     Route::delete('/carrera/{id}', 'App\Http\Controllers\CarreraController@destroy');
-
+    Route::delete('/carrera/{id}/grado/{idGrado}','App\Http\Controllers\CarreraController@destroyGrado');
     //GRADO
     Route::put('/grado/{id}', 'App\Http\Controllers\GradoController@update');
     Route::get('/grado/{id}', 'App\Http\Controllers\GradoController@show');
