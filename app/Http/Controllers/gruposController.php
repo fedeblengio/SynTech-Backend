@@ -9,6 +9,7 @@ use App\Models\alumnos_pertenecen_grupos;
 use App\Models\alumnos;
 use App\Models\materia;
 use App\Models\profesores;
+use App\Models\usuarios;
 use Carbon\Carbon;
 use App\Http\Controllers\RegistrosController;
 use App\Models\grupos_tienen_profesor;
@@ -40,7 +41,24 @@ class gruposController extends Controller
 
     public function show($id)
     {
-        return response()->json(grupos::findOrFail($id)->load('grado.materias', 'profesores', 'alumnos'));
+        $grupo = grupos::where('idGrupo', $id)->first()->load('grado.materias');
+        $profesores = DB::table('grupos')
+            ->select('usuarios.id', 'usuarios.nombre')
+            ->join('grupos_tienen_profesor', 'grupos_tienen_profesor.idGrupo', '=', 'grupos.idGrupo')
+            ->join('usuarios', 'usuarios.id', '=', 'grupos_tienen_profesor.idProfesor')
+            ->where('grupos.idGrupo', $id)
+            ->get();
+        $alumnos = DB::table('grupos')
+            ->select('usuarios.id', 'usuarios.nombre')
+            ->join('alumnos_pertenecen_grupos', 'alumnos_pertenecen_grupos.idGrupo', '=', 'grupos.idGrupo')
+            ->join('usuarios', 'usuarios.id', '=', 'alumnos_pertenecen_grupos.idAlumnos')
+            ->where('grupos.idGrupo', $id)
+            ->get();
+
+        return response()->json(['grupo' => $grupo,'profesores' => $profesores, 'alumnos' => $alumnos]);
+
+        return response()->json($alumnos);
+    
     }
 
     public function eliminarProfesorGrupo($id, $idProfesor, Request $request)
@@ -100,7 +118,7 @@ class gruposController extends Controller
         RegistrosController::store("GRUPO ALUMNOS", $request->header('token'), "DELETE", $request->idGrupo);
     }
 
-    public function AlumnosNoPertenecenGrupo($id){
+    public function alumnosNoPertenecenGrupo($id){
         $resultado = alumnos::whereNotIn('id', function($query) use ($id){
             $query->select('idAlumnos')->from('alumnos_pertenecen_grupos')->where('idGrupo', $id);
         })->get();
@@ -108,12 +126,21 @@ class gruposController extends Controller
         return response()->json($resultado);
     }
 
-    public function ProfesoresNoPertenecenGrupo($id){
-        $materias = grupos::find($id)->grado->materias->pluck('id');
+    public function profesoresNoPertenecenGrupo($id){
 
-        $final = profesor_dicta_materia::whereNotIn('idMateria', $materias)->pluck('idProfesor');
-    
-        return response()->json(profesores::whereIn('id', $final)->get());
+        $materiasConGrupo = grupos_tienen_profesor::where('idGrupo', $id)->pluck('idMateria');
+
+        $materias = grupos::where('idGrupo', $id)->first()->grado->materias->pluck('id');
+
+        $materiaSinGrupo = collect($materias)->diff($materiasConGrupo)->values();
+
+        $final = profesor_dicta_materia::whereIn('idMateria', $materiaSinGrupo)
+        ->select('usuarios.id as idProfesor', 'usuarios.nombre as nombreProfesor', 'materias.id as idMateria', 'materias.nombre as materia')
+        ->join('materias', 'materias.id', '=', 'profesor_dicta_materia.idMateria')
+        ->join('usuarios', 'usuarios.id', '=', 'profesor_dicta_materia.idProfesor')
+        ->get();
+
+        return response()->json($final);
     }
 
 
