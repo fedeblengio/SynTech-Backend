@@ -62,6 +62,9 @@ use Illuminate\Support\Facades\Mail;
     //GRADO
     Route::put('/grado/{id}', 'App\Http\Controllers\GradoController@update');
     Route::get('/grado/{id}', 'App\Http\Controllers\GradoController@show');
+    Route::post('/grado/{id}/materia','App\Http\Controllers\GradoController@agregarMateriaGrado');
+    Route::delete('/grado/{idGrado}/materia/{idMateria}','App\Http\Controllers\GradoController@eliminarMateriaGrado');
+    
 
     // PROFESOR
     Route::put('/profesor/{id}', 'App\Http\Controllers\ProfesorController@update');
