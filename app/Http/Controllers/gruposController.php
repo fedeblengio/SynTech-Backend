@@ -121,9 +121,11 @@ class gruposController extends Controller
     public function alumnosNoPertenecenGrupo($id){
         $resultado = alumnos::whereNotIn('id', function($query) use ($id){
             $query->select('idAlumnos')->from('alumnos_pertenecen_grupos')->where('idGrupo', $id);
-        })->get();
-
-        return response()->json($resultado);
+        })->pluck('id');
+        $alumnos = usuarios::whereIn('id',$resultado)->get();
+     
+      
+        return response()->json($alumnos);
     }
 
     public function profesoresNoPertenecenGrupo($id){
