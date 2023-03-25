@@ -128,19 +128,15 @@ class gruposController extends Controller
         return response()->json($alumnos);
     }
 
-    public function profesoresNoPertenecenGrupo($id){
+    public function listarMateriasSinProfesor($id){
 
         $materiasConGrupo = grupos_tienen_profesor::where('idGrupo', $id)->pluck('idMateria');
 
         $materias = grupos::where('idGrupo', $id)->first()->grado->materias->pluck('id');
 
         $materiaSinGrupo = collect($materias)->diff($materiasConGrupo)->values();
-
-        $final = profesor_dicta_materia::whereIn('idMateria', $materiaSinGrupo)
-        ->select('usuarios.id as idProfesor', 'usuarios.nombre as nombreProfesor', 'materias.id as idMateria', 'materias.nombre as materia')
-        ->join('materias', 'materias.id', '=', 'profesor_dicta_materia.idMateria')
-        ->join('usuarios', 'usuarios.id', '=', 'profesor_dicta_materia.idProfesor')
-        ->get();
+    
+        $final = materia::whereIn('id',$materiaSinGrupo)->get();
 
         return response()->json($final);
     }
