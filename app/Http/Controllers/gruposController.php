@@ -43,9 +43,10 @@ class gruposController extends Controller
     {
         $grupo = grupos::where('idGrupo', $id)->first()->load('grado.materias');
         $profesores = DB::table('grupos')
-            ->select('usuarios.id', 'usuarios.nombre')
+            ->select('usuarios.id', 'usuarios.nombre','grupos_tienen_profesor.idMateria','materias.nombre as materia')
             ->join('grupos_tienen_profesor', 'grupos_tienen_profesor.idGrupo', '=', 'grupos.idGrupo')
             ->join('usuarios', 'usuarios.id', '=', 'grupos_tienen_profesor.idProfesor')
+            ->join('materias','materias.id', '=','grupos_tienen_profesor.idMateria' )
             ->where('grupos.idGrupo', $id)
             ->get();
         $alumnos = DB::table('grupos')
@@ -149,13 +150,14 @@ class gruposController extends Controller
             'alumnos' => 'array',
             ]);
         $grupo = grupos::where('idGrupo', $id)->first();
+        
             if ($grupo) {
                 $grupo->fill($request->all());
                 $grupo->save();
                 $grupo->alumnos()->sync($request->alumnos);
                 $grupo->profesores()->sync($request->profesores);
                 RegistrosController::store("GRUPO", $request->header('token'), "UPDATE", self::modifiedValue($grupo));
-                return response()->json($grupo->load('alumnos', 'profesores'), 200);
+                return response()->json(("Actualizado correctamente"), 200);
             }
             return response()->json(['status' => 'Bad Request'], 400);
     }

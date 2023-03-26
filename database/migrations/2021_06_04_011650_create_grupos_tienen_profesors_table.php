@@ -18,7 +18,6 @@ class CreateGruposTienenProfesorsTable extends Migration
             $table->unsignedBigInteger('idMateria');
             $table->string('idGrupo', 10);
             $table->string('idProfesor');
-            $table->unique(['idGrupo', 'idProfesor', 'idMateria']);
             $table->timestamps();
             $table->softDeletes();
         });
