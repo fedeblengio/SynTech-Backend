@@ -47,18 +47,20 @@ class gruposController extends Controller
             ->join('grupos_tienen_profesor', 'grupos_tienen_profesor.idGrupo', '=', 'grupos.idGrupo')
             ->join('usuarios', 'usuarios.id', '=', 'grupos_tienen_profesor.idProfesor')
             ->join('materias','materias.id', '=','grupos_tienen_profesor.idMateria' )
+            ->whereNull('grupos_tienen_profesor.deleted_at')
             ->where('grupos.idGrupo', $id)
             ->get();
         $alumnos = DB::table('grupos')
             ->select('usuarios.id', 'usuarios.nombre')
             ->join('alumnos_pertenecen_grupos', 'alumnos_pertenecen_grupos.idGrupo', '=', 'grupos.idGrupo')
             ->join('usuarios', 'usuarios.id', '=', 'alumnos_pertenecen_grupos.idAlumnos')
+            ->whereNull('alumnos_pertenecen_grupos.deleted_at')
             ->where('grupos.idGrupo', $id)
             ->get();
 
         return response()->json(['grupo' => $grupo,'profesores' => $profesores, 'alumnos' => $alumnos]);
 
-        return response()->json($alumnos);
+      
     
     }
 
@@ -68,20 +70,21 @@ class gruposController extends Controller
         if ($profesorGrupo) {
             $profesorGrupo->delete();
             RegistrosController::store("GRUPO", $request->header('token'), "DELETE", $idProfesor . " - " . $id);
-            return response()->json(['status' => 'Success'], 200);
-           
-            
+            return self::show($id);
+
         }
         return response()->json(['status' => 'Bad Request'], 400);
     }
 
     public function eliminarAlumnoGrupo($id, $idAlumno, Request $request)
     {
+
       $alumnoGrupo = alumnos_pertenecen_grupos::where('idGrupo', $id)->where('idAlumnos', $idAlumno)->first();
+        
         if ($alumnoGrupo) {
             $alumnoGrupo->delete();
             RegistrosController::store("GRUPO", $request->header('token'), "DELETE", $idAlumno . " - " . $id);
-            return response()->json(['status' => 'Success'], 200);     
+            return self::show($id);
         }
         return response()->json(['status' => 'Bad Request'], 400);
     }
@@ -154,12 +157,55 @@ class gruposController extends Controller
             if ($grupo) {
                 $grupo->fill($request->all());
                 $grupo->save();
-                $grupo->alumnos()->sync($request->alumnos);
-                $grupo->profesores()->sync($request->profesores);
+               
+                $this->agregarAlumnosGrupo($request->alumnos);
+                $this->agregarProfesoresGrupo($request->profesores);
+
                 RegistrosController::store("GRUPO", $request->header('token'), "UPDATE", self::modifiedValue($grupo));
-                return response()->json(("Actualizado correctamente"), 200);
+                return self::show($id);
             }
             return response()->json(['status' => 'Bad Request'], 400);
+    }
+
+    public function agregarAlumnosGrupo($alumnos){
+        if(empty($alumnos)){
+            return;
+        }
+      
+        
+        try {
+            foreach($alumnos as $alumno){
+                $nuevoAlumno= new alumnos_pertenecen_grupos();
+                $nuevoAlumno->idAlumnos= $alumno['idAlumno'];
+                $nuevoAlumno->idGrupo= $alumno['idGrupo'];
+                $nuevoAlumno->save();
+            }
+            return response()->json(['status' => 'Success'], 200);
+        } catch (\Throwable $th) {
+            return response()->json('Bad request',401);
+        }
+       
+
+    }
+    public function agregarProfesoresGrupo($profesores){
+    
+        if(empty($profesores)){
+            return;
+        }
+
+       
+        try {
+            $nuevoProfesor= new grupos_tienen_profesor();
+            $nuevoProfesor->idProfesor =$profesores['idProfesor'];
+            $nuevoProfesor->idMateria= $profesores['idMateria'];
+            $nuevoProfesor->idGrupo=$profesores['idGrupo'];
+            $nuevoProfesor->save();
+            
+            return response()->json(['status' => 'Success'], 200);
+        } catch (\Throwable $th) {
+            return response()->json(['status' => 'Bad Request'], 401);
+        }
+
     }
 
     public function modifiedValue($grupo)
