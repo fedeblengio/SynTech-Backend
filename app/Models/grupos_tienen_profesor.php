@@ -9,5 +9,4 @@ class grupos_tienen_profesor extends Model
 {
     use HasFactory;
     protected $table = 'grupos_tienen_profesor';
-    use SoftDeletes;
 }

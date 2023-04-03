@@ -24,7 +24,6 @@ class CreateAlumnosPertenecenGruposTable extends Migration
             $table->unique(['idAlumnos', 'idGrupo']);
            
             $table->timestamps();
-            $table->softDeletes();
         });
         Schema::table('alumnos_pertenecen_grupos', function(Blueprint $table) {
             $table->foreign('idGrupo')->references('idGrupo')->on('grupos');
