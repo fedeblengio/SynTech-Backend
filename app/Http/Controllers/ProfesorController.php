@@ -11,8 +11,15 @@ use App\Services\Files;
 class ProfesorController extends Controller
 {
     public function index(Request $request)
-    {
-       return usuarios::where('ou', 'Profesor')->orderBy('created_at','desc')->get();
+    {  
+        if(empty($request->idMateria)){
+            return usuarios::where('ou', 'Profesor')->orderBy('created_at','desc')->get();
+        }
+
+        return usuarios::where('ou', 'Profesor')
+               ->join('profesor_dicta_materia', 'profesor_dicta_materia.idProfesor', '=', 'usuarios.id')
+               ->where('profesor_dicta_materia.idMateria','=',$request->idMateria)
+               ->get();
     }
 
     public function update(Request $request, $id)
