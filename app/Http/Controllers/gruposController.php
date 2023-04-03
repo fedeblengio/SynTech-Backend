@@ -47,14 +47,12 @@ class gruposController extends Controller
             ->join('grupos_tienen_profesor', 'grupos_tienen_profesor.idGrupo', '=', 'grupos.idGrupo')
             ->join('usuarios', 'usuarios.id', '=', 'grupos_tienen_profesor.idProfesor')
             ->join('materias','materias.id', '=','grupos_tienen_profesor.idMateria' )
-            ->whereNull('grupos_tienen_profesor.deleted_at')
             ->where('grupos.idGrupo', $id)
             ->get();
         $alumnos = DB::table('grupos')
             ->select('usuarios.id', 'usuarios.nombre')
             ->join('alumnos_pertenecen_grupos', 'alumnos_pertenecen_grupos.idGrupo', '=', 'grupos.idGrupo')
             ->join('usuarios', 'usuarios.id', '=', 'alumnos_pertenecen_grupos.idAlumnos')
-            ->whereNull('alumnos_pertenecen_grupos.deleted_at')
             ->where('grupos.idGrupo', $id)
             ->get();
 
