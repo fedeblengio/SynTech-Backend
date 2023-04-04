@@ -49,6 +49,7 @@ class gruposController extends Controller
             ->join('grupos_tienen_profesor', 'grupos_tienen_profesor.idGrupo', '=', 'grupos.idGrupo')
             ->join('usuarios', 'usuarios.id', '=', 'grupos_tienen_profesor.idProfesor')
             ->join('materias','materias.id', '=','grupos_tienen_profesor.idMateria' )
+            ->where('usuarios.deleted_at', null)
             ->where('grupos.idGrupo', $id)
             ->get();
         $alumnos = DB::table('grupos')
@@ -56,6 +57,7 @@ class gruposController extends Controller
             ->join('alumnos_pertenecen_grupos', 'alumnos_pertenecen_grupos.idGrupo', '=', 'grupos.idGrupo')
             ->join('usuarios', 'usuarios.id', '=', 'alumnos_pertenecen_grupos.idAlumnos')
             ->where('grupos.idGrupo', $id)
+            ->where('usuarios.deleted_at', null)
             ->get();
 
         return response()->json(['grupo' => $grupo,'profesores' => $profesores, 'alumnos' => $alumnos]);
