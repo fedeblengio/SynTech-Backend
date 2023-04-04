@@ -7,11 +7,21 @@ use App\Models\profesores;
 use App\Http\Controllers\usuariosController;
 use App\Models\usuarios;
 use App\Services\Files;
+use Illuminate\Support\Facades\DB;
 
 class ProfesorController extends Controller
 {
     public function index(Request $request)
     {  
+        if($request->eliminados == 'true'){
+            $profesoresEliminados = DB::table('usuarios')
+            ->select('*')
+            ->where('deleted_at', '!=', null)
+            ->where('ou', 'Profesor')
+            ->get();
+            return response()->json($profesoresEliminados);
+        }
+        
         if(empty($request->idMateria)){
             return usuarios::where('ou', 'Profesor')->orderBy('created_at','desc')->get();
         }
