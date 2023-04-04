@@ -10,6 +10,8 @@ use App\Models\alumnos;
 use App\Models\materia;
 use App\Models\profesores;
 use App\Models\usuarios;
+use App\Models\foro;
+use App\Models\profesorEstanGrupoForo;
 use Carbon\Carbon;
 use App\Http\Controllers\RegistrosController;
 use App\Models\grupos_tienen_profesor;
@@ -47,6 +49,7 @@ class gruposController extends Controller
             ->join('grupos_tienen_profesor', 'grupos_tienen_profesor.idGrupo', '=', 'grupos.idGrupo')
             ->join('usuarios', 'usuarios.id', '=', 'grupos_tienen_profesor.idProfesor')
             ->join('materias','materias.id', '=','grupos_tienen_profesor.idMateria' )
+            ->where('usuarios.deleted_at', null)
             ->where('grupos.idGrupo', $id)
             ->get();
         $alumnos = DB::table('grupos')
@@ -54,6 +57,7 @@ class gruposController extends Controller
             ->join('alumnos_pertenecen_grupos', 'alumnos_pertenecen_grupos.idGrupo', '=', 'grupos.idGrupo')
             ->join('usuarios', 'usuarios.id', '=', 'alumnos_pertenecen_grupos.idAlumnos')
             ->where('grupos.idGrupo', $id)
+            ->where('usuarios.deleted_at', null)
             ->get();
 
         return response()->json(['grupo' => $grupo,'profesores' => $profesores, 'alumnos' => $alumnos]);
@@ -198,12 +202,30 @@ class gruposController extends Controller
             $nuevoProfesor->idMateria= $profesores['idMateria'];
             $nuevoProfesor->idGrupo=$profesores['idGrupo'];
             $nuevoProfesor->save();
+
+            self::crearForo($nuevoProfesor);
             
             return response()->json(['status' => 'Success'], 200);
         } catch (\Throwable $th) {
             return response()->json(['status' => 'Bad Request'], 401);
         }
 
+    }
+
+    public function crearForo($nuevoProfesor)
+    {
+        $newForo = new foro;
+        $newForo->informacion = $nuevoProfesor->idGrupo . "-" . $nuevoProfesor->idProfesor . "-" . $nuevoProfesor->idMateria;
+        $newForo->save();
+
+        $idForo = $newForo->id;
+
+        $profesorEstanGrupoForo = new profesorEstanGrupoForo;
+        $profesorEstanGrupoForo->idMateria = $nuevoProfesor->idMateria;
+        $profesorEstanGrupoForo->idProfesor = $nuevoProfesor->idProfesor;
+        $profesorEstanGrupoForo->idGrupo = $nuevoProfesor->idGrupo;
+        $profesorEstanGrupoForo->idForo = $idForo;
+        $profesorEstanGrupoForo->save();
     }
 
     public function modifiedValue($grupo)

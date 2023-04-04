@@ -13,6 +13,14 @@ class BedeliaController extends Controller
 {
     public function index(Request $request)
     {
+        if($request->eliminados){
+            $bedeliasEliminados = DB::table('usuarios')
+            ->select('*')
+            ->where('deleted_at', '!=', null)
+            ->where('ou', 'Bedelias')
+            ->get();
+            return response()->json($bedeliasEliminados);
+        }
         $resultado=DB::table('usuarios')
         ->select('usuarios.id', 'usuarios.nombre', 'usuarios.email', 'usuarios.ou', 'usuarios.genero', 'bedelias.cargo')
         ->join('bedelias', 'usuarios.id', '=', 'bedelias.id')
