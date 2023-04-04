@@ -13,7 +13,7 @@ class ProfesorController extends Controller
 {
     public function index(Request $request)
     {  
-        if($request->eliminados == 'true'){
+        if($request->eliminados){
             $profesoresEliminados = DB::table('usuarios')
             ->select('*')
             ->where('deleted_at', '!=', null)
@@ -21,7 +21,7 @@ class ProfesorController extends Controller
             ->get();
             return response()->json($profesoresEliminados);
         }
-        
+
         if(empty($request->idMateria)){
             return usuarios::where('ou', 'Profesor')->orderBy('created_at','desc')->get();
         }

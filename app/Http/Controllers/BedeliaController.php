@@ -13,7 +13,7 @@ class BedeliaController extends Controller
 {
     public function index(Request $request)
     {
-        if($request->eliminados == 'true'){
+        if($request->eliminados){
             $bedeliasEliminados = DB::table('usuarios')
             ->select('*')
             ->where('deleted_at', '!=', null)
