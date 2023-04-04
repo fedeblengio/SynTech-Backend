@@ -22,7 +22,7 @@ use Illuminate\Support\Facades\Mail;
 |
 */
 
-/* Route::middleware(['verificar_token'])->group(function () { */
+Route::middleware(['verificar_token'])->group(function () {
     //USUARIOS
     Route::get('/usuario','App\Http\Controllers\usuariosController@index');
     Route::get('/usuario/{id}','App\Http\Controllers\usuariosController@show');
@@ -89,7 +89,7 @@ use Illuminate\Support\Facades\Mail;
 
    
 
-/* }); */
+});
 
 Route::post('/login','App\Http\Controllers\loginController@connect');
 

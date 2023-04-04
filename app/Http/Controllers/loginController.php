@@ -12,6 +12,7 @@ use LdapRecord\Connection;
 use Carbon\Carbon;
 use App\Models\Registros;
 use Illuminate\Support\Facades\Storage;
+use Symfony\Component\CssSelector\XPath\Extension\FunctionExtension;
 
 class loginController extends Controller
 {
@@ -85,14 +86,18 @@ class loginController extends Controller
         return  $base64data;
     }
 
-
-
+    public function cerrarSesion(Request $request)
+    {
+        $token = token::where('token', $request->header('token'))->first();
+        $token->delete();
+        return response()->json(['message' => 'Sesion cerrada'], 200);
+    }
 
     public function guardarToken($token)
     {
         $t = new token;
         $t->token = $token;
-        $t->fecha_vencimiento = Carbon::now()->addMinutes(90);
+        $t->fecha_vencimiento = Carbon::now()->addMinutes(120);
         $t->save();
     }
 
