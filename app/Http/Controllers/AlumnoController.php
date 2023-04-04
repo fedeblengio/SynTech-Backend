@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Http\Controllers\usuariosController;
+use App\Models\alumnos_pertenecen_grupos;
 use App\Models\alumnos;
 use App\Models\grupos;
 use App\Models\usuarios;
@@ -19,17 +20,23 @@ class AlumnoController extends Controller
 
     public function show($id){
 
-        $alumno = alumnos::find($id)->load('grupos','usuario');
+        $alumno = alumnos::find($id)->load('usuario');
+        $alumno['grupos'] = $this->getGrupos($id);
         $filesService = new Files();
         $alumno->usuario['imagen_perfil'] = $filesService->getImage($alumno->usuario['imagen_perfil']);
         return $alumno;
        
     }
 
+    public function getGrupos($id){
+        $grupos = alumnos_pertenecen_grupos::where('idAlumnos',$id )->pluck('idGrupo');
+        
+        return grupos::whereIn('idGrupo',$grupos)->get();
+    }
+
     public function update(Request $request, $id)
     {
         $alumno = alumnos::find($id);
-        $alumno->grupos()->sync($request->grupos);
         return usuariosController::update($request, $id);
     }
 
