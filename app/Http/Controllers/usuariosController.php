@@ -232,6 +232,28 @@ class usuariosController extends Controller
         }
     }
 
+    public function activarUsuario($id){
+        $user = User::find('cn=' . $id . ',ou=UsuarioSistema,dc=syntech,dc=intra');
+        $user->userAccountControl = 66048;
+        $user->save();
+        $user->refresh();
+        $usuario = usuarios::onlyTrashed()->find($id);
+        $usuario->restore();
+        switch ($usuario->ou) {
+            case "Bedelias":
+                bedelias::onlyTrashed()->find($id)->restore();
+                break;
+            case "Alumno":
+                alumnos::onlyTrashed()->find($id)->restore();
+                break;
+            case "Profesor":
+                profesores::onlyTrashed()->find($id)->restore();
+                break;
+        }
+
+        return response()->json(['status' => 'Success'], 200);
+    }
+
 
     public function destroy(Request $request,$id)
     {

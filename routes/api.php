@@ -29,6 +29,7 @@ Route::middleware(['verificar_token'])->group(function () {
     Route::post('/usuario','App\Http\Controllers\usuariosController@store');
     Route::delete('/usuario/{id}','App\Http\Controllers\usuariosController@destroy');
     Route::put('/usuario/{id}','App\Http\Controllers\usuariosController@update');
+    Route::put('/usuario/{id}/activar','App\Http\Controllers\usuariosController@activarUsuario');
 
     Route::get('/usuario/{id}/imagen-perfil','App\Http\Controllers\usuariosController@traerImagen');
     Route::post('/usuario/{id}/imagen-perfil','App\Http\Controllers\usuariosController@cambiarImagen'); // IF METHOD TYPE PUT ->hasFile() doesn't works correctly
@@ -89,7 +90,7 @@ Route::middleware(['verificar_token'])->group(function () {
 
    
 
-});
+ });
 
 Route::post('/login','App\Http\Controllers\loginController@connect');
 
