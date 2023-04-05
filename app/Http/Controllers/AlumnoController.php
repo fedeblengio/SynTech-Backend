@@ -8,12 +8,21 @@ use App\Models\alumnos;
 use App\Models\grupos;
 use App\Models\usuarios;
 use App\Services\Files;
+use Illuminate\Support\Facades\DB;
 
 class AlumnoController extends Controller
 {
 
     public function index(Request $request)
     {   
+        if($request->eliminados){
+            $alumnosEliminados = DB::table('usuarios')
+            ->select('*')
+            ->where('deleted_at', '!=', null)
+            ->where('ou', 'Alumno')
+            ->get();
+            return response()->json($alumnosEliminados);
+        }
         return usuarios::where('ou', 'Alumno')->orderBy('created_at','desc')->get();
     }
 
