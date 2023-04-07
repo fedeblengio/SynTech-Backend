@@ -239,6 +239,7 @@ class usuariosController extends Controller
         $user->refresh();
         $usuario = usuarios::onlyTrashed()->find($id);
         $usuario->restore();
+    
         switch ($usuario->ou) {
             case "Bedelias":
                 bedelias::onlyTrashed()->find($id)->restore();
@@ -259,7 +260,7 @@ class usuariosController extends Controller
     {
         $existe = usuarios::where('id', $id)->first();
         $user = User::find('cn=' .$id . ',ou=UsuarioSistema,dc=syntech,dc=intra');
-        try {
+        // try {
             if ($existe) {
                 $existe->delete();
                 $user->userAccountControl = 514;
@@ -270,9 +271,9 @@ class usuariosController extends Controller
                 RegistrosController::store("USUARIO", $request->header('token'), "DELETE", $request->id);
                 return response()->json(['status' => 'Success'], 200);
             }
-        } catch (\Throwable $th) {
-            return response()->json(['status' => 'Bad Request'], 400);
-        }
+        // } catch (\Throwable $th) {
+        //     return response()->json(['status' => 'Bad Request'], 400);
+        // }
     }
 
 
@@ -288,26 +289,26 @@ class usuariosController extends Controller
             case "Alumno":
                 $alumnos = alumnos::where('id', $existe->id)->first();
                 $alumnos->delete();
-                self::eliminarAlumnoGrupo($existe, $token);
+                
                 RegistrosController::store("ALUMNO", $token, "DELETE", $existe->id);
                 break;
             case "Profesor":
                 $profesores = profesores::where('id', $existe->id)->first();
                 $profesores->delete();
                 self::eliminarMateriaProfesor($existe, $token);
-                self::eliminarMateriaGrupo($existe, $token);
+              
                 RegistrosController::store("PROFESOR", $token, "DELETE", $existe->id);
                 break;
         }
     }
 
-    public function eliminarAlumnoGrupo($existe, $token)
-    {
-        DB::table('alumnos_pertenecen_grupos')
-            ->where('idAlumnos', $existe->id)
-            ->update(['deleted_at' => Carbon::now()->addMinutes(23)]);
-        RegistrosController::store("ALUMNO GRUPO", $token, "DELETE", $existe->id);
-    }
+    // public function eliminarAlumnoGrupo($existe, $token)
+    // {
+    //     DB::table('alumnos_pertenecen_grupos')
+    //         ->where('idAlumnos', $existe->id)
+    //         ->update(['deleted_at' => Carbon::now()->addMinutes(23)]);
+    //     RegistrosController::store("ALUMNO GRUPO", $token, "DELETE", $existe->id);
+    // }
 
     public function eliminarMateriaProfesor($existe, $token)
     {
@@ -317,13 +318,13 @@ class usuariosController extends Controller
         RegistrosController::store("MATERIA PROFESOR", $token, "DELETE", $existe->id);
     }
 
-    public function eliminarMateriaGrupo($existe, $token)
-    {
-        DB::table('grupos_tienen_profesor')
-            ->where('idProfesor', $existe->id)
-            ->update(['deleted_at' => Carbon::now()->addMinutes(23)]);
-        RegistrosController::store("GRUPO PROFESOR", $token, "DELETE", $existe->id);
-    }
+    // public function eliminarMateriaGrupo($existe, $token)
+    // {
+    //     DB::table('grupos_tienen_profesor')
+    //         ->where('idProfesor', $existe->id)
+    //         ->update(['deleted_at' => Carbon::now()->addMinutes(23)]);
+    //     RegistrosController::store("GRUPO PROFESOR", $token, "DELETE", $existe->id);
+    // }
 
 
     public function agregarAlumno($request): void
