@@ -260,7 +260,7 @@ class usuariosController extends Controller
     {
         $existe = usuarios::where('id', $id)->first();
         $user = User::find('cn=' .$id . ',ou=UsuarioSistema,dc=syntech,dc=intra');
-        // try {
+        try {
             if ($existe) {
                 $existe->delete();
                 $user->userAccountControl = 514;
@@ -271,9 +271,9 @@ class usuariosController extends Controller
                 RegistrosController::store("USUARIO", $request->header('token'), "DELETE", $request->id);
                 return response()->json(['status' => 'Success'], 200);
             }
-        // } catch (\Throwable $th) {
-        //     return response()->json(['status' => 'Bad Request'], 400);
-        // }
+        } catch (\Throwable $th) {
+            return response()->json(['status' => 'Bad Request'], 400);
+        }
     }
 
 
