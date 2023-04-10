@@ -37,12 +37,7 @@ class loginController extends Controller
 
         if ($connection->auth()->attempt($request->username . '@syntech.intra', $request->password, $stayBound = true)) {
             $datos = self::traerDatos($request);
-            $registros = new registros;
-            $registros->idUsuario = $request->username;
-            $registros->app = "BACKOFFICE";
-            $registros->accion = "LOGIN";
-            $registros->mensaje = "Inicio sesion ";
-            $registros->save();
+            self::guardarRegistros($request->header('token'), "LOGIN", "Inició sesion");
             return [
                 'connection' => 'Success',
                 'datos' => $datos,
@@ -92,7 +87,18 @@ class loginController extends Controller
         if($token){
             $token->delete();
         }
+       self::guardarRegistros($request->header('token'), "LOGOUT", "Cerró sesion");
         return response()->json(['message' => 'Sesion cerrada'], 200);
+    }
+
+    public function guardarRegistros($token, $accion, $mensaje)
+    {
+        $registros = new registros;
+        $registros->idUsuario = json_decode(base64_decode($token))->username;
+        $registros->app = "BACKOFFICE";
+        $registros->accion = $accion;
+        $registros->mensaje = $mensaje;
+        $registros->save();
     }
 
     public function guardarToken($token)
