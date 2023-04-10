@@ -89,7 +89,9 @@ class loginController extends Controller
     public function cerrarSesion(Request $request)
     {
         $token = token::where('token', $request->header('token'))->first();
-        $token->delete();
+        if($token){
+            $token->delete();
+        }
         return response()->json(['message' => 'Sesion cerrada'], 200);
     }
 
