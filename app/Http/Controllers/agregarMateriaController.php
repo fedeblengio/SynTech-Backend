@@ -55,10 +55,12 @@ class agregarMateriaController extends Controller
     {
         $eliminarMateria = materia::find($id);
         $nombreMateria = $eliminarMateria->nombre;
+   
         try {
-            $eliminarMateria->delete();
             self::eliminarMateriaProfesor($request, $nombreMateria, $id);
             self::eliminarMateriaGrupo($request, $nombreMateria, $id);
+            $eliminarMateria->delete();
+           
             RegistrosController::store("MATERIA", $request->header('token'), "DELETE", $nombreMateria);
             return response()->json(['status' => 'Success'], 200);
         } catch (\Throwable $th) {
@@ -76,7 +78,7 @@ class agregarMateriaController extends Controller
     {
         DB::table('grupos_tienen_profesor')
             ->where('idMateria', $id)
-            ->update(['deleted_at' => Carbon::now()]);
+            ->delete();
         RegistrosController::store("MATERIA GRUPO", $request->header('token'), "DELETE", $materia);
     }
 
