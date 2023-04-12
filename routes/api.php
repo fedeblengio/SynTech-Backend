@@ -95,7 +95,7 @@ Route::middleware(['verificar_token'])->group(function () {
 Route::post('/login','App\Http\Controllers\loginController@connect');
 Route::post('/logout','App\Http\Controllers\loginController@cerrarSesion');
 Route::get('/test', function (){
-    $materia = User::all();
+    $materia = usuarios::all();
     return $materia;
 });
 // FTP TRAER ARCHIVOS
