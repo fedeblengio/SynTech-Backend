@@ -22,7 +22,7 @@ use Illuminate\Support\Facades\Mail;
 |
 */
 
-Route::middleware(['verificar_token'])->group(function () {
+// Route::middleware(['verificar_token'])->group(function () {
     //USUARIOS
     Route::get('/usuario','App\Http\Controllers\usuariosController@index');
     Route::get('/usuario/{id}','App\Http\Controllers\usuariosController@show');
@@ -90,12 +90,12 @@ Route::middleware(['verificar_token'])->group(function () {
 
    
 
- });
+//  });
 
 Route::post('/login','App\Http\Controllers\loginController@connect');
 Route::post('/logout','App\Http\Controllers\loginController@cerrarSesion');
 Route::get('/test', function (){
-    $materia = usuarios::all();
+    $materia = User::all();
     return $materia;
 });
 // FTP TRAER ARCHIVOS

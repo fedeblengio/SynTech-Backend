@@ -11,9 +11,8 @@ use App\Models\token;
 
 class CarreraControllerTest extends TestCase
 {
-    use RefreshDatabase;
+    // use RefreshDatabase;
     use WithFaker;
-
 
 
     public function test_can_show_carrera()
@@ -54,4 +53,6 @@ class CarreraControllerTest extends TestCase
         $response->assertSee($carrera1->categoria);
         $response->assertSee($carrera2->categoria);
     }
+
+    
 }

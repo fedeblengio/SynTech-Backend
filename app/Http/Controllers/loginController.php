@@ -27,15 +27,20 @@ class loginController extends Controller
         }
 
         $connection = new Connection([
-            'hosts' => [env('LDAP_HOST')],
-        ]);
-
-
-
+            'hosts'    => [env('LDAP_HOST')],
+            'username' => null,
+            'password' => null,
+       ]);
+   
+       
         $connection->connect();
+        
+        $user = $request->username.'@syntech.intra';
+        $password = $request->password;
+      
 
-
-        if ($connection->auth()->attempt($request->username . '@syntech.intra', $request->password, $stayBound = true)) {
+        if ($connection->auth()->attempt($user, $password))
+        {
             $datos = self::traerDatos($request);
             $registros = new registros;
             $registros->idUsuario = $request->username;
@@ -47,9 +52,10 @@ class loginController extends Controller
                 'connection' => 'Success',
                 'datos' => $datos,
             ];
-        } else {
-            return response()->json(['error' => 'Unauthenticated.'], 401);
         }
+
+        return response()->json(['error' => 'Unauthenticated.'], 401);
+    
     }
 
     public function traerDatos($request)
