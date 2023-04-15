@@ -17,15 +17,7 @@ class CarreraControllerTest extends TestCase
      *
      * @return void
      */
-    public function testSomething()
-    {
-        try {
-        DB::connection()->getPdo();
-        echo "Connection succeeded.";
-        } catch (\Exception $e) {
-        echo "Connection failed: " . $e->getMessage();
-        }
-    }
+ 
     public function test_can_show_carrera()
     {
        
