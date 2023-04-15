@@ -37,9 +37,10 @@ class BedeliaController extends Controller
 
     public function update(Request $request, $id)
     {
+        $usuarioController = new usuariosController();
         $bedelia = bedelias::find($id);
         $bedelia->update($request->all());
-        return usuariosController::update($request, $id);
+        return $usuarioController->update($request, $id);
     }
 
 }
