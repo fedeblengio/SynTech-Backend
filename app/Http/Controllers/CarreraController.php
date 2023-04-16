@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Exception;
 use Illuminate\Http\Request;
 use App\Models\Carrera;
 use App\Models\Grado;
@@ -31,10 +32,9 @@ class CarreraController extends Controller
             'categoria' => 'required|string|max:30',
             'grados' => 'array',
         ]);
-        $carrera=Carrera::create($request->all());
+        $carrera = Carrera::create($request->all());
 
-        if($request->grados)
-        {
+        if ($request->grados) {
             self::agregarCarreraGrados($request->grados, $carrera);
         }
 
@@ -65,33 +65,38 @@ class CarreraController extends Controller
 
     public function destroy(Request $request, $id)
     {
+        try {
             $carrera = Carrera::findOrFail($id);
             $carrera->grado()->delete();
             $carrera->delete();
             return $carrera;
-     
-        RegistrosController::store("CARRERA", $request->header('token'), "DELETE", $carrera->nombre);
-        
+            RegistrosController::store("CARRERA", $request->header('token'), "DELETE", $carrera->nombre);
+        } catch (Exception $e) {
+            return response()->json(['status' => "Error al eliminar carrera"], 409);
+        }
+
+
     }
 
-    public function destroyGrado($id,$idGrado, Request $request){
-            $carrera = Carrera::findOrFail($id);
-            $grado = Grado::findOrFail($idGrado);
-            $grado->delete();
-               
-            RegistrosController::store("CARRERA GRADO", $request->header('token'), "DELETE", $carrera->nombre." ".$grado->grado);
-            return response()->json(['status' => 'success']);
+    public function destroyGrado($id, $idGrado, Request $request)
+    {
+        $carrera = Carrera::findOrFail($id);
+        $grado = Grado::findOrFail($idGrado);
+        $grado->delete();
+
+        RegistrosController::store("CARRERA GRADO", $request->header('token'), "DELETE", $carrera->nombre . " " . $grado->grado);
+        return response()->json(['status' => 'success']);
     }
 
     public function agregarCarreraGrados($grados, $carrera)
     {
         foreach ($grados as $grado) {
-            if($carrera->grado()->where('grado', $grado)->first()){
+            if ($carrera->grado()->where('grado', $grado)->first()) {
                 continue;
             }
-           $carrera->grado()->create([
-            'grado' => $grado
-        ]);
+            $carrera->grado()->create([
+                'grado' => $grado
+            ]);
         }
     }
 
@@ -102,10 +107,10 @@ class CarreraController extends Controller
         }
     }
 
-    public function agregarCarreraGrupos (Request $request)
+    public function agregarCarreraGrupos(Request $request)
     {
-        foreach($request->grupo_id as $grupo)
-        grupos_pertenecen_carrera::create($request->carrera_id, $request->grado_id, $grupo);
+        foreach ($request->grupo_id as $grupo)
+            grupos_pertenecen_carrera::create($request->carrera_id, $request->grado_id, $grupo);
     }
-    
+
 }
