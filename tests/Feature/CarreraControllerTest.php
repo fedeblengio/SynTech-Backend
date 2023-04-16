@@ -26,9 +26,9 @@ class CarreraControllerTest extends TestCase
         $carrera = Carrera::factory()->create();
         
         // Send a GET request to the show method of the CarreraController
-        $response = $this->get('api/carrera/' . $carrera->id, [
-            'headers' => [
-                'token' => $token,
+        $response = $this->get('api/carrera/' . $carrera->id,[
+            'token' => [
+                $token->token,
             ],
         ]);
 
@@ -45,8 +45,8 @@ class CarreraControllerTest extends TestCase
         $carrera2 = Carrera::factory()->create();
     
         $response = $this->get('api/carrera', [
-            'headers' => [
-                'token' => $token,
+            'token' => [
+                $token->token,
             ],
         ]);
         $response->assertStatus(200);
