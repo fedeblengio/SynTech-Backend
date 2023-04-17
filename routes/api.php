@@ -71,10 +71,7 @@ Route::middleware(['verificar_token'])->group(function () {
     Route::put('/profesor/{id}', 'App\Http\Controllers\ProfesorController@update');
     Route::get('/profesor/{id}', 'App\Http\Controllers\ProfesorController@show');
     Route::get('/profesor', 'App\Http\Controllers\ProfesorController@index');
-/*     Route::get('/profesor','App\Http\Controllers\profesorDictaMateriaController@index'); */
     Route::get('/profesor/{id}/materias','App\Http\Controllers\profesorDictaMateriaController@materiasNoPertenecenProfesor');
-/*     Route::post('/profesor','App\Http\Controllers\profesorDictaMateriaController@agregarListaDeProfesoresMateria');
-    Route::delete('/profesor','App\Http\Controllers\profesorDictaMateriaController@destroy'); */
 
     //AlUMNOS
     Route::get('/alumno','App\Http\Controllers\AlumnoController@index');
@@ -88,7 +85,6 @@ Route::middleware(['verificar_token'])->group(function () {
     Route::put('/bedelia/{id}','App\Http\Controllers\BedeliaController@update');
 
 
-   
 
  });
 

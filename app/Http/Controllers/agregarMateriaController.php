@@ -23,7 +23,7 @@ class agregarMateriaController extends Controller
 
         $existeMateria = materia::where('nombre', $request->nombre)->first();
         if (empty($existeMateria)) {
-            return response()->json($this->createMateria($request));
+            return response()->json($this->createMateria($request),201);
         }
 
         return response()->json(['status' => 'Materia Existente'], 400);
@@ -40,7 +40,7 @@ class agregarMateriaController extends Controller
             'nombre' => 'required|string',
         ]);
         $materia = materia::find($id);
-
+       
         if($materia){
             $materia->fill($request->all());
             RegistrosController::store("MATERIA", $request->header('token'), "UPDATE", $materia->getOriginal('nombre') . " - " . $request->nombre);
@@ -53,10 +53,10 @@ class agregarMateriaController extends Controller
     }
     public function destroy(Request $request,$id)
     {
-        $eliminarMateria = materia::find($id);
-        $nombreMateria = $eliminarMateria->nombre;
-   
+        $eliminarMateria = materia::findOrFail($id);
+        
         try {
+            $nombreMateria = $eliminarMateria->nombre;
             self::eliminarMateriaProfesor($request, $nombreMateria, $id);
             self::eliminarMateriaGrupo($request, $nombreMateria, $id);
             $eliminarMateria->delete();
