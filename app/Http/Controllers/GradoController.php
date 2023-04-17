@@ -27,12 +27,17 @@ class GradoController extends Controller
     }
 
     public function agregarMateriaGrado($id,Request $request){
+        $request->validate([
+            'materia_id'=> 'required',
+            'cantidad_horas'=> 'nullable',
+        ]);
         $grado=Grado::findOrFail($id);
         $grado->materias()->attach($request->materia_id,['cantidad_horas'=> $request->cantidad_horas, 'carrera_id' => $grado->carrera_id]);
         return response()->json($grado->load('materias','grupos'));
     }
     public function eliminarMateriaGrado($idGrado,$idMateria){
         $grado=Grado::findOrFail($idGrado);
+        
         $grado->materias()->detach($idMateria);
         return response()->json($grado->load('materias','grupos'));
     }

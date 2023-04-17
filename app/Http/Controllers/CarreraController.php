@@ -81,9 +81,16 @@ class CarreraController extends Controller
     public function destroyGrado($id, $idGrado, Request $request)
     {
         $carrera = Carrera::findOrFail($id);
-        $grado = Grado::findOrFail($idGrado);
-        $grado->delete();
+        $grado = $carrera->grado->find($idGrado);
 
+        if (empty($grado)) {
+            return response()->json(['status' => "Grado no encontrado"], 404);
+        }
+        try {
+            $grado->delete();
+        } catch (Exception $e) {
+            return response()->json(['status' => "Error al eliminar grado"], 403);
+        }
         RegistrosController::store("CARRERA GRADO", $request->header('token'), "DELETE", $carrera->nombre . " " . $grado->grado);
         return response()->json(['status' => 'success']);
     }
