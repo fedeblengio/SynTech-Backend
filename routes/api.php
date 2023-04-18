@@ -105,14 +105,6 @@ Route::put('/contrasenia','App\Http\Controllers\usuariosController@cambiarContra
 Route::get('/materiaSinGrupo','App\Http\Controllers\gruposTienenProfesorController@traerMateriasSinGrupo')->middleware('verificar_token');
 
 
-//ALUMNOS
-/* Route::get('/alumnos','App\Http\Controllers\agregarUsuarioGrupoController@index')->middleware('verificar_token');
-
-Route::post('/alumno','App\Http\Controllers\agregarUsuarioGrupoController@store')->middleware('verificar_token');
-
-Route::delete('/alumno','App\Http\Controllers\agregarUsuarioGrupoController@destroy')->middleware('verificar_token'); */
-
-
 Route::get('/profesorMateria','App\Http\Controllers\gruposTienenProfesorController@mostrarProfesorMateria')->middleware('verificar_token');
 
 // CURSOS
