@@ -11,6 +11,8 @@ use App\Models\token;
 
 class BedeliasControllerTest extends TestCase
 {
+
+    use RefreshDatabase;
     /**
      * A basic feature test example.
      *

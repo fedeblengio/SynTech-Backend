@@ -20,6 +20,8 @@ class GradoControllerTest extends TestCase
      *
      * @return void
      */
+
+    use RefreshDatabase;
     public function test_request_sin_token()
     {
         $grado = Grado::factory()->create();

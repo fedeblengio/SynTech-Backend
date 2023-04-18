@@ -13,6 +13,7 @@ class UsuarioControllerTest extends TestCase
      *
      * @return void
      */
+    use RefreshDatabase;
     public function test_list_all_user()
     {
        $this->assertTrue(true);

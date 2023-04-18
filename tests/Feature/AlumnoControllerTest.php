@@ -13,6 +13,9 @@ class AlumnoControllerTest extends TestCase
      *
      * @return void
      */
+
+    use RefreshDatabase;
+
     public function test_create_user_alumno()
     {
         // $token = token::factory()->create();

@@ -18,6 +18,8 @@ class MateriaControllerTest extends TestCase
      *
      * @return void
      */
+
+    use RefreshDatabase;
     public function test_request_sin_token()
     {
         $response = $this->get('api/materia/');
