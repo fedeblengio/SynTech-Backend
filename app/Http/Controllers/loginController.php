@@ -19,10 +19,13 @@ class loginController extends Controller
 
     public function connect(Request $request)
     {
-
+        $request->validate([
+            'username' => 'required',
+            'password' => 'required',
+        ]);
         $u = usuarios::where('id', $request->username)->first();
 
-        if ($u->ou == "Profesor" || $u->ou == "Alumno"){
+        if (empty($u) || $u->ou == "Profesor" || $u->ou == "Alumno"){
             return response()->json(['error' => 'Unauthenticated.'], 401);
         }
 

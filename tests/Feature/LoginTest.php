@@ -19,6 +19,23 @@ class LoginTest extends TestCase
 {
 
     use RefreshDatabase;
+    public function test_error_login()
+    {
+        $credentials = [ 
+            "username" => "0",
+            "password" => "0",
+        ];
+        $response = $this->post('api/login',$credentials,[]);
+
+        $response->assertStatus(200);
+        $response->assertJsonStructure([
+            'error',
+        ]);
+        
+        $response->assertJson([
+            'error' => 'Unauthenticated',
+        ]);
+    }
     
     public function test_login()
     {
@@ -33,22 +50,6 @@ class LoginTest extends TestCase
         ]);
         $response->assertJson([
             'connection' => 'Success',
-        ]);
-    }
-
-    public function test_error_login()
-    {
-        $credentials = $this->createNewUser();
-        $credentials['password'] = "randomText";
-        $response = $this->post('api/login',$credentials);
-
-        $response->assertStatus(200);
-        $response->assertJsonStructure([
-            'error',
-        ]);
-        
-        $response->assertJson([
-            'error' => 'Unauthenticated',
         ]);
     }
 
@@ -71,7 +72,10 @@ class LoginTest extends TestCase
 
     private function crearUsuarioLDAP($cedula)
     {
-        $user = (new User)->inside('ou=UsuarioSistema,dc=syntech,dc=intra');
+
+        $this->deleteAllUsersInOU();
+
+        $user = (new User)->inside('ou=Testing,dc=syntech,dc=intra');
         $user->cn =$cedula;
         $user->unicodePwd = $cedula;
         $user->samaccountname = $cedula;
@@ -80,5 +84,14 @@ class LoginTest extends TestCase
         $user->userAccountControl = 66048;
         $user->save();
     }
+
+    public function deleteAllUsersInOU()
+{
+    $users = User::in('ou=Testing,dc=syntech,dc=intra')->get();
+
+    foreach ($users as $user) {
+        $user->delete();
+    }
+}
  
  } 
