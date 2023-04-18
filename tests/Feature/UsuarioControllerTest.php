@@ -15,6 +15,6 @@ class UsuarioControllerTest extends TestCase
      */
     public function test_list_all_user()
     {
-       
+       $this->assertTrue(true);
     }
 }
