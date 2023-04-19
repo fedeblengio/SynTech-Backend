@@ -14,6 +14,7 @@ class ProfesorControllerTest extends TestCase
      *
      * @return void
      */
+    use RefreshDatabase;
     public function test_create_user_profesor()
     {
         // $token = token::factory()->create();

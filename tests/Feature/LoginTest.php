@@ -17,6 +17,8 @@ use LdapRecord\Models\ActiveDirectory\User;
 
 class LoginTest extends TestCase
 {
+
+    use RefreshDatabase;
     
     // public function test_login()
     // {
