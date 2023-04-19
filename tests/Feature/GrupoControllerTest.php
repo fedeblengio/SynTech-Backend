@@ -26,6 +26,7 @@ class GrupoControllerTest extends TestCase
     //  Route::post('/grupo', 'App\Http\Controllers\gruposController@store');
     //  Route::delete('/grupo/{id}', 'App\Http\Controllers\gruposController@destroy');
     //  Route::get('/grupo', 'App\Http\Controllers\gruposController@index');
+    //  Route::get('/grupo/{id}/materias-libres', 'App\Http\Controllers\gruposController@listarMateriasSinProfesor');
 
 
 
@@ -34,7 +35,6 @@ class GrupoControllerTest extends TestCase
 
 
     //  Route::get('/grupo/{id}/alumnos', 'App\Http\Controllers\gruposController@alumnosNoPertenecenGrupo');
-    //  Route::get('/grupo/{id}/materias-libres', 'App\Http\Controllers\gruposController@listarMateriasSinProfesor');
     //  Route::delete('/grupo/{id}/alumno/{idAlumno}', 'App\Http\Controllers\gruposController@eliminarAlumnoGrupo');
     //  Route::delete('/grupo/{id}/profesor/{idProfesor}', 'App\Http\Controllers\gruposController@eliminarProfesorGrupo');
 
@@ -58,6 +58,23 @@ class GrupoControllerTest extends TestCase
         $response->assertSee($grupo->id);
         $response->assertSee($grupo->idGrupo);
     }
+    public function test_error_mostrar_grupo_no_existente()
+    {
+        $token = token::factory()->create();
+
+        $idGrupoNoExistente = Str::random(4);
+
+        $response = $this->get('api/grupo/' . $idGrupoNoExistente, [
+            'token' => [
+                $token->token,
+            ],
+        ]);
+
+        $response->assertStatus(404);
+        $response->assertDontSee('id');
+        $response->assertDontSee('idGrupo');
+    }
+
     public function test_can_crear_grupo()
     {
         $token = token::factory()->create();
@@ -81,6 +98,21 @@ class GrupoControllerTest extends TestCase
             'grado_id' => $data['grado_id'],
         ]);
     }
+    public function test_error_crear_grupo()
+    {
+        $token = Token::factory()->create();
+        $grado = Grado::Factory()->create();
+
+        $response = $this->post('api/grupo', [
+            'anioElectivo' => Carbon::now()->format('Y'),
+            'grado_id' => $grado->id,
+        ], [
+                'token' => [
+                    $token->token
+                ]
+            ]);
+        $response->assertStatus(302);
+    }
 
     public function test_can_eliminar_grupo()
     {
@@ -95,6 +127,17 @@ class GrupoControllerTest extends TestCase
         $this->assertDatabaseMissing('grupos', [
             'id' => $grupo->idGrupo,
         ]);
+    }
+    public function test_error_eliminar_grupo_inexistente()
+    {
+        $token = token::factory()->create();
+        $grupo_id = 123456123;
+        $response = $this->delete('api/grupo/' . $grupo_id, [], [
+            'token' => [
+                $token->token,
+            ]
+        ]);
+        $response->assertStatus(400);
     }
 
     public function test_can_listar_materias_libres()
@@ -115,7 +158,17 @@ class GrupoControllerTest extends TestCase
         $response->assertSee($materia->id);
 
     }
-
+    public function test_error_listar_materias_libres_de_grupo_inexistente()
+    {
+        $token = token::factory()->create();
+        $grupo_id = 123456; // id de grupo inexistente
+        $response = $this->get('api/grupo/' . $grupo_id . '/materias-libres', [
+            'token' => [
+                $token->token,
+            ]
+        ]);
+        $response->assertStatus(404);
+    }
     public function agregarMateriaGrado($grado)
     {
         $token = token::factory()->create();
@@ -135,14 +188,16 @@ class GrupoControllerTest extends TestCase
         return $materia;
     }
 
+
+
 //para hacer falta profesores y alumnos factory
 
-// public function test_update_grupo(){
+// public function test_update_grupo()
+// {
 
 //     $token = token::factory()->create();
 //     $grupo = grupos::factory()->create();
 //     dd($grupo);
-//     $grado = Grado::Factory()->create();
 
 //     $response = $this->put('api/grupo/' . $grupo->idGrupo, [
 //         'idGrupo' => Str::random(4),
