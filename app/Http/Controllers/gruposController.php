@@ -21,7 +21,6 @@ class gruposController extends Controller
 {
     public function index()
     {
-
         return response()->json(grupos::all());
     }
 
@@ -34,6 +33,7 @@ class gruposController extends Controller
             'grado_id' => 'required|integer',
         ]);
         $grupo = grupos::where('idGrupo', $request->idGrupo)->first();
+        
         if (empty($grupo)) {
             return $this->crearGrupo($request);
         }
@@ -43,7 +43,9 @@ class gruposController extends Controller
 
     public function show($id)
     {
+        
         $grupo = grupos::where('idGrupo', $id)->first()->load('grado.materias');
+    
         $profesores = DB::table('grupos')
             ->select('usuarios.id', 'usuarios.nombre','grupos_tienen_profesor.idMateria','materias.nombre as materia')
             ->join('grupos_tienen_profesor', 'grupos_tienen_profesor.idGrupo', '=', 'grupos.idGrupo')
@@ -250,7 +252,7 @@ class gruposController extends Controller
         $grupo->grado_id = $request->grado_id;
         $grupo->save();
         RegistrosController::store("GRUPO", $request->header('token'), "CREATE", $request->idGrupo);
-        return response()->json($grupo);
+        return response()->json($grupo,201);
     }
 
 
