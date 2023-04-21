@@ -26,7 +26,7 @@ class loginController extends Controller
         $u = usuarios::where('id', $request->username)->first();
 
         if (empty($u) || $u->ou == "Profesor" || $u->ou == "Alumno"){
-            return response()->json(['error' => 'Unauthenticated.'], 401);
+            return response()->json(['error' => 'Unauthenticated'], 401);
         }
 
         $connection = new Connection([
