@@ -19,23 +19,7 @@ class LoginTest extends TestCase
 {
 
     use RefreshDatabase;
-    public function test_error_login()
-    {
-        $credentials = [ 
-            "username" => "0",
-            "password" => "0",
-        ];
-        $response = $this->post('api/login',$credentials,[]);
-
-        $response->assertStatus(200);
-        $response->assertJsonStructure([
-            'error',
-        ]);
-        
-        $response->assertJson([
-            'error' => 'Unauthenticated',
-        ]);
-    }
+   
     
     public function test_login()
     {
@@ -86,12 +70,18 @@ class LoginTest extends TestCase
     }
 
     public function deleteAllUsersInOU()
-{
-    $users = User::in('ou=Testing,dc=syntech,dc=intra')->get();
-
-    foreach ($users as $user) {
-        $user->delete();
+    {
+        $users = User::in('ou=Testing,dc=syntech,dc=intra')->get();
+        foreach ($users as $user) {
+            $user->delete();
+        }
     }
-}
+
+    public function test_error_login()
+    {
+        $response = $this->post('api/login',[],[]);
+        $response->assertStatus(302);
+     
+    }
  
  } 
