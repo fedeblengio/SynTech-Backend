@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\alumnos;
+use App\Models\grupos;
 use App\Models\usuarios;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
@@ -64,8 +65,8 @@ class AlumnoControllerTest extends TestCase
        
         $response->assertStatus(200);
     
-        $this->assertEquals($response[1]['id'], $alumno1);
-        $this->assertEquals($response[0]['id'], $alumno2);
+        $this->assertEquals($response[0]['id'], $alumno1);
+        $this->assertEquals($response[1]['id'], $alumno2);
     }
 
     public function test_show_user_alumno(){
@@ -149,6 +150,33 @@ class AlumnoControllerTest extends TestCase
         ];
     
         $response = $this->put("api/alumno/".$userID, $updatedUser, [
+            'token' => [
+                $token->token,
+            ],
+        ]);
+        $response->assertStatus(404);
+    }
+
+    //  Route::get('/alumno/{id}/grupos', 'App\Http\Controllers\AlumnoController@gruposNoPertenecenAlumno');
+
+    public function test_list_grupos_no_pertenece_alumno(){
+        $token = token::factory()->create();
+        $alumno =  $this->createNewAlumno();
+        $grupo = grupos::factory()->create();
+        $response = $this->get('api/alumno/'.$alumno.'/grupos',[
+            'token' => [
+                $token->token,
+            ],
+        ]);
+        $response->assertStatus(200);
+        $this->assertEquals($response[0]['id'], $grupo->id);
+    }
+
+    public function test_error_list_grupos_no_pertenece_alumno(){
+        $token = token::factory()->create();
+        $alumno = "randomId";
+        $grupo = grupos::factory()->create();
+        $response = $this->get('api/alumno/'.$alumno.'/grupos',[
             'token' => [
                 $token->token,
             ],
