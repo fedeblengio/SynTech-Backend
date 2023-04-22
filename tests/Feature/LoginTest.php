@@ -71,6 +71,8 @@ class LoginTest extends TestCase
         $user->save();
     }
 
+  
+
     public function deleteAllUsersInOU()
     {
         $users = User::in('ou=Testing,dc=syntech,dc=intra')->get();
@@ -84,6 +86,16 @@ class LoginTest extends TestCase
         $response = $this->post('api/login',[],[]);
         $response->assertStatus(302);
      
+    }
+
+    public function test_logout(){
+        $token = token::factory()->create();
+        $response = $this->post('api/logout',[],[
+            'token' => [
+                $token->token,
+            ],
+        ]);
+        $response->assertStatus(200);   
     }
 
   
