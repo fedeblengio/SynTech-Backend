@@ -17,6 +17,7 @@ class AlumnoController extends Controller
     public function index(Request $request)
     {   
         if($request->eliminados){
+           
             $alumnosEliminados = DB::table('usuarios')
             ->select('*')
             ->where('deleted_at', '!=', null)
@@ -24,12 +25,13 @@ class AlumnoController extends Controller
             ->get();
             return response()->json($alumnosEliminados);
         }
+      
         return usuarios::where('ou', 'Alumno')->orderBy('created_at','desc')->get();
     }
 
     public function show($id){
 
-        $alumno = alumnos::find($id)->load('usuario');
+        $alumno = alumnos::findOrFail($id)->load('usuario');
         $alumno['grupos'] = $this->getGrupos($id);
         if(App::environment(['production', 'local'])){
         $filesService = new Files();
@@ -47,7 +49,7 @@ class AlumnoController extends Controller
 
     public function update(Request $request, $id)
     {
-        $alumno = alumnos::find($id);
+        $alumno = alumnos::findOrFail($id);
         $usuarioController = new usuariosController();
         return $usuarioController->update($request, $id);
     }

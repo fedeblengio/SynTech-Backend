@@ -2,6 +2,8 @@
 
 namespace Tests\Feature;
 
+use App\Models\alumnos;
+use App\Models\usuarios;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
@@ -46,5 +48,111 @@ class AlumnoControllerTest extends TestCase
     {
         $user = User::find('cn='.$samaccountname.',ou=UsuarioSistema,dc=syntech,dc=intra');
         $user->delete();
+    }
+
+
+    public function test_list_users_alumno()
+    {
+        $token = token::factory()->create();
+        $alumno1 =  $this->createNewAlumno();
+        $alumno2 =  $this->createNewAlumno();
+        $response = $this->get('api/alumno',[
+            'token' => [
+                $token->token,
+            ],
+        ]);
+       
+        $response->assertStatus(200);
+    
+        $this->assertEquals($response[1]['id'], $alumno1);
+        $this->assertEquals($response[0]['id'], $alumno2);
+    }
+
+    public function test_show_user_alumno(){
+        $token = token::factory()->create();
+      
+        $alumno =  $this->createNewAlumno();
+      
+        $response = $this->get('api/alumno/'.$alumno,[
+            'token' => [
+                $token->token,
+            ],
+        ]);
+        $response->assertStatus(200);
+        $response->assertSee($alumno);
+
+    }
+
+    public function test_error_show_user_alumno(){
+        $token = token::factory()->create();
+      
+        $response = $this->get('api/alumno/'."testUser",[
+            'token' => [
+                $token->token,
+            ],
+        ]);
+        $response->assertStatus(404);
+
+    }
+    public function createNewAlumno(){
+
+        $randomID = str_pad(mt_rand(1, 99999999), 8, '0', STR_PAD_LEFT);
+       
+        $user = usuarios::factory()->create([
+            'id' => $randomID,
+            'ou' => 'Alumno'
+        ]);
+        $profesor = alumnos::factory()->create([
+            'id' => $randomID,
+            'Cedula_Alumno' => $randomID,
+        ]);
+
+        return $randomID;
+    }
+
+    public function test_update_user_alumno(){
+        $userID = $this->createNewAlumno();
+        $token = token::factory()->create();
+        $updatedUser = [
+            'nombre' => 'Jane',
+            'apellido' => 'Doe',
+            'email' => 'jane.doe@example.com',
+            'genero' => 'Femenino',
+        ];
+    
+        $response = $this->put("api/alumno/".$userID, $updatedUser, [
+            'token' => [
+                $token->token,
+            ],
+        ]);
+    
+        $response->assertStatus(200);
+        $response->assertJson([
+            'usuario' => [
+                'nombre' => 'Jane Doe',
+                'email' => 'jane.doe@example.com',
+                'genero' => 'Femenino',
+            ],
+            'status' => 'Success',
+        ]);
+
+    }
+
+    public function test_error_update_user_alumno(){
+        $userID = "RandomUser";
+        $token = token::factory()->create();
+        $updatedUser = [
+            'nombre' => 'Jane',
+            'apellido' => 'Doe',
+            'email' => '2314214',
+            'genero' => 'Femenino',
+        ];
+    
+        $response = $this->put("api/alumno/".$userID, $updatedUser, [
+            'token' => [
+                $token->token,
+            ],
+        ]);
+        $response->assertStatus(404);
     }
 }
