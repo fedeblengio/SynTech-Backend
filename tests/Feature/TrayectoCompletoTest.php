@@ -382,6 +382,9 @@ class TrayectoCompletoTest extends TestCase
     }
 
  */
+    public function test_example(){
+        $this->assertTrue(true);
+    }
 
 
 }
