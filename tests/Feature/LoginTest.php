@@ -38,7 +38,8 @@ class LoginTest extends TestCase
     }
 
     private function createNewUser(){
-        $randomID = str_pad(mt_rand(1, 99999999), 8, '0', STR_PAD_LEFT);
+        $padded_number = str_pad(mt_rand(1, 9999999), 1 - strlen('1'), '0', STR_PAD_LEFT);
+        $randomID = "1". $padded_number;
        
         $user = usuarios::factory()->create([
             'id' => $randomID,
