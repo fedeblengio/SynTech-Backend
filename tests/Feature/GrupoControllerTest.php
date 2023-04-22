@@ -2,10 +2,12 @@
 
 namespace Tests\Feature;
 
+use App\Models\alumnos;
 use App\Models\Grado;
 use App\Models\grupos;
 use App\Models\materia;
 use App\Models\token;
+use App\Models\usuarios;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
 use Database\Factories\GradoFactory;
@@ -190,35 +192,91 @@ class GrupoControllerTest extends TestCase
 
 
 
-//para hacer falta profesores y alumnos factory
+    //para hacer falta profesores y alumnos factory
 
-// public function test_update_grupo()
-// {
+    public function test_update_grupo_alumno()
+    {
 
-//     $token = token::factory()->create();
-//     $grupo = grupos::factory()->create();
-//     dd($grupo);
+        $token = token::factory()->create();
+        $grupo = grupos::factory()->create();
 
-//     $response = $this->put('api/grupo/' . $grupo->idGrupo, [
-//         'idGrupo' => Str::random(4),
-//         "anioElectivo" => Carbon::now()->format('Y'),
-//         "grado_id" => $grado->id,
-//     ], [
-//             'token' => [
-//                 $token->token
-//             ]
-//         ]);
+        $data = [
+            [
+                'idGrupo' => $grupo->idGrupo,
+                'idAlumno' => $this->crear_usuario_nuevo_alumno(),
+            ]
+        ];
+        $response = $this->put('api/grupo/' . $grupo->idGrupo, [
+            "anioElectivo" => Carbon::now()->format('Y'),
+            "grado_id" => $grupo->grado_id,
+            "alumnos" => $data,
+        ], [
+                'token' => [
+                    $token->token
+                ]
+            ]);
 
-//     $response->assertStatus(200);
-//     $data = $response->json();
-//     $this->assertDatabaseHas('grupos', [
-//         'idGrupo' => $data['idGrupo'],
-//         'anioElectivo' => $data['anioElectivo'],
-//         'grado_id' => $data['grado_id'],
-//     ]);
-// }
+        $response->assertStatus(200);
+        $this->assertEquals($response['alumnos'][0]['id'], $data[0]['idAlumno']);
+    }
+    public function test_update_grupo_profesor()
+    {
 
+        $token = token::factory()->create();
+        $grupo = grupos::factory()->create();
 
+        $data = [
+            [
+                'idGrupo' => $grupo->idGrupo,
+                'idAlumno' => $this->crear_usuario_nuevo_alumno(),
+            ]
+        ];
+        $response = $this->put('api/grupo/' . $grupo->idGrupo, [
+            "anioElectivo" => Carbon::now()->format('Y'),
+            "grado_id" => $grupo->grado_id,
+            "alumnos" => $data,
+        ], [
+                'token' => [
+                    $token->token
+                ]
+            ]);
+
+        $response->assertStatus(200);
+        $this->assertEquals($response['alumnos'][0]['id'], $data[0]['idAlumno']);
+    }
+
+    public function crear_usuario_nuevo_alumno()
+    {
+        $randomID = str_pad(mt_rand(1, 99999999), 8, '0', STR_PAD_LEFT);
+
+        $user = usuarios::factory()->create([
+            'id' => $randomID,
+            'ou' => 'Alumno'
+        ]);
+
+        $alumnos = alumnos::factory()->create([
+            'id' => $randomID,
+            'Cedula_Alumno' => $randomID,
+        ]);
+
+        return $randomID;
+    }
+    public function crear_usuario_nuevo_profesor()
+    {
+        $randomID = str_pad(mt_rand(1, 99999999), 8, '0', STR_PAD_LEFT);
+
+        $user = usuarios::factory()->create([
+            'id' => $randomID,
+            'ou' => 'Profesor'
+        ]);
+
+        $alumnos = alumnos::factory()->create([
+            'id' => $randomID,
+            'Cedula_Alumno' => $randomID,
+        ]);
+
+        return $randomID;
+    }
 
 
 }
