@@ -139,6 +139,24 @@ class BedeliasControllerTest extends TestCase
 
     }
 
+    public function test_error_update_user_bedelia(){
+        $userID = "RandomUser";
+        $token = token::factory()->create();
+        $updatedUser = [
+            'nombre' => 'Jane',
+            'apellido' => 'Doe',
+            'email' => '2314214',
+            'genero' => 'Femenino',
+        ];
+    
+        $response = $this->put("api/bedelia/".$userID, $updatedUser, [
+            'token' => [
+                $token->token,
+            ],
+        ]);
+        $response->assertStatus(404);
+    }
+
  
 
  
