@@ -31,8 +31,10 @@ class AlumnoController extends Controller
 
         $alumno = alumnos::find($id)->load('usuario');
         $alumno['grupos'] = $this->getGrupos($id);
+        if(App::environment(['production', 'local'])){
         $filesService = new Files();
         $alumno->usuario['imagen_perfil'] = $filesService->getImage($alumno->usuario['imagen_perfil']);
+        }
         return $alumno;
        
     }
@@ -46,7 +48,8 @@ class AlumnoController extends Controller
     public function update(Request $request, $id)
     {
         $alumno = alumnos::find($id);
-        return usuariosController::update($request, $id);
+        $usuarioController = new usuariosController();
+        return $usuarioController->update($request, $id);
     }
 
     public function gruposNoPertenecenAlumno($id){

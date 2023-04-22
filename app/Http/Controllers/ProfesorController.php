@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\DB;
 
 class ProfesorController extends Controller
 {
+    
     public function index(Request $request)
     {  
         if($request->eliminados){
@@ -36,15 +37,18 @@ class ProfesorController extends Controller
     {
         $profesor = profesores::find($id);
         $profesor->materia()->sync($request->materias);
-        return usuariosController::update($request, $id);
+        $usuarioController = new usuariosController();
+        return $usuarioController->update($request, $id);
         
     }
 
     public function show($id)
     {
         $profesor = profesores::find($id)->load('materia','usuario');
+        if(App::environment(['production', 'local'])){
         $filesService = new Files();
         $profesor->usuario['imagen_perfil'] = $filesService->getImage($profesor->usuario['imagen_perfil']);
+        }
         return $profesor;
     }
 }

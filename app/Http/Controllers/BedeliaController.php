@@ -44,7 +44,9 @@ class BedeliaController extends Controller
        
         $usuarioController = new usuariosController();
         $bedelia = bedelias::find($id);
-      
+        if(empty($bedelia)){
+            return response()->json(['error' => 'Usuario no encontrada'], 404);
+        }
         $bedelia->update($request->all());
        
         return $usuarioController->update($request, $id);
