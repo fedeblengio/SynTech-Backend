@@ -21,7 +21,6 @@ class gruposController extends Controller
 {
     public function index()
     {
-
         return response()->json(grupos::all());
     }
 
@@ -34,6 +33,7 @@ class gruposController extends Controller
             'grado_id' => 'required|integer',
         ]);
         $grupo = grupos::where('idGrupo', $request->idGrupo)->first();
+
         if (empty($grupo)) {
             return $this->crearGrupo($request);
         }
@@ -43,12 +43,17 @@ class gruposController extends Controller
 
     public function show($id)
     {
-        $grupo = grupos::where('idGrupo', $id)->first()->load('grado.materias');
+        $grupo = grupos::where('idGrupo', $id)->first();
+        if (empty($grupo)) {
+            return response()->json(['error' => 'Grupo no encontrado'], 404);
+        }
+        $grupo->load('grado.materias');
+
         $profesores = DB::table('grupos')
-            ->select('usuarios.id', 'usuarios.nombre','grupos_tienen_profesor.idMateria','materias.nombre as materia')
+            ->select('usuarios.id', 'usuarios.nombre', 'grupos_tienen_profesor.idMateria', 'materias.nombre as materia')
             ->join('grupos_tienen_profesor', 'grupos_tienen_profesor.idGrupo', '=', 'grupos.idGrupo')
             ->join('usuarios', 'usuarios.id', '=', 'grupos_tienen_profesor.idProfesor')
-            ->join('materias','materias.id', '=','grupos_tienen_profesor.idMateria' )
+            ->join('materias', 'materias.id', '=', 'grupos_tienen_profesor.idMateria')
             ->where('usuarios.deleted_at', null)
             ->where('grupos.idGrupo', $id)
             ->get();
@@ -60,10 +65,10 @@ class gruposController extends Controller
             ->where('usuarios.deleted_at', null)
             ->get();
 
-        return response()->json(['grupo' => $grupo,'profesores' => $profesores, 'alumnos' => $alumnos]);
+        return response()->json(['grupo' => $grupo, 'profesores' => $profesores, 'alumnos' => $alumnos]);
 
-      
-    
+
+
     }
 
     public function eliminarProfesorGrupo($id, $idProfesor, Request $request)
@@ -81,8 +86,8 @@ class gruposController extends Controller
     public function eliminarAlumnoGrupo($id, $idAlumno, Request $request)
     {
 
-      $alumnoGrupo = alumnos_pertenecen_grupos::where('idGrupo', $id)->where('idAlumnos', $idAlumno)->first();
-        
+        $alumnoGrupo = alumnos_pertenecen_grupos::where('idGrupo', $id)->where('idAlumnos', $idAlumno)->first();
+
         if ($alumnoGrupo) {
             $alumnoGrupo->delete();
             RegistrosController::store("GRUPO", $request->header('token'), "DELETE", $idAlumno . " - " . $id);
@@ -124,26 +129,28 @@ class gruposController extends Controller
         RegistrosController::store("GRUPO ALUMNOS", $request->header('token'), "DELETE", $request->idGrupo);
     }
 
-    public function alumnosNoPertenecenGrupo($id){
-        $resultado = alumnos::whereNotIn('id', function($query) use ($id){
+    public function alumnosNoPertenecenGrupo($id)
+    {
+        $resultado = alumnos::whereNotIn('id', function ($query) use ($id) {
             $query->select('idAlumnos')->from('alumnos_pertenecen_grupos')->where('idGrupo', $id);
         })->pluck('id');
-        $alumnos = usuarios::whereIn('id',$resultado)->get();
-     
-      
+        $alumnos = usuarios::whereIn('id', $resultado)->get();
+
+
         return response()->json($alumnos);
     }
 
-    public function listarMateriasSinProfesor($id){
-
+    public function listarMateriasSinProfesor($id)
+    {
+        if (empty(grupos::where('idGrupo', $id)->first())) {
+            return response()->json(['error' => 'Grupo no encontrado'], 404);
+        }
         $materiasConGrupo = grupos_tienen_profesor::where('idGrupo', $id)->pluck('idMateria');
-
         $materias = grupos::where('idGrupo', $id)->first()->grado->materias->pluck('id');
 
         $materiaSinGrupo = collect($materias)->diff($materiasConGrupo)->values();
-    
-        $final = materia::whereIn('id',$materiaSinGrupo)->get();
 
+        $final = materia::whereIn('id', $materiaSinGrupo)->get();
         return response()->json($final);
     }
 
@@ -153,58 +160,60 @@ class gruposController extends Controller
         $request->validate([
             'profesores' => 'array',
             'alumnos' => 'array',
-            ]);
+        ]);
         $grupo = grupos::where('idGrupo', $id)->first();
-        
-            if ($grupo) {
-                $grupo->fill($request->all());
-                $grupo->save();
-               
-                $this->agregarAlumnosGrupo($request->alumnos);
-                $this->agregarProfesoresGrupo($request->profesores);
 
-                RegistrosController::store("GRUPO", $request->header('token'), "UPDATE", self::modifiedValue($grupo));
-                return self::show($id);
-            }
-            return response()->json(['status' => 'Bad Request'], 400);
+        if ($grupo) {
+            $grupo->fill($request->all());
+            $grupo->save();
+
+            $this->agregarAlumnosGrupo($request->alumnos);
+            $this->agregarProfesoresGrupo($request->profesores);
+
+            RegistrosController::store("GRUPO", $request->header('token'), "UPDATE", self::modifiedValue($grupo));
+            return self::show($id);
+        }
+        return response()->json(['status' => 'Bad Request'], 400);
     }
 
-    public function agregarAlumnosGrupo($alumnos){
-        if(empty($alumnos)){
+    public function agregarAlumnosGrupo($alumnos)
+    {
+        if (empty($alumnos)) {
             return;
         }
-      
-        
+
+
         try {
-            foreach($alumnos as $alumno){
-                $nuevoAlumno= new alumnos_pertenecen_grupos();
-                $nuevoAlumno->idAlumnos= $alumno['idAlumno'];
-                $nuevoAlumno->idGrupo= $alumno['idGrupo'];
+            foreach ($alumnos as $alumno) {
+                $nuevoAlumno = new alumnos_pertenecen_grupos();
+                $nuevoAlumno->idAlumnos = $alumno['idAlumno'];
+                $nuevoAlumno->idGrupo = $alumno['idGrupo'];
                 $nuevoAlumno->save();
             }
             return response()->json(['status' => 'Success'], 200);
         } catch (\Throwable $th) {
-            return response()->json('Bad request',401);
+            return response()->json('Bad request', 401);
         }
-       
+
 
     }
-    public function agregarProfesoresGrupo($profesores){
-    
-        if(empty($profesores)){
+    public function agregarProfesoresGrupo($profesores)
+    {
+
+        if (empty($profesores)) {
             return;
         }
 
-       
+
         try {
-            $nuevoProfesor= new grupos_tienen_profesor();
-            $nuevoProfesor->idProfesor =$profesores['idProfesor'];
-            $nuevoProfesor->idMateria= $profesores['idMateria'];
-            $nuevoProfesor->idGrupo=$profesores['idGrupo'];
+            $nuevoProfesor = new grupos_tienen_profesor();
+            $nuevoProfesor->idProfesor = $profesores['idProfesor'];
+            $nuevoProfesor->idMateria = $profesores['idMateria'];
+            $nuevoProfesor->idGrupo = $profesores['idGrupo'];
             $nuevoProfesor->save();
 
             self::crearForo($nuevoProfesor);
-            
+
             return response()->json(['status' => 'Success'], 200);
         } catch (\Throwable $th) {
             return response()->json(['status' => 'Bad Request'], 401);
@@ -250,7 +259,7 @@ class gruposController extends Controller
         $grupo->grado_id = $request->grado_id;
         $grupo->save();
         RegistrosController::store("GRUPO", $request->header('token'), "CREATE", $request->idGrupo);
-        return response()->json($grupo);
+        return response()->json($grupo, 201);
     }
 
 

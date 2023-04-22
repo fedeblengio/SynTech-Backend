@@ -10,13 +10,14 @@ use App\Models\grupos;
 use App\Models\usuarios;
 use App\Services\Files;
 use Illuminate\Support\Facades\DB;
-
+use Illuminate\Support\Facades\App;
 class AlumnoController extends Controller
 {
 
     public function index(Request $request)
     {   
         if($request->eliminados){
+           
             $alumnosEliminados = DB::table('usuarios')
             ->select('*')
             ->where('deleted_at', '!=', null)
@@ -24,15 +25,18 @@ class AlumnoController extends Controller
             ->get();
             return response()->json($alumnosEliminados);
         }
+      
         return usuarios::where('ou', 'Alumno')->orderBy('created_at','desc')->get();
     }
 
     public function show($id){
 
-        $alumno = alumnos::find($id)->load('usuario');
+        $alumno = alumnos::findOrFail($id)->load('usuario');
         $alumno['grupos'] = $this->getGrupos($id);
+        if(App::environment(['production', 'local'])){
         $filesService = new Files();
         $alumno->usuario['imagen_perfil'] = $filesService->getImage($alumno->usuario['imagen_perfil']);
+        }
         return $alumno;
        
     }
@@ -45,12 +49,13 @@ class AlumnoController extends Controller
 
     public function update(Request $request, $id)
     {
-        $alumno = alumnos::find($id);
-        return usuariosController::update($request, $id);
+        $alumno = alumnos::findOrFail($id);
+        $usuarioController = new usuariosController();
+        return $usuarioController->update($request, $id);
     }
 
     public function gruposNoPertenecenAlumno($id){
-        $alumno = alumnos::find($id);
+        $alumno = alumnos::findOrFail($id);
         $resultado = grupos::whereDoesntHave('alumnos', function($query) use ($alumno){
             $query->where('idAlumnos', $alumno->id);
         })->get();

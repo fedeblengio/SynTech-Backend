@@ -40,7 +40,7 @@ return [
     */
 
     'debug' => (bool) env('APP_DEBUG', false),
-
+   
     /*
     |--------------------------------------------------------------------------
     | Application URL
@@ -229,5 +229,7 @@ return [
         'View' => Illuminate\Support\Facades\View::class,
 
     ],
+
+    'ldap' => require config_path('ldap.php'),
 
 ];
