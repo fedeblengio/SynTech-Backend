@@ -2,40 +2,53 @@
 
 namespace Tests\Feature;
 
-use App\Models\token;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
-use Illuminate\Http\Request;
-use LdapRecord\Connection;
-
-
-use App\Models\bedelias;
+use App\Models\token;
 use App\Models\usuarios;
-
-use LdapRecord\Models\ActiveDirectory\Group;
+use App\Models\bedelias;
 use LdapRecord\Models\ActiveDirectory\User;
 
-class LoginTest extends TestCase
-{
 
-    use RefreshDatabase;
-   
-    
-    public function test_login()
-    {
-        $credentials = $this->createNewUser();
-    
-        $response = $this->post('api/login',$credentials);
+class UsuariosControllerTest extends TestCase
+{
+    /**
+     * A basic feature test example.
+     *
+     * @return void
+     */
+    public function test_cambiar_contrasenia(){
+        $token = token::factory()->create();
+        $user = $this->createNewUser();
+        $newPassword = '123456';
+        
+        $response = $this->put('api/contrasenia',[
+            'id' => $user['username'],
+            'contrasenia' => $newPassword,
+        ],[
+            'token' => [
+                $token->token,
+            ],
+        ]);
 
         $response->assertStatus(200);
-        $response->assertJsonStructure([
+        $credentials = [
+            'username' => $user['username'],
+            'password' => $newPassword
+        ];
+        $response2 = $this->post('api/login',$credentials);
+        $response2->assertStatus(200);
+        $response2->assertJsonStructure([
             'connection',
             'datos',
         ]);
-        $response->assertJson([
-            'connection' => 'Success',
-        ]);
+
+
+        $this->deleteUserInOU($user['username']);
+
+    
+
     }
 
     private function createNewUser(){
@@ -58,10 +71,7 @@ class LoginTest extends TestCase
 
     private function crearUsuarioLDAP($cedula)
     {
-
-        $this->deleteAllUsersInOU();
-
-        $user = (new User)->inside('ou=Testing,dc=syntech,dc=intra');
+        $user = (new User)->inside('ou=UsuarioSistema,dc=syntech,dc=intra');
         $user->cn =$cedula;
         $user->unicodePwd = $cedula;
         $user->samaccountname = $cedula;
@@ -71,22 +81,9 @@ class LoginTest extends TestCase
         $user->save();
     }
 
-    public function deleteAllUsersInOU()
+    public function deleteUserInOU($id)
     {
-        $users = User::in('ou=Testing,dc=syntech,dc=intra')->get();
-        foreach ($users as $user) {
-            $user->delete();
-        }
+        $user = User::find('cn=' . $id . ',ou=UsuarioSistema,dc=syntech,dc=intra');
+        $user->delete();
     }
-
-    public function test_error_login()
-    {
-        $response = $this->post('api/login',[],[]);
-        $response->assertStatus(302);
-     
-    }
-
-  
-    
- 
- } 
+}

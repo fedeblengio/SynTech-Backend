@@ -194,8 +194,10 @@ class usuariosController extends Controller
     }
 
     public function cambiarContrasenia(Request $request)
-    {
+    {   
+   
         $user = User::find('cn=' . $request->id . ',ou=UsuarioSistema,dc=syntech,dc=intra');
+      
         if ($request->contrasenia) {
             $user->unicodePwd = $request->contrasenia;
         } else {
