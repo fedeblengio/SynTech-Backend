@@ -7,6 +7,7 @@ use App\Models\profesores;
 use App\Http\Controllers\usuariosController;
 use App\Models\usuarios;
 use App\Services\Files;
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\DB;
 
 class ProfesorController extends Controller
@@ -35,7 +36,8 @@ class ProfesorController extends Controller
 
     public function update(Request $request, $id)
     {
-        $profesor = profesores::find($id);
+        $profesor = profesores::findOrFail($id);
+
         $profesor->materia()->sync($request->materias);
         $usuarioController = new usuariosController();
         return $usuarioController->update($request, $id);
@@ -44,7 +46,7 @@ class ProfesorController extends Controller
 
     public function show($id)
     {
-        $profesor = profesores::find($id)->load('materia','usuario');
+        $profesor = profesores::findOrFail($id)->load('materia','usuario');
         if(App::environment(['production', 'local'])){
         $filesService = new Files();
         $profesor->usuario['imagen_perfil'] = $filesService->getImage($profesor->usuario['imagen_perfil']);

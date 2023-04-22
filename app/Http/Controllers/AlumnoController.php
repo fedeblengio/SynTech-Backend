@@ -10,7 +10,7 @@ use App\Models\grupos;
 use App\Models\usuarios;
 use App\Services\Files;
 use Illuminate\Support\Facades\DB;
-
+use Illuminate\Support\Facades\App;
 class AlumnoController extends Controller
 {
 
