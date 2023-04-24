@@ -72,7 +72,7 @@ class CarreraController extends Controller
             return $carrera;
             RegistrosController::store("CARRERA", $request->header('token'), "DELETE", $carrera->nombre);
         } catch (Exception $e) {
-            return response()->json(['status' => "Error al eliminar carrera"], 409);
+            return response()->json(['status' => "Error al eliminar carrera"], 400);
         }
 
 

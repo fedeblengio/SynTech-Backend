@@ -41,8 +41,6 @@ class ProfesorControllerTest extends TestCase
         $response->assertStatus(200);
         $response->assertSee($newTeacher['userPrincipalName']);
         $response->assertSee($newTeacher['ou']);
-
-        $this->assertTrue(true);
     }
 
     public function deleteCreatedLDAPUser($samaccountname)

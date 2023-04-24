@@ -87,7 +87,7 @@ Route::middleware(['verificar_token'])->group(function () {
     //NOTICIAS
     Route::post('/noticia', 'App\Http\Controllers\MaterialPublicoController@store');
     Route::get('/noticia', 'App\Http\Controllers\MaterialPublicoController@index');
-    Route::delete('/noticia', 'App\Http\Controllers\MaterialPublicoController@destroy');
+    Route::delete('/noticia/{id}', 'App\Http\Controllers\MaterialPublicoController@destroy');
 
     // FTP TRAER ARCHIVOS
     Route::get('/traerArchivo', 'App\Http\Controllers\MaterialPublicoController@traerArchivo');

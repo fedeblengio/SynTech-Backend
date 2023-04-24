@@ -175,7 +175,7 @@ class CarreraControllerTest extends TestCase
                     $token->token
                 ]
             ]);
-        $response->assertStatus(409);  
+        $response->assertStatus(400);  
     }
 
 
