@@ -65,6 +65,9 @@ class CarreraController extends Controller
 
     public function destroy(Request $request, $id)
     {
+        if(empty($id)){
+            return response()->json(['status' => "Bad request"], 404);
+        }
         try {
             $carrera = Carrera::findOrFail($id);
             $carrera->grado()->delete();

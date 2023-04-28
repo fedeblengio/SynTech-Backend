@@ -49,6 +49,14 @@ class AlumnoController extends Controller
 
     public function update(Request $request, $id)
     {
+        $request->validate([
+            'idUsuario' => 'required|string|',
+            'nombre' => 'string',
+            'apellido' => 'string',
+            'email' => 'string',
+            'genero' => 'string',
+            'grupos' => 'array',
+        ]);
         $alumno = alumnos::findOrFail($id);
         $usuarioController = new usuariosController();
         return $usuarioController->update($request, $id);

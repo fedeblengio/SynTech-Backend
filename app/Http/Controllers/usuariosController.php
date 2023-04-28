@@ -158,6 +158,11 @@ class usuariosController extends Controller
     public function cambiarImagen(Request $request, $id)
     {
         $usuario = usuarios::find($id);
+
+        if(empty($usuario)){
+            return response()->json(['status' => 'Error', 'message' => 'Bad request'], 400);
+        }
+
         if ($request->hasFile('archivo')) {
             return $this->cambiarImagenDePerfil($request,$usuario);
         }
@@ -193,19 +198,22 @@ class usuariosController extends Controller
         return response()->json(['status' => 'Success'], 200);
     }
 
-    public function cambiarContrasenia(Request $request)
-    {   
+    public function cambiarContrasenia(Request $request, $id)
+    {       
+        $request->validate([
+            'contrasenia' => 'string',
+        ]);
    
-        $user = User::find('cn=' . $request->id . ',ou=UsuarioSistema,dc=syntech,dc=intra');
+        $user = User::find('cn=' . $id . ',ou=UsuarioSistema,dc=syntech,dc=intra');
       
         if ($request->contrasenia) {
             $user->unicodePwd = $request->contrasenia;
         } else {
-            $user->unicodePwd = $request->id;
+            $user->unicodePwd = $id;
         }
         $user->save();
         $user->refresh();
-        RegistrosController::store("CONTRASEÑA", $request->header('token'), "UPDATE", $request->id);
+        RegistrosController::store("CONTRASEÑA", $request->header('token'), "UPDATE", $id);
         return response()->json(['status' => 'Success'], 200);
     }
 
@@ -215,7 +223,7 @@ class usuariosController extends Controller
             'nombre' => 'required|string|max:80',
             'apellido' => 'required|string|max:80',
             'email' => 'required|email',
-            'genero' => 'string',
+            'genero' => 'string | nullable',
         ]);
         try {
             $usuario = usuarios::where('id', $id)->first();
@@ -235,6 +243,15 @@ class usuariosController extends Controller
     }
 
     public function activarUsuario($id){
+        
+        $u = usuarios::where('id', $id)->first();
+
+        if(empty($u)){
+            return response()->json(['status' => 'Bad Request'], 400);
+        }
+
+        
+
         $user = User::find('cn=' . $id . ',ou=UsuarioSistema,dc=syntech,dc=intra');
         $user->userAccountControl = 66048;
         $user->save();
@@ -261,18 +278,21 @@ class usuariosController extends Controller
     public function destroy(Request $request,$id)
     {
         $existe = usuarios::where('id', $id)->first();
+
+        if(empty($existe)){
+            return response()->json(['status' => 'Bad Request'], 400);
+        }
+
         $user = User::find('cn=' .$id . ',ou=UsuarioSistema,dc=syntech,dc=intra');
         try {
-            if ($existe) {
                 $existe->delete();
                 $user->userAccountControl = 514;
                 $user->save();
                 $user->refresh();
-
                 self::eliminarPersona($existe, $request->header('token'));
                 RegistrosController::store("USUARIO", $request->header('token'), "DELETE", $request->id);
                 return response()->json(['status' => 'Success'], 200);
-            }
+            
         } catch (\Throwable $th) {
             return response()->json(['status' => 'Bad Request'], 400);
         }
@@ -304,13 +324,6 @@ class usuariosController extends Controller
         }
     }
 
-    // public function eliminarAlumnoGrupo($existe, $token)
-    // {
-    //     DB::table('alumnos_pertenecen_grupos')
-    //         ->where('idAlumnos', $existe->id)
-    //         ->update(['deleted_at' => Carbon::now()->addMinutes(23)]);
-    //     RegistrosController::store("ALUMNO GRUPO", $token, "DELETE", $existe->id);
-    // }
 
     public function eliminarMateriaProfesor($existe, $token)
     {
@@ -320,13 +333,6 @@ class usuariosController extends Controller
         RegistrosController::store("MATERIA PROFESOR", $token, "DELETE", $existe->id);
     }
 
-    // public function eliminarMateriaGrupo($existe, $token)
-    // {
-    //     DB::table('grupos_tienen_profesor')
-    //         ->where('idProfesor', $existe->id)
-    //         ->update(['deleted_at' => Carbon::now()->addMinutes(23)]);
-    //     RegistrosController::store("GRUPO PROFESOR", $token, "DELETE", $existe->id);
-    // }
 
 
     public function agregarAlumno($request): void

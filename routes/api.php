@@ -95,7 +95,7 @@ Route::middleware(['verificar_token'])->group(function () {
     // HISTORIAL REGISTRO
     Route::get('/historial', 'App\Http\Controllers\usuariosController@getFullHistory');
 
-    Route::put('/contrasenia', 'App\Http\Controllers\usuariosController@cambiarContrasenia');
+    Route::put('/usuario/{id}/contrasenia', 'App\Http\Controllers\usuariosController@cambiarContrasenia');
 
 
 });
