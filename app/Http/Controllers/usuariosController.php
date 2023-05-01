@@ -244,13 +244,10 @@ class usuariosController extends Controller
 
     public function activarUsuario($id){
         
-        $u = usuarios::where('id', $id)->first();
-
+        $u = usuarios::withTrashed()->where('id',$id)->first();
         if(empty($u)){
             return response()->json(['status' => 'Bad Request'], 400);
         }
-
-        
 
         $user = User::find('cn=' . $id . ',ou=UsuarioSistema,dc=syntech,dc=intra');
         $user->userAccountControl = 66048;
