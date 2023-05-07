@@ -201,7 +201,7 @@ class usuariosController extends Controller
     public function cambiarContrasenia(Request $request, $id)
     {       
         $request->validate([
-            'contrasenia' => 'string',
+            'contrasenia' => 'string | nullable',
         ]);
    
         $user = User::find('cn=' . $id . ',ou=UsuarioSistema,dc=syntech,dc=intra');
