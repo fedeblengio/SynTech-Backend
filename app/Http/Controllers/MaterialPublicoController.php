@@ -17,17 +17,22 @@ class MaterialPublicoController extends Controller
 
     public function store(Request $request)
     {
+        $request->validate([
+            'titulo' => 'required|string|max:30',
+            'mensaje' => 'required|string|max:30',
+            'idUsuario' => 'required|string|max:8|min:8',
+        ]);
         $nombreEncabezado = "encabezadoPredeterminado.jpg";
         $nombreEncabezado = $this->comprobacionEncabezado($request, $nombreEncabezado);
 
-        $this->createMaterialPublico($request, $nombreEncabezado);
+        $nuevaNoticia = $this->createMaterialPublico($request, $nombreEncabezado);
 
         $idDatos = DB::table('material_publicos')->orderBy('created_at', 'desc')->limit(1)->get('id');
 
         $this->subidaArchivo($request, $idDatos[0]);
 
         RegistrosController::store("PUBLICACION PUBLICA", $request->header('token'), "CREATE", $request->idUsuario);
-        return response()->json(['status' => 'Success'], 200);
+        return response()->json($nuevaNoticia, 201);
     }
 
     public function index(Request $request)
@@ -85,11 +90,11 @@ class MaterialPublicoController extends Controller
         return Storage::disk('ftp')->get($request->archivo);
     }
 
-    public function destroy(Request $request)
-    {
+    public function destroy($id, Request $request)
+    {   
+        $materialPublico = material_publico::findOrFail($id);
 
-        $materialPublico = material_publico::where('id', $request->id)->first();
-        $arhivosMaterialPublico = archivos_material_publico::where('idMaterialPublico', $request->id)->get();
+        $arhivosMaterialPublico = archivos_material_publico::where('idMaterialPublico', $id)->get();
         foreach ($arhivosMaterialPublico as $p) {
             Storage::disk('ftp')->delete($p->nombreArchivo);
             $arhivosId = archivos_material_publico::where('id', $p->id)->first();
@@ -97,19 +102,15 @@ class MaterialPublicoController extends Controller
         }
         try {
             $materialPublico->delete();
-            RegistrosController::store("PUBLICACION PUBLICA", $request->header('token'), "DELETE", $request->idUsuario);
+            RegistrosController::store("PUBLICACION PUBLICA", $request->header('token'), "DELETE", $materialPublico->idUsuario);
             return response()->json(['status' => 'Success'], 200);
         } catch (\Throwable $th) {
             return response()->json(['status' => 'Bad Request'], 400);
         }
     }
 
-    /**
-     * @param Request $request
-     * @param string $nombreEncabezado
-     * @return void
-     */
-    public function createMaterialPublico(Request $request, string $nombreEncabezado): void
+
+    public function createMaterialPublico(Request $request, string $nombreEncabezado)
     {
         $materialPublico = new material_publico;
         $materialPublico->idUsuario = $request->idUsuario;
@@ -117,15 +118,12 @@ class MaterialPublicoController extends Controller
         $materialPublico->mensaje = $request->mensaje;
         $materialPublico->imgEncabezado = $nombreEncabezado;
         $materialPublico->save();
+
+        return $materialPublico;
     }
 
-    /**
-     * @param Request $request
-     * @param string $nombreEncabezado
-     * @return string
-     * @throws \Exception
-     */
-    public function comprobacionEncabezado(Request $request, string $nombreEncabezado): string
+
+    public function comprobacionEncabezado(Request $request, string $nombreEncabezado)
     {
         if ($request->imagenEncabezado) {
             $nombreEncabezado = random_int(0, 1000000) . "_" . $request->nombreEncabezado;
@@ -134,13 +132,8 @@ class MaterialPublicoController extends Controller
         return $nombreEncabezado;
     }
 
-    /**
-     * @param Request $request
-     * @param $idDatos
-     * @return void
-     * @throws \Exception
-     */
-    public function subidaArchivo(Request $request, $idDatos): void
+
+    public function subidaArchivo(Request $request, $idDatos)
     {
         if ($request->archivos) {
 

@@ -18,7 +18,7 @@ class CreateAlumnoEntregaTareasTable extends Migration
            
            
             $table->unsignedBigInteger('idTareas');
-            $table->integer('idAlumnos');
+            $table->string('idAlumnos');
             $table->string('calificacion')->nullable();
             
             $table->string('mensaje_profesor')->nullable();

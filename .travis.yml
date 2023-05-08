@@ -1,13 +1,40 @@
 language: php
-php:
-  - 7.3
-os: linux
+
 services:
   - docker
+
+php:
+  - 8.0
+
+before_install:
+  # Build the Docker image and start the container
+  - docker-compose up -d
+
 before_script:
-  - cp .env.testing .env
-  - composer install
+  # Install dependencies and set up the database for testing
+  - docker-compose exec app composer install --no-interaction --prefer-dist --no-suggest
+  - docker-compose exec app php artisan key:generate
+  - docker-compose exec app php artisan migrate --database=mysql_testing --force
+
 script:
-  - php artisan test --filter=FuncionesCompletasTest
-  - php artisan test --filter=loginTest
-  - php artisan test --filter=suprimirUsuarioTest
+  # Run the PHPUnit tests
+  - docker-compose exec app vendor/bin/phpunit --colors=never --coverage-text
+
+after_script:
+  # Stop and remove the Docker container
+  - docker-compose down
+
+env:
+  global:
+    - DB_CONNECTION=mysql
+    - DB_HOST=127.0.0.1
+    - DB_PORT=3306
+    - DB_DATABASE=laravel
+    - DB_USERNAME=test
+    - DB_PASSWORD=test
+    - DB_DATABASE_TEST=laravelTesting
+
+# Cache the vendor directory to speed up builds
+cache:
+  directories:
+    - $HOME/.composer/cache/files

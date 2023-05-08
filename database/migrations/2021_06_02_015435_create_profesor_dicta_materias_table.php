@@ -17,7 +17,7 @@ class CreateProfesorDictaMateriasTable extends Migration
         Schema::create('profesor_dicta_materia', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('idMateria');
-            $table->integer('idProfesor');
+            $table->string('idProfesor');
             $table->unique(['idMateria', 'idProfesor']);
            
             

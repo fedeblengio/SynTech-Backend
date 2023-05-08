@@ -17,6 +17,7 @@ class Grado extends Migration
             $table->id();
             $table->string('grado');
             $table->unsignedBigInteger('carrera_id');
+            $table->unique(['grado', 'carrera_id']);
             $table->foreign('carrera_id')->references('id')->on('carreras');
 
             $table->timestamps();

@@ -15,7 +15,7 @@ class ListaAulaVirtual extends Migration
     {
         Schema::create('lista_aula_virtual', function (Blueprint $table) {
             $table->unsignedBigInteger('idClase');
-            $table->integer('idAlumnos');
+            $table->string('idAlumnos');
             $table->boolean('asistencia');
             $table->primary(['idAlumnos','idClase']);
             $table->timestamps();
