@@ -41,7 +41,7 @@ class MaterialPublicoController extends Controller
             ->select('material_publicos.id', 'material_publicos.imgEncabezado', 'material_publicos.titulo AS titulo', 'material_publicos.mensaje AS mensaje', 'material_publicos.idUsuario', 'material_publicos.imgEncabezado', 'material_publicos.created_at AS fecha', 'usuarios.nombre AS nombreAutor')
             ->join('usuarios', 'usuarios.id', '=', 'bedelias.id')
             ->join('material_publicos', 'material_publicos.idUsuario', '=', 'bedelias.id')
-            ->orderBy('id', 'desc')
+            ->orderBy('material_publicos.id', 'desc')
             ->take($request->limit)
             ->get();
 
