@@ -26,10 +26,8 @@ jobs:
       run: chmod -R 777 storage bootstrap/cache
     - name: LDAP TLS
       run: sudo sh -c "echo 'TLS_REQCERT never' > /etc/ldap/ldap.conf"
-    - name: Test LDAP Conecction 
-      run: php artisan ldap:test
-    - name: TLS FILE CONTENT
-      run: cat /etc/ldap/ldap.conf
+    - name: PING TO THE LDAP SERVER
+      run : sudo ping 190.64.41.140
     - name: Create Database
       run: |
         mkdir -p database
