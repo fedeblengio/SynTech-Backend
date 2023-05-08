@@ -50,7 +50,6 @@ class AlumnoController extends Controller
     public function update(Request $request, $id)
     {
         $request->validate([
-            'idUsuario' => 'required|string|',
             'nombre' => 'string',
             'apellido' => 'string',
             'email' => 'string',

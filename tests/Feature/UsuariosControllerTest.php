@@ -23,8 +23,7 @@ class UsuariosControllerTest extends TestCase
         $user = $this->createNewUser();
         $newPassword = '123456';
         
-        $response = $this->put('api/contrasenia',[
-            'id' => $user['username'],
+        $response = $this->put('api/usuario/'.$user['username'].'/contrasenia',[
             'contrasenia' => $newPassword,
         ],[
             'token' => [
