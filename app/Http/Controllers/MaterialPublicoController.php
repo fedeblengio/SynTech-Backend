@@ -54,9 +54,10 @@ class MaterialPublicoController extends Controller
                 ->where('idMaterialPublico', $p->id)
                 ->distinct()
                 ->get();
-
-            $p->imgEncabezado = base64_encode(Storage::disk('ftp')->get($p->imgEncabezado));
-
+            if(!App::environment('testing')){
+                $p->imgEncabezado = base64_encode(Storage::disk('ftp')->get($p->imgEncabezado));
+            }
+          
             $arrayArchivos = array();
 
 
