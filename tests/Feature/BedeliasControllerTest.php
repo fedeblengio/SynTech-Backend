@@ -49,8 +49,13 @@ class BedeliasControllerTest extends TestCase
 
     public function deleteCreatedLDAPUser($samaccountname)
     {
-        $user = User::find('cn='.$samaccountname.',ou=UsuarioSistema,dc=syntech,dc=intra');
-        $user->delete();
+        try{
+            $user = User::find('cn='.$samaccountname.',ou=UsuarioSistema,dc=syntech,dc=intra');
+            $user->delete();
+        }catch(\Exception $e){
+            return null;
+        }
+ 
     }
 
     public function test_list_users_bedelia()
