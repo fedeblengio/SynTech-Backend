@@ -221,7 +221,6 @@ class usuariosController extends Controller
     {
         $request->validate([
             'nombre' => 'required|string|max:80',
-            'apellido' => 'required|string|max:80',
             'email' => 'required|email',
             'genero' => 'string | nullable',
         ]);
