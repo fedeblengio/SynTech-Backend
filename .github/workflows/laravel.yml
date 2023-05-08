@@ -28,6 +28,8 @@ jobs:
       run: sudo sh -c "echo 'TLS_REQCERT never' > /etc/ldap/ldap.conf"
     - name: Test LDAP Conecction 
       run: php artisan ldap:test
+    - name: TLS FILE CONTENT
+      run: cat /etc/ldap/ldap.conf
     - name: Create Database
       run: |
         mkdir -p database
