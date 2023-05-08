@@ -49,3 +49,13 @@ jobs:
         DB_CONNECTION: sqlite
         DB_DATABASE: database/database.sqlite
       run: php artisan test --filter=AlumnoControllerTest
+    - name: ProfesorControllerTest
+      env:
+        DB_CONNECTION: sqlite
+        DB_DATABASE: database/database.sqlite
+      run: php artisan test --filter=ProfesorControllerTest
+    - name: UsuarioControllerTest
+      env:
+        DB_CONNECTION: sqlite
+        DB_DATABASE: database/database.sqlite
+      run: php artisan test --filter=UsuariosControllerTest
