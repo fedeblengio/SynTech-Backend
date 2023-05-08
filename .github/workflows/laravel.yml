@@ -26,12 +26,13 @@ jobs:
       run: chmod -R 777 storage bootstrap/cache
     - name: LDAP TLS
       run: sudo sh -c "echo 'TLS_REQCERT never' > /etc/ldap/ldap.conf"
-    - name: PING TO THE LDAP SERVER
-      run : sudo ping 190.64.41.140
     - name: Create Database
       run: |
         mkdir -p database
         touch database/database.sqlite
+    - name: IP ADD 
+      run: |
+        sudo ip addr add
     - name: Login Test
       env:
         DB_CONNECTION: sqlite
