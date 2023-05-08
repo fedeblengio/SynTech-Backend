@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
-
+use Illuminate\Support\Facades\App;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use App\Models\material_publico;
@@ -54,8 +54,10 @@ class MaterialPublicoController extends Controller
                 ->where('idMaterialPublico', $p->id)
                 ->distinct()
                 ->get();
-            
+            if(!App::environment('testing')){
                 $p->imgEncabezado = base64_encode(Storage::disk('ftp')->get($p->imgEncabezado));
+            }
+             
           
             $arrayArchivos = array();
 
@@ -87,7 +89,9 @@ class MaterialPublicoController extends Controller
 
     public function traerArchivo(Request $request)
     {
-        return Storage::disk('ftp')->get($request->archivo);
+        if(!App::environment('testing')){
+          return Storage::disk('ftp')->get($request->archivo);
+        }
     }
 
     public function destroy($id, Request $request)
@@ -96,7 +100,9 @@ class MaterialPublicoController extends Controller
 
         $arhivosMaterialPublico = archivos_material_publico::where('idMaterialPublico', $id)->get();
         foreach ($arhivosMaterialPublico as $p) {
-            Storage::disk('ftp')->delete($p->nombreArchivo);
+            if(!App::environment('testing')){
+                Storage::disk('ftp')->delete($p->nombreArchivo);
+            }
             $arhivosId = archivos_material_publico::where('id', $p->id)->first();
             $arhivosId->delete();
         }
@@ -127,7 +133,10 @@ class MaterialPublicoController extends Controller
     {
         if ($request->imagenEncabezado) {
             $nombreEncabezado = random_int(0, 1000000) . "_" . $request->nombreEncabezado;
-            Storage::disk('ftp')->put($nombreEncabezado, fopen($request->imagenEncabezado, 'r+'));
+            if(!App::environment('testing')){
+                Storage::disk('ftp')->put($nombreEncabezado, fopen($request->imagenEncabezado, 'r+'));
+            }
+         
         }
         return $nombreEncabezado;
     }
@@ -139,7 +148,9 @@ class MaterialPublicoController extends Controller
 
             for ($i = 0; $i < count($request->nombresArchivo); $i++) {
                 $nombreArchivo = random_int(0, 1000000) . "_" . $request->nombresArchivo[$i];
+                if(!App::environment('testing')){
                 Storage::disk('ftp')->put($nombreArchivo, fopen($request->archivos[$i], 'r+'));
+                }
                 $archivosForo = new archivos_material_publico;
                 $archivosForo->idMaterialPublico = $idDatos->id;
                 $archivosForo->nombreArchivo = $nombreArchivo;
