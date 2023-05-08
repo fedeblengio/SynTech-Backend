@@ -59,8 +59,29 @@ jobs:
         DB_CONNECTION: sqlite
         DB_DATABASE: database/database.sqlite
       run: php artisan test --filter=UsuariosControllerTest
-    - name: MaterialPublicoTest
+    - name: MaterialPublicoControllerTest
       env:
         DB_CONNECTION: sqlite
         DB_DATABASE: database/database.sqlite
       run: php artisan test --filter=MaterialPublicoControllerTest
+    - name: GrupoControllerTest
+      env:
+        DB_CONNECTION: sqlite
+        DB_DATABASE: database/database.sqlite
+      run: php artisan test --filter=GrupoControllerTest
+    - name: MateriaControllerTest
+      env:
+        DB_CONNECTION: sqlite
+        DB_DATABASE: database/database.sqlite
+      run: php artisan test --filter=MateriaControllerTest
+    - name: CarreraControllerTest
+      env:
+        DB_CONNECTION: sqlite
+        DB_DATABASE: database/database.sqlite
+      run: php artisan test --filter=CarreraControllerTest
+    - name: GradoControllerTest
+      env:
+        DB_CONNECTION: sqlite
+        DB_DATABASE: database/database.sqlite
+      run: php artisan test --filter=GradoControllerTest
+
