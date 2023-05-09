@@ -9,6 +9,8 @@ use App\Models\usuarios;
 use Illuminate\Support\Facades\DB;
 use App\Services\Files;
 use Illuminate\Support\Facades\App;
+use LdapRecord\Models\ActiveDirectory\Group;
+use LdapRecord\Models\ActiveDirectory\User;
 class BedeliaController extends Controller
 {
     public function index(Request $request)
@@ -52,6 +54,10 @@ class BedeliaController extends Controller
 
         $usuarioController = new usuariosController();
         $bedelia = bedelias::find($id);
+        if($bedelia->cargo != $request->cargo){
+            $usuarioController->eliminarUsuarioGrupoAD($bedelia->id, $bedelia->cargo);
+            $usuarioController->agregarUsuarioGrupoAD($bedelia->id, $request->cargo);
+        }
         if(empty($bedelia)){
             return response()->json(['error' => 'Usuario no encontrada'], 404);
         }
@@ -60,4 +66,17 @@ class BedeliaController extends Controller
         return $usuarioController->update($request, $id);
     }
 
+   
+
+    public function agregarUsuarioGrupoAD($idUsuario, $grupo){
+
+        $group = Group::find('cn='.$grupo.',ou=Grupos,dc=syntech,dc=intra');
+
+        $user = User::find('cn='.$idUsuario.',ou=UsuarioSistema,dc=syntech,dc=intra');
+        
+        $group->members()->attach($user);
+
+    }
+
+    
 }

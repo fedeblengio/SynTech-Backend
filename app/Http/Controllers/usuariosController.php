@@ -388,7 +388,15 @@ class usuariosController extends Controller
 
     }
 
-    
+    public function eliminarUsuarioGrupoAD($idUsuario, $grupo){
+
+        $group = Group::find('cn='.$grupo.',ou=Grupos,dc=syntech,dc=intra');
+
+        $user = $group->members()->where('cn', '=', $idUsuario)->first();
+        
+        $group->members()->detach($user);
+
+    }
 
     public function getAllButNotBedelias()
     {
