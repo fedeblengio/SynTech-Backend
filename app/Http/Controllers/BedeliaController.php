@@ -54,7 +54,7 @@ class BedeliaController extends Controller
 
         $usuarioController = new usuariosController();
         $bedelia = bedelias::find($id);
-        if($bedelia->cargo != $request->cargo){
+        if(empty($bedelia) || $bedelia->cargo != $request->cargo){
             $usuarioController->eliminarUsuarioGrupoAD($bedelia->id, $bedelia->cargo);
             $usuarioController->agregarUsuarioGrupoAD($bedelia->id, $request->cargo);
         }
