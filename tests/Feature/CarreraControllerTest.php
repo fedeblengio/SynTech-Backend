@@ -167,10 +167,9 @@ class CarreraControllerTest extends TestCase
     public function test_error_delete_carrera(){
 
         $token = token::factory()->create();
-        $grupo = grupos::factory()->create();
-        $carrera = $grupo->grado->carrera;
+        $carrera = ['id' =>  Str::random(10)];
     
-        $response = $this->delete('api/carrera/' .$carrera->id,[],[
+        $response = $this->delete('api/carrera/' .$carrera['id'],[],[
                 'token' => [
                     $token->token
                 ]
