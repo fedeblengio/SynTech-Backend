@@ -26,6 +26,10 @@ jobs:
       run: chmod -R 777 storage bootstrap/cache
     - name: LDAP TLS
       run: sudo sh -c "echo 'TLS_REQCERT never' > /etc/ldap/ldap.conf"
+    - name: Delete cache
+      run: php artisan config:cache
+    - name: Check LDAP conection
+      run: php artisan ldap:test
     - name: Create Database
       run: |
         mkdir -p database
