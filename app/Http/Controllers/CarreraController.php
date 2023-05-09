@@ -68,15 +68,20 @@ class CarreraController extends Controller
         if(empty($id)){
             return response()->json(['status' => "Bad request"], 404);
         }
-        try {
+       try { 
             $carrera = Carrera::findOrFail($id);
-            $carrera->grado()->delete();
+            foreach($carrera->grado as $grado){
+                $grado->grupos()->delete();
+                $grado->materias()->detach();
+                $grado->delete();
+            }
             $carrera->delete();
+
             return $carrera;
             RegistrosController::store("CARRERA", $request->header('token'), "DELETE", $carrera->nombre);
-        } catch (Exception $e) {
+       } catch (Exception $e) {
             return response()->json(['status' => "Error al eliminar carrera"], 400);
-        }
+        } 
 
 
     }
