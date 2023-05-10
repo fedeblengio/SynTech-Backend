@@ -60,6 +60,7 @@ Route::middleware(['verificar_token'])->group(function () {
     Route::put('/carrera/{id}', 'App\Http\Controllers\CarreraController@update')->middleware('controlar_admnistrativo');
     Route::delete('/carrera/{id}', 'App\Http\Controllers\CarreraController@destroy')->middleware('controlar_admnistrativo');
     Route::delete('/carrera/{id}/grado/{idGrado}', 'App\Http\Controllers\CarreraController@destroyGrado')->middleware('controlar_admnistrativo');
+    Route::put('/carrera/{id}/activar', 'App\Http\Controllers\CarreraController@activar')->middleware('controlar_admnistrativo');
     
     //GRADO
     Route::put('/grado/{id}', 'App\Http\Controllers\GradoController@update')->middleware('controlar_admnistrativo');

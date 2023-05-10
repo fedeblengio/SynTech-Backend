@@ -14,9 +14,20 @@ use LdapRecord\Query\Events\Read;
 
 class CarreraController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
+        if($request->eliminado)
+        {
+            return response()->json(Carrera::onlyTrashed()->get());
+        }
         return response()->json(Carrera::all()->load('grado'));
+    }
+
+    public function activar($id){
+        $carrera = Carrera::onlyTrashed()->find($id);
+        $carrera->restore();
+        Grado::onlyTrashed()->where('carrera_id', $id)->restore();
+        return response()->json($carrera);
     }
 
     public function show($id)
@@ -107,6 +118,11 @@ class CarreraController extends Controller
     {
         foreach ($grados as $grado) {
             if ($carrera->grado()->where('grado', $grado)->first()) {
+                continue;
+            }
+            $g=Grado::onlyTrashed()->where('carrera_id', $carrera->id)->where('grado', $grado)->first();
+            if ($g){
+                $g->restore();
                 continue;
             }
             $carrera->grado()->create([
