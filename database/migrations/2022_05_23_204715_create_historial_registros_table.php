@@ -15,7 +15,7 @@ class CreateHistorialRegistrosTable extends Migration
     {
         Schema::create('historial_registros', function (Blueprint $table) {
             $table->id();
-            $table->string('idUsuario', 8);
+            $table->string('idUsuario');
             $table->string('app');
             $table->string('accion');
             $table->string('mensaje');

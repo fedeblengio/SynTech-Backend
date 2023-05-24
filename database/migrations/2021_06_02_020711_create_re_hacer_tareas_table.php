@@ -19,7 +19,7 @@ class CreateReHacerTareasTable extends Migration
             $table->unsignedBigInteger('idTareas');
             $table->string('calificacion')->nullable();
             $table->primary(['idTareasNueva', 'idTareas']);
-            $table->integer('idAlumnos');
+            $table->string('idAlumnos');
             $table->string('mensaje')->nullable();
             $table->string('mensaje_profesor')->nullable();
             $table->timestamps();

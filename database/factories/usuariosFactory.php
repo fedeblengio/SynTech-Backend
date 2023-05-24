@@ -13,13 +13,13 @@ class UsuariosFactory extends Factory
      */
     public function definition()
     {
-        return [
+         return [
             'id' => $this->faker->unique()->randomNumber($nbDigits = 8),
             'nombre' => $this->faker->name,
-            'email' => $this->faker->name,
-            'ou' => $this->faker->unique()->safeEmail,
-            'imagen_perfil' => $this->faker->name,
-            'genero' => $this->faker->name,
+            'email' =>$this->faker->unique()->safeEmail,
+            'ou' => 'Alumno',
+            'imagen_perfil' => "default_picture.png",
+            'genero' => "",
         ];
     }
 }

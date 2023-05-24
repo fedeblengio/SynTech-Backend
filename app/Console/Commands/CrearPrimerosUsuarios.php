@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\Models\bedelias;
 use App\Models\usuarios;
 use Illuminate\Console\Command;
+use LdapRecord\Models\ActiveDirectory\Group;
 use LdapRecord\Models\ActiveDirectory\User;
 
 class CrearPrimerosUsuarios extends Command
@@ -41,7 +42,11 @@ class CrearPrimerosUsuarios extends Command
     public function handle()
     {
         dump('Creando usuario');
-        $cedula = "00000000";
+        $cedula = "11111111";
+        if(usuarios::find($cedula)){
+            $cedula = $this->ask('Ya existe un usuario con esa cedula, ingrese otra');
+        }
+
         $user = (new User)->inside('ou=UsuarioSistema,dc=syntech,dc=intra');
         $user->cn =$cedula;
         $user->unicodePwd = $cedula;
@@ -62,7 +67,16 @@ class CrearPrimerosUsuarios extends Command
             'cargo'=>'administrador'
          ]);
 
-        dump('Fin');
+         try{
+            $group = Group::find('cn=Supervisor,ou=Grupos,dc=syntech,dc=intra');
+            $group->members()->attach($user);
+         }catch(\Exception $e){
+            dump($e);
+         }
 
+        dump('Usuario creado');
+        dump('U : '.$cedula);
+        dump('P : '.$cedula);
+        dump('-------FIN--------');
     }
 }

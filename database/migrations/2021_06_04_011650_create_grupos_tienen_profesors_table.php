@@ -17,10 +17,9 @@ class CreateGruposTienenProfesorsTable extends Migration
             $table->id();
             $table->unsignedBigInteger('idMateria');
             $table->string('idGrupo', 10);
-            $table->integer('idProfesor');
-            $table->unique(['idGrupo', 'idProfesor', 'idMateria']);
+            $table->string('idProfesor');
+            $table->unique(['idGrupo','idProfesor','idMateria']);
             $table->timestamps();
-            $table->softDeletes();
         });
 
         Schema::table('grupos_tienen_profesor', function (Blueprint $table) {

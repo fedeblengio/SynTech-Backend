@@ -8,5 +8,4 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class alumnos_pertenecen_grupos extends Model
 {
     use HasFactory;
-    use SoftDeletes;
 }

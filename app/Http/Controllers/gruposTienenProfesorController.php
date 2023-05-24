@@ -123,13 +123,13 @@ class gruposTienenProfesorController extends Controller
         $newForo->informacion = $request->idGrupo . "-" . $request->idProfesor . "-" . $request->idMateria;
         $newForo->save();
 
-        $idForo = DB::table('foros')->orderBy('created_at', 'desc')->limit(1)->get('id');
+        $idForo = $newForo->id;
 
         $profesorEstanGrupoForo = new profesorEstanGrupoForo;
         $profesorEstanGrupoForo->idMateria = $request->idMateria;
         $profesorEstanGrupoForo->idProfesor = $request->idProfesor;
         $profesorEstanGrupoForo->idGrupo = $request->idGrupo;
-        $profesorEstanGrupoForo->idForo = $idForo[0]->id;
+        $profesorEstanGrupoForo->idForo = $idForo;
         $profesorEstanGrupoForo->save();
 
         RegistrosController::store("FORO PROFESOR", $request->header('token'), "CREATE", $request->idGrupo . " - " . $request->idProfesor);
@@ -226,10 +226,7 @@ class gruposTienenProfesorController extends Controller
         return base64_encode(Storage::disk('ftp')->get($nombre_archivo));
     }
 
-    /**
-     * @param Request $request
-     * @return \Illuminate\Http\JsonResponse
-     */
+
     public function activarProfesorGrupo(Request $request): \Illuminate\Http\JsonResponse
     {
         DB::table('grupos_tienen_profesor')
@@ -245,10 +242,7 @@ class gruposTienenProfesorController extends Controller
         return response()->json(['status' => 'Success'], 200);
     }
 
-    /**
-     * @param Request $request
-     * @return \Illuminate\Http\JsonResponse
-     */
+
     public function agregarProfesorGrupo(Request $request): \Illuminate\Http\JsonResponse
     {
         $agregarProfesorGrupo = new grupos_tienen_profesor;
