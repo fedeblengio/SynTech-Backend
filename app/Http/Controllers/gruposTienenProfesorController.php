@@ -123,13 +123,13 @@ class gruposTienenProfesorController extends Controller
         $newForo->informacion = $request->idGrupo . "-" . $request->idProfesor . "-" . $request->idMateria;
         $newForo->save();
 
-        $idForo = DB::table('foros')->orderBy('created_at', 'desc')->limit(1)->get('id');
+        $idForo = $newForo->id;
 
         $profesorEstanGrupoForo = new profesorEstanGrupoForo;
         $profesorEstanGrupoForo->idMateria = $request->idMateria;
         $profesorEstanGrupoForo->idProfesor = $request->idProfesor;
         $profesorEstanGrupoForo->idGrupo = $request->idGrupo;
-        $profesorEstanGrupoForo->idForo = $idForo[0]->id;
+        $profesorEstanGrupoForo->idForo = $idForo;
         $profesorEstanGrupoForo->save();
 
         RegistrosController::store("FORO PROFESOR", $request->header('token'), "CREATE", $request->idGrupo . " - " . $request->idProfesor);

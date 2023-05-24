@@ -16,8 +16,8 @@ class UsuariosFactory extends Factory
          return [
             'id' => $this->faker->unique()->randomNumber($nbDigits = 8),
             'nombre' => $this->faker->name,
-            'email' => $this->faker->name,
-            'ou' => $this->faker->unique()->safeEmail,
+            'email' =>$this->faker->unique()->safeEmail,
+            'ou' => 'Alumno',
             'imagen_perfil' => "default_picture.png",
             'genero' => "",
         ];

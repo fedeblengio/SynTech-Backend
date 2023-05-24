@@ -12,17 +12,21 @@ use LdapRecord\Connection;
 use Carbon\Carbon;
 use App\Models\Registros;
 use Illuminate\Support\Facades\Storage;
+use Symfony\Component\CssSelector\XPath\Extension\FunctionExtension;
 
 class loginController extends Controller
 {
 
     public function connect(Request $request)
     {
-
+        $request->validate([
+            'username' => 'required',
+            'password' => 'required',
+        ]);
         $u = usuarios::where('id', $request->username)->first();
-
-        if ($u->ou == "Profesor" || $u->ou == "Alumno"){
-            return response()->json(['error' => 'Unauthenticated.'], 401);
+    
+        if (empty($u) || $u->ou == "Profesor" || $u->ou == "Alumno"){
+            return response()->json(['error' => 'Unauthenticated'], 401);
         }
 
         $connection = new Connection([
@@ -85,14 +89,20 @@ class loginController extends Controller
         return  $base64data;
     }
 
-
-
+    public function cerrarSesion(Request $request)
+    {
+        $token = token::where('token', $request->header('token'))->first();
+        if($token){
+            $token->delete();
+        }
+        return response()->json(['message' => 'Sesion cerrada'], 200);
+    }
 
     public function guardarToken($token)
     {
         $t = new token;
         $t->token = $token;
-        $t->fecha_vencimiento = Carbon::now()->addMinutes(90);
+        $t->fecha_vencimiento = Carbon::now()->addMinutes(120);
         $t->save();
     }
 

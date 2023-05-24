@@ -39,7 +39,7 @@ class CreacionGruposAD extends Command
     public function handle()
     {   
     dump('Creando Grupos AD');
-    $grupos = ['Adminsitrativo', 'Director', 'Adscripto', 'Subdirector', 'Profesor', 'Alumno', 'Bedelias', 'Supervisor'];
+    $grupos = ['Administrativo', 'Director', 'Adscripto', 'Subdirector', 'Profesor', 'Alumno', 'Bedelias', 'Supervisor'];
     foreach ($grupos as $grupo) {
         if(Group::find('cn='.$grupo.',ou=Grupos,dc=syntech,dc=intra'))
         { 
@@ -50,7 +50,7 @@ class CreacionGruposAD extends Command
         $group->save();
     }
     $group = Group::find('cn=Bedelias,ou=Grupos,dc=syntech,dc=intra');
-    $groupsMembers = ['Adminsitrativo', 'Director', 'Adscripto', 'Subdirector'];
+    $groupsMembers = ['Administrativo', 'Director', 'Adscripto', 'Subdirector'];
     foreach ($groupsMembers as $groupMember) {
         $groupsMember = Group::find('cn='.$groupMember.',ou=Grupos,dc=syntech,dc=intra');
         $group->members()->attach($groupsMember);

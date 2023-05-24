@@ -35,8 +35,8 @@ class verificarTokenValido
 
     public function actualizarFechaVencimiento($t,$fechaActual,$fechaVencimiento)
     {
-        if($fechaActual->diffInMinutes($fechaVencimiento) < 10){
-            $t->fecha_vencimiento = Carbon::now()->addMinutes(30);
+        if($fechaActual->diffInMinutes($fechaVencimiento) < 30){
+            $t->fecha_vencimiento = Carbon::now()->addMinutes(120);
             $t->save();
         }
 

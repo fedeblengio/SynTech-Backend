@@ -23,4 +23,8 @@ class profesores extends Model
     public function usuario(){
         return $this->belongsTo(usuarios::class,'id', 'id');
     }
+
+    public function grupos(){
+        return $this->belongsToMany(grupos::class, 'grupos_tienen_profesor', 'idProfesor', 'idGrupo')->withTimestamps();
+    }
 }

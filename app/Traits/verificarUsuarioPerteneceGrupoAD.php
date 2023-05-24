@@ -1,6 +1,8 @@
 <?php
 
 namespace App\Traits;
+use LdapRecord\Models\ActiveDirectory\User;
+
 
 trait verificarUsuarioPerteneceGrupoAD
 {
@@ -12,7 +14,8 @@ trait verificarUsuarioPerteneceGrupoAD
      * @return string
      */
 
-     public function verificarPerteneceGrupoAD($user,$grupos){
+     public function verificarPerteneceGrupoAD($id,$grupos){
+        $user = User::find('cn='.$id.',ou=UsuarioSistema,dc=syntech,dc=intra');
         $groupsAD = $user->groups()->get();
         foreach($grupos as $grupo){
             if($groupsAD->contains($grupo)){
