@@ -62,15 +62,14 @@ class BedeliasControllerTest extends TestCase
     {
         $token = token::factory()->create();
         $bedelia1 =  $this->createNewBedelia();
-        $bedelia2 =  $this->createNewBedelia();
         $response = $this->get('api/bedelia',[
             'token' => [
                 $token->token,
             ],
         ]);
         $response->assertStatus(200);
+        $this->assertEquals(1, count($response->json()));
         $response->assertSee($bedelia1);
-        $response->assertSee($bedelia2);
 
     }
 
