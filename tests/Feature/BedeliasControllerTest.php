@@ -110,7 +110,7 @@ class BedeliasControllerTest extends TestCase
         $bedelias = bedelias::factory()->create([
             'id' => $randomID,
             'Cedula_Bedelia' =>$randomID,
-            'cargo' => 'administrador'
+            'cargo' => 'Supervisor'
         ]);
 
         return $randomID;
