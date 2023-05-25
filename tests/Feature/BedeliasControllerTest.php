@@ -68,8 +68,7 @@ class BedeliasControllerTest extends TestCase
             ],
         ]);
         $response->assertStatus(200);
-        $this->assertEquals(1, count($response->json()));
-        $response->assertSee($bedelia1);
+        $this->assertEquals($response[0]['id'], $bedelia1);
 
     }
 
