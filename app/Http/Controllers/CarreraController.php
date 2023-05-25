@@ -95,7 +95,7 @@ class CarreraController extends Controller
     public function destroyGrado($id, $idGrado, Request $request)
     {
         $carrera = Carrera::findOrFail($id);
-        $grado = $carrera->grado->find($idGrado);
+        $grado = $carrera->grado->findOrFail($idGrado);
 
         if (empty($grado)) {
             return response()->json(['status' => "Grado no encontrado"], 404);
