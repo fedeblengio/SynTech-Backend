@@ -6,11 +6,6 @@ use Exception;
 use Illuminate\Http\Request;
 use App\Models\Carrera;
 use App\Models\Grado;
-use App\Models\carrera_tiene_materias;
-use App\Models\grupos_pertenecen_carrera;
-use GrahamCampbell\ResultType\Success;
-use Illuminate\Support\Facades\DB;
-use LdapRecord\Query\Events\Read;
 
 class CarreraController extends Controller
 {
@@ -129,19 +124,6 @@ class CarreraController extends Controller
                 'grado' => $grado
             ]);
         }
-    }
-
-    public function agregarGradoMaterias(Request $request)
-    {
-        foreach ($request->materias as $materia) {
-            carrera_tiene_materias::create($request->carrera_id, $materia->id, $materia->cantidad_horas, $request->grado_i);
-        }
-    }
-
-    public function agregarCarreraGrupos(Request $request)
-    {
-        foreach ($request->grupo_id as $grupo)
-            grupos_pertenecen_carrera::create($request->carrera_id, $request->grado_id, $grupo);
     }
 
 }

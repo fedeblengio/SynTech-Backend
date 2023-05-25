@@ -7,18 +7,15 @@ use App\Models\usuarios;
 use App\Models\alumnos;
 use App\Models\profesores;
 use App\Models\bedelias;
-use App\Models\alumnos_pertenecen_grupos;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 use App\Traits\verificarUsuarioPerteneceGrupoAD;
 use LdapRecord\Models\ActiveDirectory\User;
-use App\Http\Controllers\agregarUsuarioGrupoController;
 use App\Http\Controllers\RegistrosController;
-use App\Http\Controllers\profesorDictaMateriaController;
-use Illuminate\Support\Facades\Mail;
 use LdapRecord\Models\ActiveDirectory\Group;
-use App\Mail\TestMail;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\MyTestMail;
 
 
 class usuariosController extends Controller

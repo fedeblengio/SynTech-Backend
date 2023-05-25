@@ -6,13 +6,11 @@ use Illuminate\Support\Facades\DB;
 use App\Models\token;
 use App\Models\usuarios;
 use Illuminate\Http\Request;
-use LdapRecord\Models\ActiveDirectory\User;
-use Illuminate\Support\Str;
 use LdapRecord\Connection;
 use Carbon\Carbon;
 use App\Models\Registros;
 use Illuminate\Support\Facades\Storage;
-use Symfony\Component\CssSelector\XPath\Extension\FunctionExtension;
+
 
 class loginController extends Controller
 {
