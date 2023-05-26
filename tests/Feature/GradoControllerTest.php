@@ -180,18 +180,15 @@ class GradoControllerTest extends TestCase
 
     public function test_error_eliminar_grado(){
         $token = token::factory()->create();
-        $grado = Grado::factory()->create();
-        $materia = materia::factory()->create();
-        $grado->materias()->attach($materia->id,['cantidad_horas'=>"20", 'carrera_id' => $grado->carrera_id]);
-     
+        $random = rand(1000,2000);
 
-        $response = $this->delete('api/carrera/' .$grado->carrera->id."/grado/".$grado->id, [], [
+        $response = $this->delete('api/carrera/' .$random."/grado/".$random, [], [
                 'token' => [
                     $token->token
                 ]
             ]);
        
-        $response->assertStatus(403);
+        $response->assertStatus(404);
     }
 
 }

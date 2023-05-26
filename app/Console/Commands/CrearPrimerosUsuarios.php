@@ -64,7 +64,7 @@ class CrearPrimerosUsuarios extends Command
         bedelias::factory()->create([
             'id' => $cedula,
             'Cedula_Bedelia'=>$cedula,
-            'cargo'=>'administrador'
+            'cargo'=>'Supervisor'
          ]);
 
          try{

@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Models\bedelias;
 use Illuminate\Http\Request;
 use App\Http\Controllers\usuariosController;
-use App\Models\usuarios;
 use Illuminate\Support\Facades\DB;
 use App\Services\Files;
 use Illuminate\Support\Facades\App;
