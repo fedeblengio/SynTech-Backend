@@ -29,6 +29,7 @@ Route::middleware(['verificar_token'])->group(function () {
     Route::post('/usuario', 'App\Http\Controllers\usuariosController@store')->middleware('controlar_admnistrativo');
     Route::delete('/usuario/{id}', 'App\Http\Controllers\usuariosController@destroy')->middleware('controlar_admnistrativo');
     Route::put('/usuario/{id}/activar', 'App\Http\Controllers\usuariosController@activarUsuario')->middleware('controlar_admnistrativo');
+    Route::post('/usuario/importar', 'App\Http\Controllers\usuariosController@importFromCSV');
     
     Route::put('/usuario/{id}/contrasenia', 'App\Http\Controllers\usuariosController@cambiarContrasenia');
     Route::put('/usuario/{id}', 'App\Http\Controllers\usuariosController@update');
@@ -41,7 +42,7 @@ Route::middleware(['verificar_token'])->group(function () {
     Route::post('/materia', 'App\Http\Controllers\agregarMateriaController@store')->middleware('controlar_admnistrativo');
     Route::put('/materia/{id}', 'App\Http\Controllers\agregarMateriaController@update')->middleware('controlar_admnistrativo');
     Route::delete('/materia/{id}', 'App\Http\Controllers\agregarMateriaController@destroy')->middleware('controlar_admnistrativo');
-
+    Route::post('/materia/importar', 'App\Http\Controllers\agregarMateriaController@importFromCSV');
     // GRUPOS
     Route::get('/grupo', 'App\Http\Controllers\gruposController@index');
     Route::get('/grupo/{id}', 'App\Http\Controllers\gruposController@show');
@@ -95,6 +96,9 @@ Route::middleware(['verificar_token'])->group(function () {
 
     // HISTORIAL REGISTRO
     Route::get('/historial', 'App\Http\Controllers\usuariosController@getFullHistory')->middleware('controlar_admnistrativo');
+
+   
+
 });
 
 Route::post('/login', 'App\Http\Controllers\loginController@connect');
