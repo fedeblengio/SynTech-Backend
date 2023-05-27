@@ -11,6 +11,7 @@ use App\Services\Files;
 use Illuminate\Support\Facades\App;
 use LdapRecord\Models\ActiveDirectory\Group;
 use LdapRecord\Models\ActiveDirectory\User;
+use Illuminate\Support\Facades\Validator;
 class BedeliaController extends Controller
 {
     public function index(Request $request)
@@ -82,6 +83,24 @@ class BedeliaController extends Controller
         
         $group->members()->attach($user);
 
+    }
+
+    public function importFromCSV(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'file' => 'required|mimes:csv,txt'
+        ]);
+        if ($validator->fails()) {
+            return response()->json(['error' => $validator->errors()->first()], 400);
+        }
+        try {
+            $file = $request->file('file');
+            $usuarioController = new usuariosController();
+            $usuarioController->importFromCSV($file, 'Bedelias');
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 400);
+        }
+        return response()->json(['message' => 'CSV file imported successfully']);
     }
 
     

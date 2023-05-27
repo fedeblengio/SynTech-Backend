@@ -29,8 +29,7 @@ Route::middleware(['verificar_token'])->group(function () {
     Route::post('/usuario', 'App\Http\Controllers\usuariosController@store')->middleware('controlar_admnistrativo');
     Route::delete('/usuario/{id}', 'App\Http\Controllers\usuariosController@destroy')->middleware('controlar_admnistrativo');
     Route::put('/usuario/{id}/activar', 'App\Http\Controllers\usuariosController@activarUsuario')->middleware('controlar_admnistrativo');
-    Route::post('/usuario/importar', 'App\Http\Controllers\usuariosController@importFromCSV');
-    
+
     Route::put('/usuario/{id}/contrasenia', 'App\Http\Controllers\usuariosController@cambiarContrasenia');
     Route::put('/usuario/{id}', 'App\Http\Controllers\usuariosController@update');
     Route::get('/usuario/{id}/imagen-perfil', 'App\Http\Controllers\usuariosController@traerImagen');
@@ -74,17 +73,19 @@ Route::middleware(['verificar_token'])->group(function () {
     Route::get('/profesor/{id}', 'App\Http\Controllers\ProfesorController@show');
     Route::get('/profesor', 'App\Http\Controllers\ProfesorController@index');
     Route::get('/profesor/{id}/materias', 'App\Http\Controllers\profesorDictaMateriaController@materiasNoPertenecenProfesor');
-
+    Route::post('/profesor/importar', 'App\Http\Controllers\ProfesorController@importFromCSV')->middleware('controlar_admnistrativo');
     //AlUMNOS
     Route::get('/alumno', 'App\Http\Controllers\AlumnoController@index');
     Route::get('/alumno/{id}', 'App\Http\Controllers\AlumnoController@show');
     Route::put('/alumno/{id}', 'App\Http\Controllers\AlumnoController@update')->middleware('controlar_admnistrativo');
     Route::get('/alumno/{id}/grupos', 'App\Http\Controllers\AlumnoController@gruposNoPertenecenAlumno');
+    Route::post('/alumno/importar', 'App\Http\Controllers\AlumnoController@importFromCSV')->middleware('controlar_admnistrativo');
 
     //BEDELIAS
     Route::get('/bedelia', 'App\Http\Controllers\BedeliaController@index')->middleware('controlar_director_subdirector');
     Route::get('/bedelia/{id}', 'App\Http\Controllers\BedeliaController@show')->middleware('controlar_director_subdirector');
     Route::put('/bedelia/{id}', 'App\Http\Controllers\BedeliaController@update')->middleware('controlar_director_subdirector');
+    Route::post('/bedelia/importar', 'App\Http\Controllers\BedeliaController@importFromCSV')->middleware('controlar_admnistrativo');
 
     //NOTICIAS
     Route::post('/noticia', 'App\Http\Controllers\MaterialPublicoController@store');

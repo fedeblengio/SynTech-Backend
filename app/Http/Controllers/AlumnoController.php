@@ -11,6 +11,7 @@ use App\Models\usuarios;
 use App\Services\Files;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Validator;
 class AlumnoController extends Controller
 {
 
@@ -68,5 +69,23 @@ class AlumnoController extends Controller
         })->get();
 
         return response()->json($resultado);
+    }
+
+    public function importFromCSV(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'file' => 'required|mimes:csv,txt'
+        ]);
+        if ($validator->fails()) {
+            return response()->json(['error' => $validator->errors()->first()], 400);
+        }
+        try {
+            $file = $request->file('file');
+            $usuarioController = new usuariosController();
+            $usuarioController->importFromCSV($file, 'Alumno');
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 400);
+        }
+        return response()->json(['message' => 'CSV file imported successfully']);
     }
 }
