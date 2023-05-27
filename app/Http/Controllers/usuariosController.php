@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+
 use Illuminate\Support\Facades\Storage;
 use App\Models\usuarios;
 use App\Models\alumnos;
@@ -20,14 +21,20 @@ use App\Mail\MyTestMail;
 
 class usuariosController extends Controller
 {
-
+   const FILE_HEADERS = [
+        "samaccountname" => 0,
+        "name" => 1,
+        "surname" => 2,
+        "userPrincipalName" => 3,
+        "cargo" => 4,
+    ];  
     use verificarUsuarioPerteneceGrupoAD;
 
-     public function index(Request $request)
+    public function index(Request $request)
     {
-      
+
         $id = json_decode(base64_decode($request->header('token')))->username;
-        $user = User::find('cn='.$id.',ou=UsuarioSistema,dc=syntech,dc=intra');
+        $user = User::find('cn=' . $id . ',ou=UsuarioSistema,dc=syntech,dc=intra');
         $notBedelias = [
             'Administrativo',
             'Adscripto',
@@ -37,20 +44,21 @@ class usuariosController extends Controller
             'Subdirector',
         ];
         $adminRol = ['Supervisor'];
-        if ($this->verificarPerteneceGrupoAD($user,$notBedelias)) {
+        if ($this->verificarPerteneceGrupoAD($user, $notBedelias)) {
             return self::getAllButNotBedelias();
-        }    
-        if ($this->verificarPerteneceGrupoAD($user,$notSuperUser)) {
+        }
+        if ($this->verificarPerteneceGrupoAD($user, $notSuperUser)) {
             return self::getAllButNotSuperUser();
         }
-        if($this->verificarPerteneceGrupoAD($user,$adminRol)){
+        if ($this->verificarPerteneceGrupoAD($user, $adminRol)) {
             return response()->json(usuarios::all());
         }
-        return response()->json(['Error'=>"Unauthorized",403]);
+        return response()->json(['Error' => "Unauthorized", 403]);
     }
 
     public function store(Request $request)
     {
+
         $request->validate([
             'samaccountname' => 'required|string|max:8|min:8|unique:usuarios,id',
             'name' => 'required|string|max:80',
@@ -58,10 +66,13 @@ class usuariosController extends Controller
             'userPrincipalName' => 'required|email',
             'ou' => 'required|string',
         ]);
+   
         try {
+
             self::agregarUsuarioAD($request);
             $usuarioDB = self::agregarUsuarioDB($request);
             $usuarioDB['id'] = $request->samaccountname;
+          
             switch ($request->ou) {
                 case "Bedelias":
                     self::agregarBedelia($request);
@@ -73,7 +84,7 @@ class usuariosController extends Controller
                     self::agregarProfesor($request);
                     break;
             }
-
+         
             return response()->json($usuarioDB);
         } catch (\ValueError $e) {
             return response()->json(['status' => 'Error', 'message' => 'Bad request'], 400);
@@ -96,20 +107,19 @@ class usuariosController extends Controller
 
     public function agregarUsuarioAD(Request $request)
     {
-        $user = (new User)->inside('ou=UsuarioSistema,dc=syntech,dc=intra');
+        $user= new User;
+        $user->inside('ou=UsuarioSistema,dc=syntech,dc=intra');
         $user->cn = $request->samaccountname;
         $user->unicodePwd = $request->samaccountname;
         $user->samaccountname = $request->samaccountname;
+        try {
         $user->save();
         $user->refresh();
         $user->userAccountControl = 66048;
-
-        try {
-            $user->save();
+        $user->save();
         } catch (\LdapRecord\LdapRecordException $e) {
             return response()->json(['status' => 'Error', 'message' => 'Bad request'], 400);
         }
-
     }
 
 
@@ -125,11 +135,11 @@ class usuariosController extends Controller
     public function show($id)
     {
         $userDB = usuarios::where('id', $id)->first();
-        if(empty($userDB)){
-           return;
+        if (empty($userDB)) {
+            return;
         }
-        if(isset($userDB->imagen_perfil)){
-             $userDB->imagen_perfil = base64_encode(Storage::disk('ftp')->get($userDB->imagen_perfil));
+        if (isset($userDB->imagen_perfil)) {
+            $userDB->imagen_perfil = base64_encode(Storage::disk('ftp')->get($userDB->imagen_perfil));
         }
         $infoUser = self::returnMoreInfoUser($userDB);
         return response()->json(['user' => $userDB, 'info' => $infoUser]);
@@ -156,15 +166,15 @@ class usuariosController extends Controller
     {
         $usuario = usuarios::find($id);
 
-        if(empty($usuario)){
+        if (empty($usuario)) {
             return response()->json(['status' => 'Error', 'message' => 'Bad request'], 400);
         }
 
         if ($request->hasFile('archivo')) {
-            return $this->cambiarImagenDePerfil($request,$usuario);
+            return $this->cambiarImagenDePerfil($request, $usuario);
         }
         if ($usuario->imagen_perfil != "default_picture.png") {
-            return $this->establecerImagenPorDefecto($request,$usuario);
+            return $this->establecerImagenPorDefecto($request, $usuario);
         }
 
         if ($usuario->imagen_perfil == "default_picture.png") {
@@ -174,7 +184,7 @@ class usuariosController extends Controller
         return response()->json(['error' => 'Forbidden'], 403);
     }
 
-    public function cambiarImagenDePerfil(Request $request,$usuario)
+    public function cambiarImagenDePerfil(Request $request, $usuario)
     {
         $file = $request->archivo;
         $nombre = time() . "_" . $file->getClientOriginalName();
@@ -182,12 +192,12 @@ class usuariosController extends Controller
 
         $usuario->imagen_perfil = $nombre;
         $usuario->save();
-      
+
         return response()->json(['status' => 'Success'], 200);
     }
 
 
-    public function establecerImagenPorDefecto(Request $request ,$usuario)
+    public function establecerImagenPorDefecto(Request $request, $usuario)
     {
         Storage::disk('ftp')->delete($usuario->imagen_perfil);
         $usuario->imagen_perfil = "default_picture.png";
@@ -196,13 +206,13 @@ class usuariosController extends Controller
     }
 
     public function cambiarContrasenia(Request $request, $id)
-    {       
+    {
         $request->validate([
             'contrasenia' => 'string | nullable',
         ]);
-   
+
         $user = User::find('cn=' . $id . ',ou=UsuarioSistema,dc=syntech,dc=intra');
-      
+
         if ($request->contrasenia) {
             $user->unicodePwd = $request->contrasenia;
         } else {
@@ -224,7 +234,7 @@ class usuariosController extends Controller
         try {
             $usuario = usuarios::where('id', $id)->first();
             if ($usuario) {
-                $usuario->nombre = $request->nombre." ".$request->apellido;
+                $usuario->nombre = $request->nombre . " " . $request->apellido;
                 $usuario->email = $request->email;
                 $usuario->genero = $request->genero;
                 $usuario->save();
@@ -232,16 +242,18 @@ class usuariosController extends Controller
             RegistrosController::store("USUARIO", $request->header('token'), "UPDATE", $request->idUsuario);
             return response()->json([
                 'usuario' => $usuario,
-                'status' => 'Success'], 200);
+                'status' => 'Success'
+            ], 200);
         } catch (\Throwable $th) {
             return response()->json(['status' => 'Bad Request'], 400);
         }
     }
 
-    public function activarUsuario($id){
-        
-        $u = usuarios::withTrashed()->where('id',$id)->first();
-        if(empty($u)){
+    public function activarUsuario($id)
+    {
+
+        $u = usuarios::withTrashed()->where('id', $id)->first();
+        if (empty($u)) {
             return response()->json(['status' => 'Bad Request'], 400);
         }
 
@@ -251,7 +263,7 @@ class usuariosController extends Controller
         $user->refresh();
         $usuario = usuarios::onlyTrashed()->find($id);
         $usuario->restore();
-    
+
         switch ($usuario->ou) {
             case "Bedelias":
                 bedelias::onlyTrashed()->find($id)->restore();
@@ -268,24 +280,24 @@ class usuariosController extends Controller
     }
 
 
-    public function destroy(Request $request,$id)
+    public function destroy(Request $request, $id)
     {
         $existe = usuarios::where('id', $id)->first();
 
-        if(empty($existe)){
+        if (empty($existe)) {
             return response()->json(['status' => 'Bad Request'], 400);
         }
 
-        $user = User::find('cn=' .$id . ',ou=UsuarioSistema,dc=syntech,dc=intra');
+        $user = User::find('cn=' . $id . ',ou=UsuarioSistema,dc=syntech,dc=intra');
         try {
-                $existe->delete();
-                $user->userAccountControl = 514;
-                $user->save();
-                $user->refresh();
-                self::eliminarPersona($existe, $request->header('token'));
-                RegistrosController::store("USUARIO", $request->header('token'), "DELETE", $request->id);
-                return response()->json(['status' => 'Success'], 200);
-            
+            $existe->delete();
+            $user->userAccountControl = 514;
+            $user->save();
+            $user->refresh();
+            self::eliminarPersona($existe, $request->header('token'));
+            RegistrosController::store("USUARIO", $request->header('token'), "DELETE", $request->id);
+            return response()->json(['status' => 'Success'], 200);
+
         } catch (\Throwable $th) {
             return response()->json(['status' => 'Bad Request'], 400);
         }
@@ -304,14 +316,14 @@ class usuariosController extends Controller
             case "Alumno":
                 $alumnos = alumnos::where('id', $existe->id)->first();
                 $alumnos->delete();
-                
+
                 RegistrosController::store("ALUMNO", $token, "DELETE", $existe->id);
                 break;
             case "Profesor":
                 $profesores = profesores::where('id', $existe->id)->first();
                 $profesores->delete();
                 self::eliminarMateriaProfesor($existe, $token);
-              
+
                 RegistrosController::store("PROFESOR", $token, "DELETE", $existe->id);
                 break;
         }
@@ -336,11 +348,11 @@ class usuariosController extends Controller
         $alumno->id = $request->samaccountname;
         $alumno->save();
 
-      
-        $alumno->asignarGrupos($request->grupos,$alumno->Cedula_Alumno);
-
+        if(!empty($request->grupos)){
+            $alumno->asignarGrupos($request->grupos, $alumno->Cedula_Alumno);
+        }
+       
         self::agregarUsuarioGrupoAD($alumno->Cedula_Alumno, "Alumno");
-
         RegistrosController::store("ALUMNO", $request->header('token'), "CREATE", $request->samaccountname);
     }
 
@@ -351,8 +363,8 @@ class usuariosController extends Controller
         $profesores->Cedula_Profesor = $request->samaccountname;
         $profesores->id = $request->samaccountname;
         $profesores->save();
-   
-        $profesores->asignarMaterias($request->materias,$profesores->Cedula_Profesor);
+
+        $profesores->asignarMaterias($request->materias, $profesores->Cedula_Profesor);
 
         self::agregarUsuarioGrupoAD($profesores->Cedula_Profesor, "Profesor");
 
@@ -367,7 +379,7 @@ class usuariosController extends Controller
         $bedelias->id = $request->samaccountname;
         $bedelias->cargo = $request->cargo ? $request->cargo : "Adscripto";
         $bedelias->save();
-      
+
 
         self::agregarUsuarioGrupoAD($bedelias->Cedula_Bedelia, $bedelias->cargo);
 
@@ -375,22 +387,24 @@ class usuariosController extends Controller
 
     }
 
-    public function agregarUsuarioGrupoAD($idUsuario, $grupo){
+    public function agregarUsuarioGrupoAD($idUsuario, $grupo)
+    {
 
-        $group = Group::find('cn='.$grupo.',ou=Grupos,dc=syntech,dc=intra');
+        $group = Group::find('cn=' . $grupo . ',ou=Grupos,dc=syntech,dc=intra');
 
-        $user = User::find('cn='.$idUsuario.',ou=UsuarioSistema,dc=syntech,dc=intra');
-        
+        $user = User::find('cn=' . $idUsuario . ',ou=UsuarioSistema,dc=syntech,dc=intra');
+
         $group->members()->attach($user);
 
     }
 
-    public function eliminarUsuarioGrupoAD($idUsuario, $grupo){
+    public function eliminarUsuarioGrupoAD($idUsuario, $grupo)
+    {
 
-        $group = Group::find('cn='.$grupo.',ou=Grupos,dc=syntech,dc=intra');
+        $group = Group::find('cn=' . $grupo . ',ou=Grupos,dc=syntech,dc=intra');
 
         $user = $group->members()->where('cn', '=', $idUsuario)->first();
-        
+
         $group->members()->detach($user);
 
     }
@@ -447,5 +461,35 @@ class usuariosController extends Controller
             ->get();
     }
 
+    public function importFromCSV($file,$type)
+    {
+        try {
+            $data = \Excel::toArray([], $file)[0];
+            unset($data[0]);
+            foreach ($data as $value) {
+             $user = $this->buildRequestDataForUser($value,$type);
+             $this->store($user);
+            }
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 400);
+        }
+
+        return response()->json(['message' => 'CSV file imported successfully']);
+    }  
+    private function buildRequestDataForUser($value,$type)
+    {
+        $request = new Request();
+        $request->merge([
+            'samaccountname' =>(string)$value[self::FILE_HEADERS['samaccountname']],
+            'name' => $value[self::FILE_HEADERS['name']],
+            'surname' => $value[self::FILE_HEADERS['surname']],
+            'userPrincipalName' => $value[self::FILE_HEADERS['userPrincipalName']],
+            'ou' => $type,
+            'cargo' => $value[self::FILE_HEADERS['cargo']] ?? "",
+        ]);
+    
+        return $request;
+    }
+    
 
 }
