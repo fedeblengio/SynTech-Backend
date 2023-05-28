@@ -147,7 +147,7 @@ class MaterialPublicoController extends Controller
         if ($request->archivos) {
 
             for ($i = 0; $i < count($request->nombresArchivo); $i++) {
-                $nombreArchivo = random_int(0, 1000000) . "_" . $request->nombresArchivo[$i];
+                $nombreArchivo = random_int(0, 1000000)."_".strtolower(trim($request->nombresArchivo[$i]));
                 if(!App::environment('testing')){
                 Storage::disk('ftp')->put($nombreArchivo, fopen($request->archivos[$i], 'r+'));
                 }
