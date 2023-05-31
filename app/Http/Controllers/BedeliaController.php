@@ -17,10 +17,10 @@ class BedeliaController extends Controller
     {
         if($request->eliminados){
             $bedeliasEliminados = DB::table('usuarios')
-            ->select('*')
+            ->select('usuarios.*')
             ->join('bedelias', 'usuarios.id', '=', 'bedelias.id')
             ->where('bedelias.cargo', '!=', 'administrador')
-            ->where('deleted_at', '!=', null)
+            ->where('usuarios.deleted_at', '!=', null)
             ->where('ou', 'Bedelias')
             ->get();
             return response()->json($bedeliasEliminados);
