@@ -17,17 +17,18 @@ use App\Http\Controllers\RegistrosController;
 use LdapRecord\Models\ActiveDirectory\Group;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\MyTestMail;
+use Illuminate\Support\Facades\App;
 
 
 class usuariosController extends Controller
 {
-   const FILE_HEADERS = [
+    const FILE_HEADERS = [
         "samaccountname" => 0,
         "name" => 1,
         "surname" => 2,
         "userPrincipalName" => 3,
         "cargo" => 4,
-    ];  
+    ];
     use verificarUsuarioPerteneceGrupoAD;
 
     public function index(Request $request)
@@ -66,13 +67,12 @@ class usuariosController extends Controller
             'userPrincipalName' => 'required|email',
             'ou' => 'required|string',
         ]);
-   
-        try {
 
+        try {
             self::agregarUsuarioAD($request);
             $usuarioDB = self::agregarUsuarioDB($request);
             $usuarioDB['id'] = $request->samaccountname;
-          
+
             switch ($request->ou) {
                 case "Bedelias":
                     self::agregarBedelia($request);
@@ -84,7 +84,6 @@ class usuariosController extends Controller
                     self::agregarProfesor($request);
                     break;
             }
-         
             return response()->json($usuarioDB);
         } catch (\ValueError $e) {
             return response()->json(['status' => 'Error', 'message' => 'Bad request'], 400);
@@ -107,16 +106,20 @@ class usuariosController extends Controller
 
     public function agregarUsuarioAD(Request $request)
     {
-        $user= new User;
-        $user->inside('ou=UsuarioSistema,dc=syntech,dc=intra');
+        $user = new User;
+        if (App::environment(['testing'])) {
+            $user->inside('ou=Testing,dc=syntech,dc=intra');
+        } else {
+            $user->inside('ou=UsuarioSistema,dc=syntech,dc=intra');
+        }
         $user->cn = $request->samaccountname;
         $user->unicodePwd = $request->samaccountname;
         $user->samaccountname = $request->samaccountname;
         try {
-        $user->save();
-        $user->refresh();
-        $user->userAccountControl = 66048;
-        $user->save();
+            $user->save();
+            $user->refresh();
+            $user->userAccountControl = 66048;
+            $user->save();
         } catch (\LdapRecord\LdapRecordException $e) {
             return response()->json(['status' => 'Error', 'message' => 'Bad request'], 400);
         }
@@ -348,10 +351,10 @@ class usuariosController extends Controller
         $alumno->id = $request->samaccountname;
         $alumno->save();
 
-        if(!empty($request->grupos)){
+        if (!empty($request->grupos)) {
             $alumno->asignarGrupos($request->grupos, $alumno->Cedula_Alumno);
         }
-       
+
         self::agregarUsuarioGrupoAD($alumno->Cedula_Alumno, "Alumno");
         RegistrosController::store("ALUMNO", $request->header('token'), "CREATE", $request->samaccountname);
     }
@@ -461,35 +464,35 @@ class usuariosController extends Controller
             ->get();
     }
 
-    public function importFromCSV($file,$type)
+    public function importFromCSV($file, $type)
     {
         try {
             $data = \Excel::toArray([], $file)[0];
             unset($data[0]);
             foreach ($data as $value) {
-             $user = $this->buildRequestDataForUser($value,$type);
-             $this->store($user);
+                $user = $this->buildRequestDataForUser($value, $type);
+                $this->store($user);
             }
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 400);
         }
 
         return response()->json(['message' => 'CSV file imported successfully']);
-    }  
-    private function buildRequestDataForUser($value,$type)
+    }
+    private function buildRequestDataForUser($value, $type)
     {
         $request = new Request();
         $request->merge([
-            'samaccountname' =>(string)$value[self::FILE_HEADERS['samaccountname']],
+            'samaccountname' => (string) $value[self::FILE_HEADERS['samaccountname']],
             'name' => $value[self::FILE_HEADERS['name']],
             'surname' => $value[self::FILE_HEADERS['surname']],
             'userPrincipalName' => $value[self::FILE_HEADERS['userPrincipalName']],
             'ou' => $type,
             'cargo' => $value[self::FILE_HEADERS['cargo']] ?? "",
         ]);
-    
+
         return $request;
     }
-    
+
 
 }
