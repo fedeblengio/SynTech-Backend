@@ -81,4 +81,24 @@ jobs:
         DB_CONNECTION: sqlite
         DB_DATABASE: database/database.sqlite
       run: php artisan test --filter=MaterialPublicoControllerTest
+    - name: ImportarMateriaTest
+      env:
+        DB_CONNECTION: sqlite
+        DB_DATABASE: database/database.sqlite
+      run: php artisan test --filter=ImportarMateriaTest
+    - name: ImportarProfesorTest
+      env:
+        DB_CONNECTION: sqlite
+        DB_DATABASE: database/database.sqlite
+      run: php artisan test --filter=ImportarProfesorTest
+    - name: ImportarBedeliaTest
+      env:
+        DB_CONNECTION: sqlite
+        DB_DATABASE: database/database.sqlite
+      run: php artisan test --filter=ImportarBedeliaTest
+    - name: ImportarAlumnoTest
+      env:
+        DB_CONNECTION: sqlite
+        DB_DATABASE: database/database.sqlite
+      run: php artisan test --filter=ImportarAlumnoTest
 
