@@ -24,19 +24,17 @@ class CarreraControllerTest extends TestCase
      use RefreshDatabase;
 
 
-    public function test_request_sin_token()
+    public function testRequestSinToken()
     {
         $response = $this->get('api/carrera/');
         $response->assertStatus(401);
     }
-    public function test_can_show_carrera()
+    public function testCanShowCarrera()
     {
 
         $token = token::factory()->create();
-        // Create a Carrera using the factory
         $carrera = Carrera::factory()->create();
-
-        // Send a GET request to the show method of the CarreraController
+    
         $response = $this->get('api/carrera/' . $carrera->id, [
             'token' => [
                 $token->token,
@@ -49,7 +47,7 @@ class CarreraControllerTest extends TestCase
         $response->assertSee($carrera->categoria);
     }
 
-    public function test_can_list_all_carreras()
+    public function testCanListAllCarreras()
     {
         $token = token::factory()->create();
         $carrera1 = Carrera::factory()->create();
@@ -69,7 +67,7 @@ class CarreraControllerTest extends TestCase
         $response->assertSee($carrera2->categoria);
     }
 
-    public function test_can_create_carrera()
+    public function testCanCreateCarrera()
     {
         $token = token::factory()->create();
 
@@ -85,7 +83,7 @@ class CarreraControllerTest extends TestCase
         $response->assertStatus(201);
     }
 
-    public function test_can_not_create_carrera()
+    public function testCanNotCreateCarrera()
     {
         $token = token::factory()->create();
         $carrera = Carrera::factory()->create();
@@ -98,11 +96,11 @@ class CarreraControllerTest extends TestCase
                     $token->token
                 ]
             ]);
-        $response->assertStatus(302); // No pasa request validate porque la carrera existe 
+        $response->assertStatus(302);
     }
 
 
-    public function test_update_carrera()
+    public function testUpdateCarrera()
     {
         $token = token::factory()->create();
         $carrera = Carrera::factory()->create();
@@ -121,7 +119,7 @@ class CarreraControllerTest extends TestCase
         $this->assertEquals("Informatica y Redes", $response['categoria']);
     }
 
-    public function test_error_update_carrera_no_existe()
+    public function testErrorUpdateCarreraNoExiste()
     {
         $token = token::factory()->create();
         $carrera = Carrera::factory()->create();
@@ -134,10 +132,10 @@ class CarreraControllerTest extends TestCase
                     $token->token
                 ]
             ]);
-        $response->assertStatus(404); // Carrera no existe
+        $response->assertStatus(404);
     }
 
-    public function test_error_update_carrera_nombre_null()
+    public function testErrorUpdateCarreraNombreNull()
     {
         $token = token::factory()->create();
         $carrera = Carrera::factory()->create();
@@ -149,10 +147,10 @@ class CarreraControllerTest extends TestCase
                     $token->token
                 ]
             ]);
-        $response->assertStatus(302); // Nombre es un field required
+        $response->assertStatus(302);
     }
 
-    public function test_delete_carrera(){
+    public function testDeleteCarrera(){
 
         $token = token::factory()->create();
         $carrera = Carrera::factory()->create();
@@ -164,7 +162,7 @@ class CarreraControllerTest extends TestCase
         $response->assertStatus(200); 
     }
 
-    public function test_error_delete_carrera(){
+    public function testErrorDeleteCarrera(){
 
         $token = token::factory()->create();
         $carrera = ['id' =>  Str::random(10)];

@@ -13,15 +13,11 @@ use LdapRecord\Models\ActiveDirectory\User;
 
 class AlumnoControllerTest extends TestCase
 {
-    /**
-     * A basic feature test example.
-     *
-     * @return void
-     */
+
 
     use RefreshDatabase;
 
-    public function test_create_user_alumno()
+    public function testCreateUserAlumno()
     {
         $token = token::factory()->create();
         $padded_number = str_pad(mt_rand(1, 9999999), 1 - strlen('1'), '0', STR_PAD_LEFT);
@@ -38,7 +34,7 @@ class AlumnoControllerTest extends TestCase
         $response = $this->post('api/usuario', $newStudent,[
             'token' => [
                 $token->token,
-            ],
+            ], 
         ]);
         $this->deleteCreatedLDAPUser($newStudent['samaccountname']);
         $response->assertStatus(200);
@@ -48,17 +44,14 @@ class AlumnoControllerTest extends TestCase
     }
     public function deleteCreatedLDAPUser($samaccountname)
     {
-        try{
             $user = User::find('cn='.$samaccountname.',ou=UsuarioSistema,dc=syntech,dc=intra');
-            $user->delete();
-        }catch(\Exception $e){
-            return null;
-        }
-        
+            if(!empty($user)){
+                $user->delete();
+            }
     }
 
 
-    public function test_list_users_alumno()
+    public function testListUsersAlumno()
     {
         $token = token::factory()->create();
         $alumno1 =  $this->createNewAlumno();
@@ -75,7 +68,7 @@ class AlumnoControllerTest extends TestCase
       
     }
 
-    public function test_show_user_alumno(){
+    public function testShowUserAlumno(){
         $token = token::factory()->create();
       
         $alumno =  $this->createNewAlumno();
@@ -90,7 +83,7 @@ class AlumnoControllerTest extends TestCase
 
     }
 
-    public function test_error_show_user_alumno(){
+    public function testErrorShowUserAlumno(){
         $token = token::factory()->create();
       
         $response = $this->get('api/alumno/'."testUser",[
@@ -118,7 +111,7 @@ class AlumnoControllerTest extends TestCase
         return $randomID;
     }
 
-    public function test_update_user_alumno(){
+    public function testUpdateUserAlumno(){
         $userID = $this->createNewAlumno();
         $token = token::factory()->create();
         $updatedUser = [
@@ -146,7 +139,7 @@ class AlumnoControllerTest extends TestCase
 
     }
 
-    public function test_error_update_user_alumno(){
+    public function testErrorUpdateUserAlumno(){
         $userID = "RandomUser";
         $token = token::factory()->create();
         $updatedUser = [
@@ -164,9 +157,8 @@ class AlumnoControllerTest extends TestCase
         $response->assertStatus(404);
     }
 
-    //  Route::get('/alumno/{id}/grupos', 'App\Http\Controllers\AlumnoController@gruposNoPertenecenAlumno');
 
-    public function test_list_grupos_no_pertenece_alumno(){
+    public function testListGruposNoPerteneceAlumno(){
         $token = token::factory()->create();
         $alumno =  $this->createNewAlumno();
         $grupo = grupos::factory()->create();
@@ -179,7 +171,7 @@ class AlumnoControllerTest extends TestCase
         $this->assertEquals($response[0]['id'], $grupo->id);
     }
 
-    public function test_error_list_grupos_no_pertenece_alumno(){
+    public function testErrorListGruposNoPerteneceAlumno(){
         $token = token::factory()->create();
         $alumno = "randomId";
         $grupo = grupos::factory()->create();

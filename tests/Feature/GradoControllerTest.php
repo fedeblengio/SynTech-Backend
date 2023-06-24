@@ -22,13 +22,13 @@ class GradoControllerTest extends TestCase
      */
 
     use RefreshDatabase;
-    public function test_request_sin_token()
+    public function testRequestSinToken()
     {
         $grado = Grado::factory()->create();
         $response = $this->get('api/grado/' . $grado->id);
         $response->assertStatus(401);
     }
-    public function test_can_show_grado()
+    public function testCanShowGrado()
     {
         $token = token::factory()->create();
         $grado = Grado::factory()->create();
@@ -45,7 +45,7 @@ class GradoControllerTest extends TestCase
     }
 
 
-    public function test_can_create_grado()
+    public function testCanCreateGrado()
     {
         $token = token::factory()->create();
         $grados = ['1er Grado', '2do Grado'];
@@ -65,7 +65,7 @@ class GradoControllerTest extends TestCase
         $this->assertEquals($response['grado'][0]['grado'], $grados[0]);
         $this->assertEquals($response['grado'][1]['grado'], $grados[1]);
     }
-    public function test_update_grado()
+    public function testUpdateGrado()
     {
         $token = token::factory()->create();
         $grado = Grado::factory()->create();
@@ -81,7 +81,7 @@ class GradoControllerTest extends TestCase
         $response->assertSee("Updated grado");
     }
 
-    public function test_error_update_grado(){
+    public function testErrorUpdateGrado(){
         $token = token::factory()->create();
  
         $response = $this->put('api/grado/' . "432876", [
@@ -95,7 +95,7 @@ class GradoControllerTest extends TestCase
     
     }
 
-    public function test_agregar_materia_grado(){
+    public function testAgregarMateriaGrado(){
         $token = token::factory()->create();
         $grado = Grado::factory()->create();
 
@@ -116,7 +116,7 @@ class GradoControllerTest extends TestCase
         $this->assertEquals($response['materias'][0]['id'],$materia->id);
     }
 
-    public function test_error_agregar_materia_grado(){
+    public function testErrorAgregarMateriaGrado(){
         $token = token::factory()->create();
         $grado = Grado::factory()->create();
 
@@ -133,7 +133,7 @@ class GradoControllerTest extends TestCase
     }
 
 
-    public function test_eliminar_materia_grado(){
+    public function testEliminarMateriaGrado(){
         $token = token::factory()->create();
         $grado = Grado::factory()->create();
         $materia = materia::factory()->create();
@@ -151,7 +151,7 @@ class GradoControllerTest extends TestCase
         $this->assertEquals($grado->materia,null);
     }
 
-    public function test_error_eliminar_materia_grado(){
+    public function testErrorEliminarMateriaGrado(){
         $token = token::factory()->create();
         $grado = Grado::factory()->create();
         $materia = materia::factory()->create();
@@ -166,7 +166,7 @@ class GradoControllerTest extends TestCase
         $response->assertStatus(404);
     }
 
-    public function test_eliminar_grado(){
+    public function testEliminarGrado(){
         $token = token::factory()->create();
         $grado = Grado::factory()->create();
 
@@ -178,7 +178,7 @@ class GradoControllerTest extends TestCase
         $response->assertStatus(200);
     }
 
-    public function test_error_eliminar_grado(){
+    public function testErrorEliminarGrado(){
         $token = token::factory()->create();
         $random = rand(1000,2000);
 

@@ -20,11 +20,11 @@ class BedeliasControllerTest extends TestCase
      *
      * @return void
      */
-    public function test_create_user_bedelia()
+    public function testCreateUserBedelia()
     {
         $token = token::factory()->create();
         $padded_number = str_pad(mt_rand(1, 9999999), 1 - strlen('1'), '0', STR_PAD_LEFT);
-        $randomID = "1". $padded_number;
+        $randomID = "1" . $padded_number;
         $newUser = [
             'samaccountname' => $randomID,
             'name' => "John",
@@ -34,7 +34,7 @@ class BedeliasControllerTest extends TestCase
             'cargo' => 'Supervisor',
         ];
 
-        $response = $this->post('api/usuario', $newUser,[
+        $response = $this->post('api/usuario', $newUser, [
             'token' => [
                 $token->token,
             ],
@@ -43,26 +43,23 @@ class BedeliasControllerTest extends TestCase
         $response->assertStatus(200);
         $response->assertSee($newUser['userPrincipalName']);
         $response->assertSee($newUser['ou']);
-        
+
         $this->deleteCreatedLDAPUser($newUser['samaccountname']);
     }
 
     public function deleteCreatedLDAPUser($samaccountname)
     {
-        try{
-            $user = User::find('cn='.$samaccountname.',ou=UsuarioSistema,dc=syntech,dc=intra');
+        $user = User::find('cn=' . $samaccountname . ',ou=UsuarioSistema,dc=syntech,dc=intra');
+        if (!empty($user)) {
             $user->delete();
-        }catch(\Exception $e){
-            return null;
         }
- 
     }
 
-    public function test_list_users_bedelia()
+    public function testListUsersBedelia()
     {
         $token = token::factory()->create();
-        $bedelia1 =  $this->createNewBedelia();
-        $response = $this->get('api/bedelia',[
+        $bedelia1 = $this->createNewBedelia();
+        $response = $this->get('api/bedelia', [
             'token' => [
                 $token->token,
             ],
@@ -72,12 +69,13 @@ class BedeliasControllerTest extends TestCase
 
     }
 
-    public function test_show_user_bedelia(){
+    public function testShowUserBedelia()
+    {
         $token = token::factory()->create();
-      
-        $bedelia =  $this->createNewBedelia();
-      
-        $response = $this->get('api/bedelia/'.$bedelia,[
+
+        $bedelia = $this->createNewBedelia();
+
+        $response = $this->get('api/bedelia/' . $bedelia, [
             'token' => [
                 $token->token,
             ],
@@ -87,10 +85,11 @@ class BedeliasControllerTest extends TestCase
 
     }
 
-    public function test_error_show_user_bedelia(){
+    public function testErrorShowUserBedelia()
+    {
         $token = token::factory()->create();
-      
-        $response = $this->get('api/bedelia/'."testUser",[
+
+        $response = $this->get('api/bedelia/' . "testUser", [
             'token' => [
                 $token->token,
             ],
@@ -98,25 +97,27 @@ class BedeliasControllerTest extends TestCase
         $response->assertStatus(404);
 
     }
-    public function createNewBedelia(){
+    public function createNewBedelia()
+    {
 
         $padded_number = str_pad(mt_rand(1, 9999999), 1 - strlen('1'), '0', STR_PAD_LEFT);
-        $randomID = "1". $padded_number;
-       
+        $randomID = "1" . $padded_number;
+
         $user = usuarios::factory()->create([
             'id' => $randomID,
             'ou' => 'Bedelias'
         ]);
         $bedelias = bedelias::factory()->create([
             'id' => $randomID,
-            'Cedula_Bedelia' =>$randomID,
+            'Cedula_Bedelia' => $randomID,
             'cargo' => 'Supervisor'
         ]);
 
         return $randomID;
     }
 
-    public function test_update_user_bedelia(){
+    public function testUpdateUserBedelia()
+    {
         $userID = $this->createNewBedelia();
         $token = token::factory()->create();
         $updatedUser = [
@@ -125,13 +126,13 @@ class BedeliasControllerTest extends TestCase
             'email' => 'jane.doe@example.com',
             'genero' => 'Femenino',
         ];
-    
-        $response = $this->put("api/bedelia/".$userID, $updatedUser, [
+
+        $response = $this->put("api/bedelia/" . $userID, $updatedUser, [
             'token' => [
                 $token->token,
             ],
         ]);
-    
+
         $response->assertStatus(200);
         $response->assertJson([
             'usuario' => [
@@ -144,7 +145,8 @@ class BedeliasControllerTest extends TestCase
 
     }
 
-    public function test_error_update_user_bedelia(){
+    public function testErrorUpdateUserBedelia()
+    {
         $userID = "RandomUser";
         $token = token::factory()->create();
         $updatedUser = [
@@ -153,8 +155,8 @@ class BedeliasControllerTest extends TestCase
             'email' => '2314214',
             'genero' => 'Femenino',
         ];
-    
-        $response = $this->put("api/bedelia/".$userID, $updatedUser, [
+
+        $response = $this->put("api/bedelia/" . $userID, $updatedUser, [
             'token' => [
                 $token->token,
             ],
@@ -162,9 +164,8 @@ class BedeliasControllerTest extends TestCase
         $response->assertStatus(404);
     }
 
- 
 
- 
+
 
 
 }
