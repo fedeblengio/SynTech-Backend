@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 use App\Models\Grado;
-use App\Models\materia;
 use App\Http\Controllers\RegistrosController;
 use Illuminate\Http\Request;
 
@@ -35,6 +34,7 @@ class GradoController extends Controller
         $grado->materias()->attach($request->materia_id,['cantidad_horas'=> $request->cantidad_horas, 'carrera_id' => $grado->carrera_id]);
         return response()->json($grado->load('materias','grupos'));
     }
+    
     public function eliminarMateriaGrado($idGrado,$idMateria){
         $grado=Grado::findOrFail($idGrado);
         

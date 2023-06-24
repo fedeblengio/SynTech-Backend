@@ -9,7 +9,7 @@ use App\Models\usuarios;
 use App\Services\Files;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\DB;
-
+use Illuminate\Support\Facades\Validator;
 class ProfesorController extends Controller
 {
     
@@ -52,5 +52,23 @@ class ProfesorController extends Controller
         $profesor->usuario['imagen_perfil'] = $filesService->getImage($profesor->usuario['imagen_perfil']);
         }
         return $profesor;
+    }
+
+    public function importFromCSV(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'file' => 'required|mimes:csv,txt'
+        ]);
+        if ($validator->fails()) {
+            return response()->json(['error' => $validator->errors()->first()], 400);
+        }
+        try {
+            $file = $request->file('file');
+            $usuarioController = new usuariosController();
+            $usuarioController->importFromCSV($file, 'Profesor');
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 400);
+        }
+        return response()->json(['message' => 'CSV file imported successfully']);
     }
 }
