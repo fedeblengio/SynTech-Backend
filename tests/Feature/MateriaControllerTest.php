@@ -20,13 +20,13 @@ class MateriaControllerTest extends TestCase
      */
 
     use RefreshDatabase;
-    public function test_request_sin_token()
+    public function testRequestSinToken()
     {
         $response = $this->get('api/materia/');
         $response->assertStatus(401);
     }
 
-    public function test_can_show_materia()
+    public function testCanShowMateria()
     {
         $token = token::factory()->create();
         $materia = materia::factory()->create();
@@ -41,7 +41,7 @@ class MateriaControllerTest extends TestCase
         $response->assertSee($materia->nombre);
     }
 
-    public function test_can_list_all_materias()
+    public function testCanListAllMaterias()
     {
         $token = token::factory()->create();
         $materia1 = materia::factory()->create();
@@ -60,7 +60,7 @@ class MateriaControllerTest extends TestCase
         $response->assertSee($materia2->nombre);
     }
 
-    public function test_crear_materia()
+    public function testCrearMateria()
     {
         $token = token::factory()->create();
         $nombre = Str::random(10);
@@ -77,7 +77,7 @@ class MateriaControllerTest extends TestCase
 
     }
 
-    public function test_error_crear_materia()
+    public function testErrorCrearMateria()
     {
         $token = token::factory()->create();
         $materia = materia::factory()->create();
@@ -92,7 +92,7 @@ class MateriaControllerTest extends TestCase
         $response->assertStatus(400);
     }
 
-    public function test_update_materia()
+    public function testUpdateMateria()
     {
         $token = token::factory()->create();
         $materia = materia::factory()->create();
@@ -108,7 +108,7 @@ class MateriaControllerTest extends TestCase
         $this->assertEquals($nombre, $response['nombre']);
     }
 
-    public function test_error_update_materia()
+    public function testErrorUpdateMateria()
     {
         $token = token::factory()->create();
 
@@ -122,7 +122,7 @@ class MateriaControllerTest extends TestCase
             ]);
         $response->assertStatus(400);
     }
-    public function test_error_update_request_materia()
+    public function testErrorUpdateRequestMateria()
     {
         $token = token::factory()->create();
         $materia = materia::factory()->create();
@@ -135,7 +135,7 @@ class MateriaControllerTest extends TestCase
         $response->assertStatus(302);
     }
 
-    public function test_eliminar_materia()
+    public function testEliminarMateria()
     {
         $token = token::factory()->create();
         $materia = materia::factory()->create();
@@ -148,7 +148,7 @@ class MateriaControllerTest extends TestCase
         $response->assertStatus(200);
     }
 
-    public function test_error_eliminar_materia()
+    public function testErrorEliminarMateria()
     {
         $token = token::factory()->create();
        

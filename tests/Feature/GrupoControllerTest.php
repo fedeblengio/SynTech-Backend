@@ -25,12 +25,12 @@ class GrupoControllerTest extends TestCase
      * @return void
      */
    
-    public function test_request_sin_token()
+    public function testRequestSinToken()
     {
         $response = $this->get('api/grupo/');
         $response->assertStatus(401);
     }
-    public function test_can_mostrar_grupo()
+    public function testCanMostrarGrupo()
     {
         $token = token::factory()->create();
         $grupo = grupos::factory()->create();
@@ -45,7 +45,7 @@ class GrupoControllerTest extends TestCase
         $response->assertSee($grupo->id);
         $response->assertSee($grupo->idGrupo);
     }
-    public function test_error_mostrar_grupo_no_existente()
+    public function testErrorMostrarGrupoNoExistente()
     {
         $token = token::factory()->create();
 
@@ -62,7 +62,7 @@ class GrupoControllerTest extends TestCase
         $response->assertDontSee('idGrupo');
     }
 
-    public function test_can_crear_grupo()
+    public function testCanCrearGrupo()
     {
         $token = token::factory()->create();
         $grado = Grado::Factory()->create();
@@ -85,7 +85,7 @@ class GrupoControllerTest extends TestCase
             'grado_id' => $data['grado_id'],
         ]);
     }
-    public function test_error_crear_grupo()
+    public function testErrorCrearGrupo()
     {
         $token = Token::factory()->create();
         $grado = Grado::Factory()->create();
@@ -101,7 +101,7 @@ class GrupoControllerTest extends TestCase
         $response->assertStatus(302);
     }
 
-    public function test_can_eliminar_grupo()
+    public function testCanEliminarGrupo()
     {
         $token = token::factory()->create();
         $grupo = grupos::factory()->create();
@@ -115,7 +115,7 @@ class GrupoControllerTest extends TestCase
             'id' => $grupo->idGrupo,
         ]);
     }
-    public function test_error_eliminar_grupo_inexistente()
+    public function testErrorEliminarGrupoInexistente()
     {
         $token = token::factory()->create();
         $grupo_id = 123456123;
@@ -127,7 +127,7 @@ class GrupoControllerTest extends TestCase
         $response->assertStatus(400);
     }
 
-    public function test_can_listar_materias_libres()
+    public function testCanListarMateriasLibres()
     {
 
         $token = token::factory()->create();
@@ -145,10 +145,10 @@ class GrupoControllerTest extends TestCase
         $response->assertSee($materia->id);
 
     }
-    public function test_error_listar_materias_libres_de_grupo_inexistente()
+    public function testErrorListarMateriasLibresDeGrupoInexistente()
     {
         $token = token::factory()->create();
-        $grupo_id = 123456; // id de grupo inexistente
+        $grupo_id = 123456; 
         $response = $this->get('api/grupo/' . $grupo_id . '/materias-libres', [
             'token' => [
                 $token->token,
@@ -176,7 +176,7 @@ class GrupoControllerTest extends TestCase
     }
 
 
-    public function test_update_grupo_alumno()
+    public function testUpdateGrupoAlumno()
     {
 
         $token = token::factory()->create();
@@ -185,7 +185,7 @@ class GrupoControllerTest extends TestCase
         $data = [
             [
                 'idGrupo' => $grupo->idGrupo,
-                'idAlumno' => $this->crear_usuario_nuevo_alumno(),
+                'idAlumno' => $this->crearUsuarioNuevoAlumno(),
             ]
         ];
         $response = $this->put('api/grupo/' . $grupo->idGrupo, [
@@ -201,14 +201,14 @@ class GrupoControllerTest extends TestCase
         $response->assertStatus(200);
         $this->assertEquals($response['alumnos'][0]['id'], $data[0]['idAlumno']);
     }
-    public function test_update_grupo_profesor()
+    public function testUpdateGrupoProfesor()
     {
 
         $token = token::factory()->create();
         $grupo = grupos::factory()->create();
         $materia = materia::factory()->create();
         $data = [
-                'idProfesor' => $this->crear_usuario_nuevo_profesor(),
+                'idProfesor' => $this->crearUsuarioNuevoProfesor(),
                 'idMateria' => $materia->id,
                 'idGrupo' =>$grupo->idGrupo
         ];
@@ -229,10 +229,10 @@ class GrupoControllerTest extends TestCase
         $this->assertEquals($response['profesores'][0]['id'], $data['idProfesor']);
     }
 
-    public function test_alumnos_no_pertencen_grupo(){
+    public function testAlumnosNoPertencenGrupo(){
         $token = token::factory()->create();
         $grupo = grupos::factory()->create();
-        $alumno = $this->crear_usuario_nuevo_alumno();
+        $alumno = $this->crearUsuarioNuevoAlumno();
         $response = $this->get("api/grupo/{id}/alumnos", [
             'token' => [
                 $token->token,
@@ -243,7 +243,7 @@ class GrupoControllerTest extends TestCase
         $response->assertSee($alumno);
     }
 
-    public function crear_usuario_nuevo_alumno()
+    public function crearUsuarioNuevoAlumno()
     {
         $padded_number = str_pad(mt_rand(1, 9999999), 1 - strlen('1'), '0', STR_PAD_LEFT);
         $randomID = "1". $padded_number;
@@ -259,7 +259,7 @@ class GrupoControllerTest extends TestCase
 
         return $randomID;
     }
-    public function crear_usuario_nuevo_profesor()
+    public function crearUsuarioNuevoProfesor()
     {
         $padded_number = str_pad(mt_rand(1, 9999999), 1 - strlen('1'), '0', STR_PAD_LEFT);
         $randomID = "1". $padded_number;
@@ -314,7 +314,7 @@ class GrupoControllerTest extends TestCase
         $data = [
             [
                 'idGrupo' => $grupo->idGrupo,
-                'idAlumno' => $this->crear_usuario_nuevo_alumno(),
+                'idAlumno' => $this->crearUsuarioNuevoAlumno(),
             ]
         ];
         $response = $this->put('api/grupo/' . $grupo->idGrupo, [
@@ -365,7 +365,7 @@ class GrupoControllerTest extends TestCase
         $grupo = grupos::factory()->create();
         $materia = materia::factory()->create();
         $data = [
-                'idProfesor' => $this->crear_usuario_nuevo_profesor(),
+                'idProfesor' => $this->crearUsuarioNuevoProfesor(),
                 'idMateria' => $materia->id,
                 'idGrupo' =>$grupo->idGrupo
         ];

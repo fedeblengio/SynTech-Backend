@@ -18,7 +18,7 @@ class ProfesorControllerTest extends TestCase
      * @return void
      */
     use RefreshDatabase;
-    public function test_create_user_profesor()
+    public function testCreateUserProfesor()
     {
         $token = token::factory()->create();
         $padded_number = str_pad(mt_rand(1, 9999999), 1 - strlen('1'), '0', STR_PAD_LEFT);
@@ -45,15 +45,13 @@ class ProfesorControllerTest extends TestCase
 
     public function deleteCreatedLDAPUser($samaccountname)
     {
-        try{
-            $user = User::find('cn='.$samaccountname.',ou=UsuarioSistema,dc=syntech,dc=intra');
+        $user = User::find('cn='.$samaccountname.',ou=UsuarioSistema,dc=syntech,dc=intra');
+        if(!empty($user)){
             $user->delete();
-        }catch(\Exception $e){
-            return null;
         }
     }
 
-    public function test_list_materia_profesor_no_tiene(){
+    public function testListMateriaProfesorNoTiene(){
         $token = token::factory()->create();
         $profesor =  $this->createNewProfesor();
         $materia = materia::factory()->create();
@@ -68,7 +66,7 @@ class ProfesorControllerTest extends TestCase
     }
 
    
-    public function test_list_users_profesor()
+    public function testListUsersProfesor()
     {
         $token = token::factory()->create();
         $profesor1 =  $this->createNewProfesor();
@@ -85,7 +83,7 @@ class ProfesorControllerTest extends TestCase
 
     }
 
-    public function test_show_user_profesor(){
+    public function testShowUserProfesor(){
         $token = token::factory()->create();
       
         $profesor =  $this->createNewProfesor();
@@ -100,7 +98,7 @@ class ProfesorControllerTest extends TestCase
 
     }
 
-    public function test_error_show_user_profesor(){
+    public function testErrorShowUserProfesor(){
         $token = token::factory()->create();
       
         $response = $this->get('api/profesor/'."testUser",[
@@ -128,7 +126,7 @@ class ProfesorControllerTest extends TestCase
         return $randomID;
     }
 
-    public function test_update_user_profesor(){
+    public function testUpdateUserProfesor(){
         $userID = $this->createNewProfesor();
         $token = token::factory()->create();
         $updatedUser = [
@@ -156,7 +154,7 @@ class ProfesorControllerTest extends TestCase
 
     }
 
-    public function test_error_update_user_profesor(){
+    public function testErrorUpdateUserProfesor(){
         $userID = "RandomUser";
         $token = token::factory()->create();
         $updatedUser = [

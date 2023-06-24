@@ -18,7 +18,7 @@ class UsuariosControllerTest extends TestCase
      *
      * @return void
      */
-    public function test_cambiar_contrasenia(){
+    public function testCambiarContrasenia(){
         $token = token::factory()->create();
         $user = $this->createNewUser();
         $newPassword = '123456';
