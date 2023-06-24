@@ -8,14 +8,11 @@ use App\Models\grupos;
 use App\Models\alumnos_pertenecen_grupos;
 use App\Models\alumnos;
 use App\Models\materia;
-use App\Models\profesores;
 use App\Models\usuarios;
 use App\Models\foro;
 use App\Models\profesorEstanGrupoForo;
-use Carbon\Carbon;
 use App\Http\Controllers\RegistrosController;
 use App\Models\grupos_tienen_profesor;
-use App\Models\profesor_dicta_materia;
 
 class gruposController extends Controller
 {
