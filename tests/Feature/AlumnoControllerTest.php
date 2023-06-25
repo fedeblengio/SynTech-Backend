@@ -21,9 +21,9 @@ class AlumnoControllerTest extends TestCase
     {
         $token = token::factory()->create();
         $padded_number = str_pad(mt_rand(1, 9999999), 1 - strlen('1'), '0', STR_PAD_LEFT);
-        $randomID = "1". $padded_number;
+        $randomID = "1" . $padded_number;
         $newStudent = [
-            'samaccountname' =>$randomID,
+            'samaccountname' => $randomID,
             'name' => "Thomas",
             'surname' => "Edison",
             'userPrincipalName' => 'tedison@example.com',
@@ -31,49 +31,55 @@ class AlumnoControllerTest extends TestCase
             'grupos' => [],
         ];
 
-        $response = $this->post('api/usuario', $newStudent,[
+        $response = $this->post('api/usuario', $newStudent, [
             'token' => [
                 $token->token,
-            ], 
+            ],
         ]);
         $this->deleteCreatedLDAPUser($newStudent['samaccountname']);
         $response->assertStatus(200);
         $response->assertSee($newStudent['userPrincipalName']);
         $response->assertSee($newStudent['ou']);
-    
+
+        $this->assertDatabaseHas('usuarios', [
+            'id' => $newStudent['samaccountname'],
+            'ou' => $newStudent['ou'],
+        ]);
+
     }
     public function deleteCreatedLDAPUser($samaccountname)
     {
-            $user = User::find('cn='.$samaccountname.',ou=UsuarioSistema,dc=syntech,dc=intra');
-            if(!empty($user)){
-                $user->delete();
-            }
+        $user = User::find('cn=' . $samaccountname . ',ou=UsuarioSistema,dc=syntech,dc=intra');
+        if (!empty($user)) {
+            $user->delete();
+        }
     }
 
 
     public function testListUsersAlumno()
     {
         $token = token::factory()->create();
-        $alumno1 =  $this->createNewAlumno();
-   
-        $response = $this->get('api/alumno',[
+        $alumno1 = $this->createNewAlumno();
+
+        $response = $this->get('api/alumno', [
             'token' => [
                 $token->token,
             ],
         ]);
-       
+
         $response->assertStatus(200);
-    
+
         $this->assertEquals($response[0]['id'], $alumno1);
-      
+
     }
 
-    public function testShowUserAlumno(){
+    public function testShowUserAlumno()
+    {
         $token = token::factory()->create();
-      
-        $alumno =  $this->createNewAlumno();
-      
-        $response = $this->get('api/alumno/'.$alumno,[
+
+        $alumno = $this->createNewAlumno();
+
+        $response = $this->get('api/alumno/' . $alumno, [
             'token' => [
                 $token->token,
             ],
@@ -83,10 +89,11 @@ class AlumnoControllerTest extends TestCase
 
     }
 
-    public function testErrorShowUserAlumno(){
+    public function testErrorShowUserAlumno()
+    {
         $token = token::factory()->create();
-      
-        $response = $this->get('api/alumno/'."testUser",[
+
+        $response = $this->get('api/alumno/' . "testUser", [
             'token' => [
                 $token->token,
             ],
@@ -94,11 +101,12 @@ class AlumnoControllerTest extends TestCase
         $response->assertStatus(404);
 
     }
-    public function createNewAlumno(){
+    public function createNewAlumno()
+    {
 
         $padded_number = str_pad(mt_rand(1, 9999999), 1 - strlen('1'), '0', STR_PAD_LEFT);
-        $randomID = "1". $padded_number;
-       
+        $randomID = "1" . $padded_number;
+
         $user = usuarios::factory()->create([
             'id' => $randomID,
             'ou' => 'Alumno'
@@ -111,7 +119,8 @@ class AlumnoControllerTest extends TestCase
         return $randomID;
     }
 
-    public function testUpdateUserAlumno(){
+    public function testUpdateUserAlumno()
+    {
         $userID = $this->createNewAlumno();
         $token = token::factory()->create();
         $updatedUser = [
@@ -120,13 +129,13 @@ class AlumnoControllerTest extends TestCase
             'email' => 'jane.doe@example.com',
             'genero' => 'Femenino',
         ];
-    
-        $response = $this->put("api/alumno/".$userID, $updatedUser, [
+
+        $response = $this->put("api/alumno/" . $userID, $updatedUser, [
             'token' => [
                 $token->token,
             ],
         ]);
-    
+
         $response->assertStatus(200);
         $response->assertJson([
             'usuario' => [
@@ -139,7 +148,8 @@ class AlumnoControllerTest extends TestCase
 
     }
 
-    public function testErrorUpdateUserAlumno(){
+    public function testErrorUpdateUserAlumno()
+    {
         $userID = "RandomUser";
         $token = token::factory()->create();
         $updatedUser = [
@@ -148,8 +158,8 @@ class AlumnoControllerTest extends TestCase
             'email' => '2314214',
             'genero' => 'Femenino',
         ];
-    
-        $response = $this->put("api/alumno/".$userID, $updatedUser, [
+
+        $response = $this->put("api/alumno/" . $userID, $updatedUser, [
             'token' => [
                 $token->token,
             ],
@@ -158,11 +168,12 @@ class AlumnoControllerTest extends TestCase
     }
 
 
-    public function testListGruposNoPerteneceAlumno(){
+    public function testListGruposNoPerteneceAlumno()
+    {
         $token = token::factory()->create();
-        $alumno =  $this->createNewAlumno();
+        $alumno = $this->createNewAlumno();
         $grupo = grupos::factory()->create();
-        $response = $this->get('api/alumno/'.$alumno.'/grupos',[
+        $response = $this->get('api/alumno/' . $alumno . '/grupos', [
             'token' => [
                 $token->token,
             ],
@@ -171,11 +182,12 @@ class AlumnoControllerTest extends TestCase
         $this->assertEquals($response[0]['id'], $grupo->id);
     }
 
-    public function testErrorListGruposNoPerteneceAlumno(){
+    public function testErrorListGruposNoPerteneceAlumno()
+    {
         $token = token::factory()->create();
         $alumno = "randomId";
         $grupo = grupos::factory()->create();
-        $response = $this->get('api/alumno/'.$alumno.'/grupos',[
+        $response = $this->get('api/alumno/' . $alumno . '/grupos', [
             'token' => [
                 $token->token,
             ],

@@ -81,6 +81,11 @@ class CarreraControllerTest extends TestCase
                 ]
             ]);
         $response->assertStatus(201);
+        $this->assertDatabaseHas('carreras', [
+            'nombre' => $response['nombre'],
+            'plan' => $response['plan'],
+            'categoria' => $response['categoria']
+        ]);
     }
 
     public function testCanNotCreateCarrera()
@@ -97,6 +102,7 @@ class CarreraControllerTest extends TestCase
                 ]
             ]);
         $response->assertStatus(302);
+
     }
 
 
@@ -117,6 +123,10 @@ class CarreraControllerTest extends TestCase
         $response->assertStatus(200);
         $response->assertSee($carrera->id);
         $this->assertEquals("Informatica y Redes", $response['categoria']);
+        $this->assertDatabaseHas('carreras', [
+            'id' => $carrera->id,
+            'categoria' => 'Informatica y Redes'
+        ]);
     }
 
     public function testErrorUpdateCarreraNoExiste()
@@ -133,6 +143,10 @@ class CarreraControllerTest extends TestCase
                 ]
             ]);
         $response->assertStatus(404);
+        $this->assertDatabaseMissing('carreras', [
+            'id' => "9090989",
+            'categoria' => 'Informatica y Redes'
+        ]);
     }
 
     public function testErrorUpdateCarreraNombreNull()
@@ -148,6 +162,10 @@ class CarreraControllerTest extends TestCase
                 ]
             ]);
         $response->assertStatus(302);
+        $this->assertDatabaseMissing('carreras', [
+            'id' => "9090989",
+            'categoria' => 'Informatica y Redes'
+        ]);
     }
 
     public function testDeleteCarrera(){
@@ -159,7 +177,9 @@ class CarreraControllerTest extends TestCase
                     $token->token
                 ]
             ]);
-        $response->assertStatus(200); 
+        $response->assertStatus(200);
+        $carrera = Carrera::find($carrera->id);
+        $this->assertEquals(null, $carrera);
     }
 
     public function testErrorDeleteCarrera(){
