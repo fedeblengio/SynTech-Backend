@@ -67,12 +67,15 @@ class MateriaControllerTest extends TestCase
         $response = $this->post('api/materia', [
             'nombre' => $nombre,
         ], [
-                'token' => [
-                    $token->token
-                ]
-            ]);
+            'token' => [
+                $token->token
+            ]
+        ]);
 
         $response->assertStatus(201);
+        $this->assertDatabaseHas('materias', [
+            'nombre' => $nombre,
+        ]);
         $this->assertEquals($nombre, $response['nombre']);
 
     }
@@ -85,10 +88,13 @@ class MateriaControllerTest extends TestCase
         $response = $this->post('api/materia', [
             'nombre' => $materia->nombre,
         ], [
-                'token' => [
-                    $token->token
-                ]
-            ]);
+            'token' => [
+                $token->token
+            ]
+        ]);
+        $this->assertDatabaseHas('materias', [
+            'nombre' => $materia->nombre,
+        ]);
         $response->assertStatus(400);
     }
 
@@ -100,11 +106,14 @@ class MateriaControllerTest extends TestCase
         $response = $this->put('api/materia/' . $materia->id, [
             'nombre' => $nombre,
         ], [
-                'token' => [
-                    $token->token
-                ]
-            ]);
+            'token' => [
+                $token->token
+            ]
+        ]);
         $response->assertStatus(200);
+        $this->assertDatabaseHas('materias', [
+            'nombre' => $nombre,
+        ]);
         $this->assertEquals($nombre, $response['nombre']);
     }
 
@@ -116,22 +125,28 @@ class MateriaControllerTest extends TestCase
         $response = $this->put('api/materia/' . "00000", [
             'nombre' => $nombre,
         ], [
-                'token' => [
-                    $token->token
-                ]
-            ]);
+            'token' => [
+                $token->token
+            ]
+        ]);
         $response->assertStatus(400);
+        $this->assertDatabaseMissing('materias', [
+            'nombre' => $nombre,
+        ]);
     }
     public function testErrorUpdateRequestMateria()
     {
         $token = token::factory()->create();
         $materia = materia::factory()->create();
         $nombre = Str::random(10);
-        $response = $this->put('api/materia/' .$materia->id, [], [
-                'token' => [
-                    $token->token
-                ]
-            ]);
+        $response = $this->put('api/materia/' . $materia->id, [], [
+            'token' => [
+                $token->token
+            ]
+        ]);
+        $this->assertDatabaseMissing('materias', [
+            'nombre' => $nombre,
+        ]);
         $response->assertStatus(302);
     }
 
@@ -140,24 +155,27 @@ class MateriaControllerTest extends TestCase
         $token = token::factory()->create();
         $materia = materia::factory()->create();
         $nombre = Str::random(10);
-        $response = $this->delete('api/materia/' .$materia->id, [], [
-                'token' => [
-                    $token->token
-                ]
-            ]);
+        $response = $this->delete('api/materia/' . $materia->id, [], [
+            'token' => [
+                $token->token
+            ]
+        ]);
+        $this->assertDatabaseMissing('materias', [
+            'nombre' => $nombre,
+        ]);
         $response->assertStatus(200);
     }
 
     public function testErrorEliminarMateria()
     {
         $token = token::factory()->create();
-       
+
         $nombre = Str::random(10);
-        $response = $this->delete('api/materia/' ."00000", [], [
-                'token' => [
-                    $token->token
-                ]
-            ]);
+        $response = $this->delete('api/materia/' . "00000", [], [
+            'token' => [
+                $token->token
+            ]
+        ]);
         $response->assertStatus(404);
     }
 
