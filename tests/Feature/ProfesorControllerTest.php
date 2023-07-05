@@ -21,8 +21,7 @@ class ProfesorControllerTest extends TestCase
     public function testCreateUserProfesor()
     {
         $token = token::factory()->create();
-        $padded_number = str_pad(mt_rand(1, 9999999), 1 - strlen('1'), '0', STR_PAD_LEFT);
-        $randomID = "1". $padded_number;
+        $randomID = str_pad(mt_rand(10000000, 99999999), 7);
         $newTeacher = [
             'samaccountname' =>$randomID,
             'name' => "George",
@@ -115,9 +114,7 @@ class ProfesorControllerTest extends TestCase
     }
     public function createNewProfesor(){
 
-        $padded_number = str_pad(mt_rand(1, 9999999), 1 - strlen('1'), '0', STR_PAD_LEFT);
-        $randomID = "1". $padded_number;
-       
+        $randomID = str_pad(mt_rand(10000000, 99999999), 7);
         $user = usuarios::factory()->create([
             'id' => $randomID,
             'ou' => 'Profesor'
