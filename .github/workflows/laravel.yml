@@ -10,12 +10,12 @@ jobs:
   laravel-tests:
     runs-on: ubuntu-latest
 
-    services:
-      mariadb:
-        image: mariadb:latest
+     services:
+      mysql:
+        image: mysql:8
         env:
-          MYSQL_ALLOW_EMPTY_PASSWORD: yes
           MYSQL_DATABASE: laravelTesting
+          MYSQL_ALLOW_EMPTY_PASSWORD: yes
         ports:
           - 3306:3306
         options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=10s --health-retries=10
