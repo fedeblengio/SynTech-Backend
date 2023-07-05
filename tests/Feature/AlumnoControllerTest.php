@@ -20,8 +20,7 @@ class AlumnoControllerTest extends TestCase
     public function testCreateUserAlumno()
     {
         $token = token::factory()->create();
-        $padded_number = str_pad(mt_rand(1, 9999999), 1 - strlen('1'), '0', STR_PAD_LEFT);
-        $randomID = "1" . $padded_number;
+        $randomID = str_pad(mt_rand(10000000, 99999999), 7);
         $newStudent = [
             'samaccountname' => $randomID,
             'name' => "Thomas",
@@ -104,8 +103,7 @@ class AlumnoControllerTest extends TestCase
     public function createNewAlumno()
     {
 
-        $padded_number = str_pad(mt_rand(1, 9999999), 1 - strlen('1'), '0', STR_PAD_LEFT);
-        $randomID = "1" . $padded_number;
+        $randomID = str_pad(mt_rand(10000000, 99999999), 7);
 
         $user = usuarios::factory()->create([
             'id' => $randomID,
