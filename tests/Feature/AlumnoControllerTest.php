@@ -36,7 +36,7 @@ class AlumnoControllerTest extends TestCase
                 $token->token,
             ],
         ]);
-        $this->deleteCreatedLDAPUser($newStudent['samaccountname']);
+        /* $this->deleteCreatedLDAPUser($newStudent['samaccountname']); */
         $response->assertStatus(200);
         $response->assertSee($newStudent['userPrincipalName']);
         $response->assertSee($newStudent['ou']);
@@ -49,7 +49,7 @@ class AlumnoControllerTest extends TestCase
     }
     public function deleteCreatedLDAPUser($samaccountname)
     {
-        $user = User::find('cn=' . $samaccountname . ',ou=UsuarioSistema,dc=syntech,dc=intra');
+        $user = User::find('cn=' . $samaccountname . ',ou=Testing,dc=syntech,dc=intra');
         if (!empty($user)) {
             $user->delete();
         }

@@ -395,7 +395,12 @@ class usuariosController extends Controller
 
         $group = Group::find('cn=' . $grupo . ',ou=Grupos,dc=syntech,dc=intra');
 
-        $user = User::find('cn=' . $idUsuario . ',ou=UsuarioSistema,dc=syntech,dc=intra');
+        if (App::environment(['testing'])){
+            $user = User::find('cn=' . $idUsuario . ',ou=Testing,dc=syntech,dc=intra');
+        }
+        else{
+            $user = User::find('cn=' . $idUsuario . ',ou=UsuarioSistema,dc=syntech,dc=intra');
+        }
 
         $group->members()->attach($user);
 

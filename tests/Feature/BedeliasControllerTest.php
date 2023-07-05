@@ -49,7 +49,7 @@ class BedeliasControllerTest extends TestCase
 
     public function deleteCreatedLDAPUser($samaccountname)
     {
-        $user = User::find('cn=' . $samaccountname . ',ou=UsuarioSistema,dc=syntech,dc=intra');
+        $user = User::find('cn=' . $samaccountname . ',ou=Testing,dc=syntech,dc=intra');
         if (!empty($user)) {
             $user->delete();
         }
@@ -110,7 +110,7 @@ class BedeliasControllerTest extends TestCase
         $bedelias = bedelias::factory()->create([
             'id' => $randomID,
             'Cedula_Bedelia' => $randomID,
-            'cargo' => 'Supervisor'
+            'cargo' => 'Director'
         ]);
 
         return $randomID;
