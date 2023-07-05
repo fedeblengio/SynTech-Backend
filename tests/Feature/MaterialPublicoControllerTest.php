@@ -43,6 +43,7 @@ class MaterialPublicoControllerTest extends TestCase
                 $token->token,
             ],
         ]);
+  
         $response->assertStatus(201);
         $response->assertSee($nuevaNoticia['idUsuario']);
         $response->assertSee($nuevaNoticia['titulo']);
@@ -79,6 +80,11 @@ class MaterialPublicoControllerTest extends TestCase
                 $token->token,
             ],
         ]);
+        $this->assertDeleted('material_publicos', [
+            'idUsuario' => $nuevaNoticia['idUsuario'],
+            'titulo' => $nuevaNoticia['titulo'],
+            'mensaje' => $nuevaNoticia['mensaje'],
+        ]);
         $response->assertStatus(200);
     }
 
@@ -95,6 +101,10 @@ class MaterialPublicoControllerTest extends TestCase
                 $token->token,
             ],
         ]);
+        $this->assertDatabaseMissing('material_publicos', [
+            'idUsuario' => $nuevaNoticia['idUsuario'],
+            'titulo' => $nuevaNoticia['titulo'],
+        ]);
         $response->assertStatus(302);
     }
 
@@ -106,6 +116,9 @@ class MaterialPublicoControllerTest extends TestCase
             'token' => [
                 $token->token,
             ],
+        ]);
+        $this->assertDatabaseMissing('material_publicos', [
+            'idUsuario' => $randomString,
         ]);
         $response->assertStatus(404);
     }

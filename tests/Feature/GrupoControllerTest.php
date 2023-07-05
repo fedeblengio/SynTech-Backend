@@ -99,6 +99,10 @@ class GrupoControllerTest extends TestCase
                 ]
             ]);
         $response->assertStatus(302);
+        $this->assertDatabaseMissing('grupos', [
+            'anioElectivo' => Carbon::now()->format('Y'),
+            'grado_id' => $grado->id,
+        ]);
     }
 
     public function testCanEliminarGrupo()
@@ -200,6 +204,10 @@ class GrupoControllerTest extends TestCase
 
         $response->assertStatus(200);
         $this->assertEquals($response['alumnos'][0]['id'], $data[0]['idAlumno']);
+        $this->assertDatabaseHas('alumnos_pertenecen_grupos', [
+            'idAlumnos' => $data[0]['idAlumno'],
+            'idGrupo' => $grupo->idGrupo,
+        ]);
     }
     public function testUpdateGrupoProfesor()
     {
@@ -225,7 +233,11 @@ class GrupoControllerTest extends TestCase
             ]);
 
         $response->assertStatus(200);
-        
+        $this->assertDatabaseHas('grupos_tienen_profesor',[ 
+            'idProfesor' => $data['idProfesor'],
+            'idGrupo' => $grupo->idGrupo,
+            'idMateria' => $data['idMateria'],
+        ]);
         $this->assertEquals($response['profesores'][0]['id'], $data['idProfesor']);
     }
 
@@ -281,7 +293,7 @@ class GrupoControllerTest extends TestCase
     }
 
     
-    public function test_delete_grupo_alumno()
+    public function testDeleteGrupoAlumno()
     {
         $token = token::factory()->create();
         $info = $this->crearAlumnoGrupo();
@@ -290,11 +302,15 @@ class GrupoControllerTest extends TestCase
                 $token->token,
             ],
         ]);
+        $this->assertDatabaseMissing('alumnos_pertenecen_grupos', [
+            'idAlumnos' => $info['alumno']['idAlumno'],
+            'idGrupo' => $info['grupo']['idGrupo'],
+        ]);
 
         $response->assertStatus(200);
         
     }
-    public function test_error_delete_grupo_alumno()
+    public function testErrorDeleteGrupoAlumno()
     {
         $token = token::factory()->create();
         $grupo = grupos::factory()->create();
@@ -332,7 +348,7 @@ class GrupoControllerTest extends TestCase
             'alumno' => $data[0]
         ];
     }
-    public function test_delete_grupo_profesor()
+    public function testDeleteGrupoProfesor()
     {
         $token = token::factory()->create();
         $info = $this->crearProfesorGrupo();
@@ -341,12 +357,15 @@ class GrupoControllerTest extends TestCase
                 $token->token,
             ],
         ]);
-
+        $this->assertDatabaseMissing('grupos_tienen_profesor', [
+            'idProfesor' => $info['profesor']['idProfesor'],
+            'idGrupo' => $info['grupo']['idGrupo'],
+        ]);
         $response->assertStatus(200);
         
     }
 
-    public function test_error_delete_grupo_profesor()
+    public function testErrorDeleteGrupoProfesor()
     {
         $token = token::factory()->create();
         $grupo = grupos::factory()->create();

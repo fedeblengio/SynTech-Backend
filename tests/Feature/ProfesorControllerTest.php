@@ -37,6 +37,10 @@ class ProfesorControllerTest extends TestCase
                 $token->token,
             ],
         ]);
+        $this->assertDatabaseHas('usuarios', [
+            'id' => $newTeacher['samaccountname'],
+            'ou' => $newTeacher['ou'],
+        ]);
         $this->deleteCreatedLDAPUser($newTeacher['samaccountname']);
         $response->assertStatus(200);
         $response->assertSee($newTeacher['userPrincipalName']);
@@ -45,7 +49,7 @@ class ProfesorControllerTest extends TestCase
 
     public function deleteCreatedLDAPUser($samaccountname)
     {
-        $user = User::find('cn='.$samaccountname.',ou=UsuarioSistema,dc=syntech,dc=intra');
+        $user = User::find('cn='.$samaccountname.',ou=Testing,dc=syntech,dc=intra');
         if(!empty($user)){
             $user->delete();
         }

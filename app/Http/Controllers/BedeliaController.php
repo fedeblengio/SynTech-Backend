@@ -19,7 +19,7 @@ class BedeliaController extends Controller
             $bedeliasEliminados = DB::table('usuarios')
             ->select('usuarios.*')
             ->join('bedelias', 'usuarios.id', '=', 'bedelias.id')
-            ->where('bedelias.cargo', '!=', 'administrador')
+            ->where('bedelias.cargo', '!=', 'Supervisor')
             ->where('usuarios.deleted_at', '!=', null)
             ->where('ou', 'Bedelias')
             ->get();
@@ -28,7 +28,7 @@ class BedeliaController extends Controller
         $resultado=DB::table('usuarios')
         ->select('usuarios.id', 'usuarios.nombre', 'usuarios.email', 'usuarios.ou', 'usuarios.genero', 'bedelias.cargo')
         ->join('bedelias', 'usuarios.id', '=', 'bedelias.id')
-        ->where('bedelias.cargo', '!=', 'administrador')
+        ->where('bedelias.cargo', '!=', 'Supervisor')
         ->whereNull('usuarios.deleted_at')
         ->get();
         return response()->json($resultado);
