@@ -25,7 +25,7 @@ class ImportarProfesorTest extends TestCase
         $this->assertDatabaseHas('usuarios', [
             'email' => 'Addia.Kenney@gmail.com'
         ]);
-        $this->deleteCreatedLDAPUser('33322256');
+        $this->deleteCreatedLDAPUser('99961492');
     }
     public function deleteCreatedLDAPUser($samaccountname)
     {
