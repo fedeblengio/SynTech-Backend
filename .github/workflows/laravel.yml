@@ -32,7 +32,8 @@ jobs:
       run: chmod -R 777 storage bootstrap/cache
     - name: LDAP TLS
       run: sudo sh -c "echo 'TLS_REQCERT never' > /etc/ldap/ldap.conf"
-
+    - name: Run migration 
+      run: php artisan migrate
     - name: Login Test
       run: php artisan test --filter=LoginTest
     - name: BedeliasControllerTest
