@@ -18,11 +18,10 @@ class ProfesorControllerTest extends TestCase
      * @return void
      */
     use RefreshDatabase;
-    public function test_create_user_profesor()
+    public function testCreateUserProfesor()
     {
         $token = token::factory()->create();
-        $padded_number = str_pad(mt_rand(1, 9999999), 1 - strlen('1'), '0', STR_PAD_LEFT);
-        $randomID = "1". $padded_number;
+        $randomID = str_pad(mt_rand(10000000, 99999999), 7);
         $newTeacher = [
             'samaccountname' =>$randomID,
             'name' => "George",
@@ -37,6 +36,10 @@ class ProfesorControllerTest extends TestCase
                 $token->token,
             ],
         ]);
+        $this->assertDatabaseHas('usuarios', [
+            'id' => $newTeacher['samaccountname'],
+            'ou' => $newTeacher['ou'],
+        ]);
         $this->deleteCreatedLDAPUser($newTeacher['samaccountname']);
         $response->assertStatus(200);
         $response->assertSee($newTeacher['userPrincipalName']);
@@ -45,15 +48,13 @@ class ProfesorControllerTest extends TestCase
 
     public function deleteCreatedLDAPUser($samaccountname)
     {
-        try{
-            $user = User::find('cn='.$samaccountname.',ou=UsuarioSistema,dc=syntech,dc=intra');
+        $user = User::find('cn='.$samaccountname.',ou=Testing,dc=syntech,dc=intra');
+        if(!empty($user)){
             $user->delete();
-        }catch(\Exception $e){
-            return null;
         }
     }
 
-    public function test_list_materia_profesor_no_tiene(){
+    public function testListMateriaProfesorNoTiene(){
         $token = token::factory()->create();
         $profesor =  $this->createNewProfesor();
         $materia = materia::factory()->create();
@@ -68,7 +69,7 @@ class ProfesorControllerTest extends TestCase
     }
 
    
-    public function test_list_users_profesor()
+    public function testListUsersProfesor()
     {
         $token = token::factory()->create();
         $profesor1 =  $this->createNewProfesor();
@@ -85,7 +86,7 @@ class ProfesorControllerTest extends TestCase
 
     }
 
-    public function test_show_user_profesor(){
+    public function testShowUserProfesor(){
         $token = token::factory()->create();
       
         $profesor =  $this->createNewProfesor();
@@ -100,7 +101,7 @@ class ProfesorControllerTest extends TestCase
 
     }
 
-    public function test_error_show_user_profesor(){
+    public function testErrorShowUserProfesor(){
         $token = token::factory()->create();
       
         $response = $this->get('api/profesor/'."testUser",[
@@ -113,9 +114,7 @@ class ProfesorControllerTest extends TestCase
     }
     public function createNewProfesor(){
 
-        $padded_number = str_pad(mt_rand(1, 9999999), 1 - strlen('1'), '0', STR_PAD_LEFT);
-        $randomID = "1". $padded_number;
-       
+        $randomID = str_pad(mt_rand(10000000, 99999999), 7);
         $user = usuarios::factory()->create([
             'id' => $randomID,
             'ou' => 'Profesor'
@@ -128,7 +127,7 @@ class ProfesorControllerTest extends TestCase
         return $randomID;
     }
 
-    public function test_update_user_profesor(){
+    public function testUpdateUserProfesor(){
         $userID = $this->createNewProfesor();
         $token = token::factory()->create();
         $updatedUser = [
@@ -156,7 +155,7 @@ class ProfesorControllerTest extends TestCase
 
     }
 
-    public function test_error_update_user_profesor(){
+    public function testErrorUpdateUserProfesor(){
         $userID = "RandomUser";
         $token = token::factory()->create();
         $updatedUser = [

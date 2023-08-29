@@ -22,7 +22,7 @@ class LoginTest extends TestCase
     use RefreshDatabase;
    
     
-    public function test_login()
+    public function testLogin()
     {
         $credentials = $this->createNewUser();
     
@@ -39,8 +39,7 @@ class LoginTest extends TestCase
     }
 
     private function createNewUser(){
-        $padded_number = str_pad(mt_rand(1, 9999999), 1 - strlen('1'), '0', STR_PAD_LEFT);
-        $randomID = "1". $padded_number;
+        $randomID = str_pad(mt_rand(10000000, 99999999), 7);
        
         $user = usuarios::factory()->create([
             'id' => $randomID,
@@ -81,14 +80,14 @@ class LoginTest extends TestCase
         }
     }
 
-    public function test_error_login()
+    public function testErrorLogin()
     {
         $response = $this->post('api/login',[],[]);
         $response->assertStatus(302);
      
     }
 
-    public function test_logout(){
+    public function testLogout(){
         $token = token::factory()->create();
         $response = $this->post('api/logout',[],[
             'token' => [

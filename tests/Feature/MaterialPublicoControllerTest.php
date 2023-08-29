@@ -18,21 +18,17 @@ use LdapRecord\Models\ActiveDirectory\User;
 
 class MaterialPublicoControllerTest extends TestCase
 {
-    /**
-     * A basic feature test example.
-     *
-     * @return void
-     */
+
 
     use RefreshDatabase;
 
-    public function test_request_sin_token()
+    public function testRequestSinToken()
     {
         $response = $this->get('api/noticia');
         $response->assertStatus(401);
     }
 
-    public function test_create_noticia()
+    public function testCreateNoticia()
     {
         $token = token::factory()->create();
         $credentials = $this->createNewUser();
@@ -47,13 +43,14 @@ class MaterialPublicoControllerTest extends TestCase
                 $token->token,
             ],
         ]);
+  
         $response->assertStatus(201);
         $response->assertSee($nuevaNoticia['idUsuario']);
         $response->assertSee($nuevaNoticia['titulo']);
         $response->assertSee($nuevaNoticia['mensaje']);
     }
 
-    public function test_index_noticia()
+    public function testIndexNoticia()
     {
         $token = token::factory()->create();
         $credentials = $this->createNewUser();
@@ -71,7 +68,7 @@ class MaterialPublicoControllerTest extends TestCase
         $response->assertSee($nuevaNoticia['mensaje']);
     }
 
-    public function test_destroy_noticia()
+    public function testDestroyNoticia()
     {
         $token = token::factory()->create();
         $credentials = $this->createNewUser();
@@ -83,10 +80,15 @@ class MaterialPublicoControllerTest extends TestCase
                 $token->token,
             ],
         ]);
+        $this->assertDeleted('material_publicos', [
+            'idUsuario' => $nuevaNoticia['idUsuario'],
+            'titulo' => $nuevaNoticia['titulo'],
+            'mensaje' => $nuevaNoticia['mensaje'],
+        ]);
         $response->assertStatus(200);
     }
 
-    public function test_error_create_noticia()
+    public function testErrorCreateNoticia()
     {
         $token = token::factory()->create();
 
@@ -99,10 +101,14 @@ class MaterialPublicoControllerTest extends TestCase
                 $token->token,
             ],
         ]);
+        $this->assertDatabaseMissing('material_publicos', [
+            'idUsuario' => $nuevaNoticia['idUsuario'],
+            'titulo' => $nuevaNoticia['titulo'],
+        ]);
         $response->assertStatus(302);
     }
 
-    public function test_error_destroy_noticia()
+    public function testErrorDestroyNoticia()
     {
         $randomString = Str::random(10);
         $token = token::factory()->create();
@@ -111,13 +117,15 @@ class MaterialPublicoControllerTest extends TestCase
                 $token->token,
             ],
         ]);
+        $this->assertDatabaseMissing('material_publicos', [
+            'idUsuario' => $randomString,
+        ]);
         $response->assertStatus(404);
     }
 
     private function createNewuser(){
-        $padded_number = str_pad(mt_rand(1, 9999999), 1 - strlen('1'), '0', STR_PAD_LEFT);
-        $randomID = "1". $padded_number;
-       
+        $randomID = str_pad(mt_rand(10000000, 99999999), 7);
+        
         $user = usuarios::factory()->create([
             'id' => $randomID,
             'ou' => 'Bedelias'
