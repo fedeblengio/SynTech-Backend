@@ -11,6 +11,13 @@ RUN yum install php-cli php-zip wget unzip -y && php -r "copy('https://getcompos
 
 WORKDIR /var/www/html
 
+RUN  echo 'TLS_REQCERT never' > /etc/openldap/ldap.conf
+CMD ["php-fpm", "-F"]
+
+EXPOSE 8000
+
+CMD composer install && php artisan key:generate && chown -R apache /var/www/html/bootstrap/cache && chown -R apache /var/www/html/storage && php artisan serve --host 0.0.0.0
+
 
 
 
